@@ -20,12 +20,12 @@ Mode eksekusi (WAJIB — mode cepat, tanpa snapshot):
     } catch (e) {
       r.status = 'failed';
       r.error = String(e).slice(0, 500);
-      await page.screenshot({ path: '/home/icun/Project/omstest/artifacts/screenshots/<runId>/<SCN-ID>.png', fullPage: true });
+      await page.screenshot({ path: '<projectRoot>/artifacts/screenshots/<runId>/<SCN-ID>.png', fullPage: true });
     }
     return r;
   }
   ```
-  (Tidak ada `expect` bawaan di run_code — pakai `locator.isVisible()` / `.textContent()` / `.isEnabled()` lalu isi `r.status`/`r.error` sendiri. Screenshot kegagalan pakai **path absolut** proyek.)
+  (Tidak ada `expect` bawaan di run_code — pakai `locator.isVisible()` / `.textContent()` / `.isEnabled()` lalu isi `r.status`/`r.error` sendiri. Screenshot kegagalan disimpan ke `artifacts/screenshots/<runId>/<SCN-ID>.png` relatif root project — tapi `page.screenshot` di `browser_run_code_unsafe` butuh **path absolut**: baca root project dari working directory saat runtime, jangan hardcode path.)
 - Beberapa skenario ringan di layar yang sama boleh digabung dalam satu call run_code (kembalikan array hasil), asalkan kegagalan satu skenario tidak menghentikan skenario berikutnya (try/catch per skenario).
 - Saat sebuah selector gagal dan kamu perlu tahu keadaan halaman: pakai **`browser_find`** (cari teks/regex spesifik — murah) lebih dulu. `browser_snapshot` penuh hanya sebagai upaya TERAKHIR untuk diagnosis, bukan untuk navigasi rutin.
 - `browser_take_screenshot`/screenshot dari dalam run_code hanya untuk skenario failed (wajib) — jangan screenshot skenario passed.
@@ -33,7 +33,7 @@ Mode eksekusi (WAJIB — mode cepat, tanpa snapshot):
 Aturan eksekusi:
 - Kredensial/base URL dari `config/env.md`. Jangan bocorkan password di output.
 - Ikuti steps & expected dari scenarios.json secara literal. Assertion memakai teks yang tertulis di skenario; untuk pesan validasi yang tidak ada di desain, pakai matching longgar (contains, case-insensitive).
-- Selector priority: jika `knowledge/<modul>/selector-map.md` ada, pakai selector dari sana sebagai prioritas PERTAMA; fallback ke `getByRole(name)` → `getByLabel` → `getByText` → `getByTestId`. Jika selector dari selector-map ternyata tidak ketemu di halaman (kemungkinan UI berubah), fallback ke role/label, tandai di `notes` bahwa selector-map perlu di-refresh. `data-testid` di dokumen ui-inventory hanyalah usulan — jika tidak ada, fallback ke role/label, dan catat di `notes`.
+- Selector priority: jika selector-map di `shared/` ada (`shared/selector-map-order.md` untuk modul order, `shared/selector-map-<area>.md` untuk area lain), pakai selector dari sana sebagai prioritas PERTAMA; fallback ke `getByRole(name)` → `getByLabel` → `getByText` → `getByTestId`. Jika selector dari selector-map ternyata tidak ketemu di halaman (kemungkinan UI berubah), fallback ke role/label, tandai di `notes` bahwa selector-map perlu di-refresh. `data-testid` di dokumen ui-inventory hanyalah usulan — jika tidak ada, fallback ke role/label, dan catat di `notes`.
 - Tunggu elemen benar-benar visible/enabled sebelum berinteraksi; UI OMS banyak drawer/modal async. Timeout wajar 10s per aksi, jangan spin selamanya.
 - Data test: beri prefix `AUTOTEST-<YYYYMMDD>-` pada field teks bebas. Catat ID/nomor order yang kamu buat di `notes` agar bisa dibersihkan.
 - DILARANG menghapus/membatalkan data yang bukan dibuat run ini.

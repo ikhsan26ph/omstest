@@ -1,7 +1,8 @@
 // Spec modul oms012-order-ftl-auto-stuffing.
-// Sumber skenario: knowledge/oms012-order-ftl-auto-stuffing/*_scenarios.json (judul test = "SCN-xxxx: <judul asli>",
+// Sumber skenario: scenario/oms012-order-ftl-auto-stuffing/*_scenarios.json (judul test = "SCN-xxxx: <judul asli>",
 // dipakai scripts/playwright_to_results.py untuk traceability — jangan ubah format judul).
-// Sumber selector: knowledge/oms012-order-ftl-auto-stuffing/selector-map.md (hasil harvest 2026-08-22).
+// Sumber selector: shared/selector-map-order.md (hasil harvest 2026-08-22).
+// Keputusan triage bertanggal yang memengaruhi assertion: shared/decisions.md.
 //
 // Cakupan: hanya skenario yang aman read-only terhadap data staging (tidak membuat/mengubah/membatalkan
 // order milik orang lain). Skenario wizard Step 2+ menyusul setelah ada jalur pembuatan data AUTOTEST-.
@@ -57,7 +58,7 @@ test.describe('Daftar Order (SCR-01/02/03)', () => {
     await expect(page.getByRole('button', { name: 'Batch Order' })).toBeVisible();
     await page.getByRole('button', { name: 'Buat Order' }).click();
     await expect(page).toHaveURL(/\/order\/buat/);
-    // filter visible: ada span stepper duplikat yang hidden di DOM (run 20260822-0841)
+    // filter visible: ada span stepper duplikat yang hidden di DOM — lihat shared/decisions.md (SCN-0004)
     for (const label of ['Data Pengiriman', 'Data Barang', 'Vendor dan Harga', 'Review']) {
       await expect.soft(page.getByText(new RegExp(label)).filter({ visible: true }).first(),
         `Indikator step wizard "${label}" harus tampil`).toBeVisible();
@@ -74,8 +75,8 @@ test.describe('Daftar Order (SCR-01/02/03)', () => {
       const text = (await rows.nth(i).innerText()).replace(/\s+/g, ' ').trim();
       if (!text) continue; // baris skeleton/spacer tanpa konten
       // ANY_STATUS (desain + live): live memakai nama status berbeda dari desain (mis. "Isi Data
-      // Pengiriman" vs "Isi Data Dasar" M-25) — lihat selector-map.md. Memvalidasi terhadap
-      // VALID_STATUSES desain saja akan salah tandai status live yang sah sebagai invalid.
+      // Pengiriman" vs "Isi Data Dasar" M-25) — lihat shared/selector-map-order.md. Memvalidasi
+      // terhadap VALID_STATUSES desain saja akan salah tandai status live yang sah sebagai invalid.
       if (!ANY_STATUS.some((s) => text.includes(s))) invalid.push(text.slice(0, 120));
     }
     expect(invalid, `Baris dengan status di luar daftar valid M-25 (REQ-054): ${invalid.join(' || ')}`)
@@ -124,9 +125,7 @@ test.describe('Daftar Order (SCR-01/02/03)', () => {
     await gotoDaftarOrder(page);
     // Catatan harvest: panel filter SELALU tampil; tombol Filter hanya toggle state visual.
     await page.getByRole('button', { name: 'Filter' }).click();
-    // ASM-D03 (desain) RESOLVED 2026-08-22 via triage: filter Tipe Pengiriman enabled penuh,
-    // dikonfirmasi 2x independen (harvest + run SCN-0133 sebelumnya), tidak ada REQ yang
-    // mewajibkan disabled — styling-only, bukan bug. Tidak lagi diassert sebagai failure.
+    // ASM-D03 resolved — tidak diassert sebagai failure; lihat shared/decisions.md (SCN-0133).
     await expect(page.getByRole('button', { name: 'Semua Tipe' })).toBeVisible();
     await pickDropdownOption(page, 'Semua Jenis', 'FTL');
     await pickDropdownOption(page, 'Semua Status', 'Menunggu Penugasan');
@@ -155,15 +154,10 @@ test.describe('Wizard Buat Order Step 1 (SCR-04/05)', () => {
     await expect(page.getByRole('button', { name: 'Pilih Jenis Armada' })).toBeVisible();
     await expect(page.getByPlaceholder('Masukkan Jumlah Armada')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Pilih Tipe Pengiriman' })).toBeVisible();
-    // Field PIC baru dirender setelah Tipe Pengiriman dipilih (precondition, dikonfirmasi triage
-    // run 20260822-0858).
+    // Field PIC baru dirender setelah Tipe Pengiriman dipilih — lihat shared/decisions.md (SCN-0007).
     await pickDropdownOption(page, 'Pilih Tipe Pengiriman', 'Normal');
-    // KEPUTUSAN 2026-08-22 (user): live menampilkan label field "PIC Pengirim *" / "PIC Penerima *"
-    // (bukan teks helper terpisah M-13 "Nama PIC Pengirim"), dan tidak ada teks contoh M-14
-    // "Contoh: 081234567898" sama sekali — dikonfirmasi via probe manual, bukan masalah selector/
-    // precondition. Ditetapkan BUKAN BUG (variasi copy yang diterima) — AC-004/REQ-007 hanya
-    // mensyaratkan field Data Pengirim/Penerima tampil, bukan wording helper persis M-13/M-14.
-    // Assertion diselaraskan ke perilaku live yang diterima ini.
+    // Wording helper M-13/M-14 ditetapkan BUKAN BUG; assertion diselaraskan ke perilaku live —
+    // lihat shared/decisions.md (SCN-0007).
     await expect.soft(page.getByPlaceholder('Masukkan PIC Pengirim').first(),
       'Field PIC Pengirim harus tampil (REQ-007)').toBeVisible();
     await expect.soft(page.getByPlaceholder('Masukkan PIC Penerima').first(),
@@ -173,10 +167,8 @@ test.describe('Wizard Buat Order Step 1 (SCR-04/05)', () => {
   });
 
   test('SCN-0011: Tombol Selanjutnya disabled saat Tipe Pengiriman belum dipilih', async ({ page }) => {
-    // Triage 2026-08-22 (run 20260822-0858): dikonfirmasi 2x independen (harvest + run sebelumnya)
-    // atribut disabled tidak ada di DOM saat field wajib kosong. BUG (probable) REQ-010/AC-007 —
-    // tapi belum jelas apakah validasi tetap memblokir lewat jalur lain (toast/inline saat klik).
-    // Klik langsung untuk memastikan: aman (navigasi wizard, tidak membuat/menyimpan order).
+    // BUG (probable) REQ-010/AC-007: disabled tidak ada di DOM — klik langsung untuk memverifikasi
+    // blokir validasi; lihat shared/decisions.md (SCN-0011).
     await page.goto('/order/buat');
     await expect(page.getByRole('button', { name: 'Selanjutnya' })).toBeVisible();
     const disabledInDom = await page.getByRole('button', { name: 'Selanjutnya' }).isDisabled();

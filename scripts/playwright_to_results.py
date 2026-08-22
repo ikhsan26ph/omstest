@@ -5,7 +5,7 @@ Usage:
     python3 scripts/playwright_to_results.py results/_playwright/last-run.json <modul>
 
 - Judul test harus berformat "SCN-xxxx: ..." — ID dipakai untuk menyalin metadata
-  (id/title/category/priority/requirements/screen) apa adanya dari knowledge/<modul>/*_scenarios.json.
+  (id/title/category/priority/requirements/screen) apa adanya dari scenario/<modul>/*_scenarios.json.
 - Screenshot kegagalan disalin ke artifacts/screenshots/<runId>/<SCN-ID>.png.
 - Jika setup login gagal, seluruh skenario ditandai blocked.
 
@@ -46,9 +46,9 @@ def parse_env_md():
 
 
 def load_scenario_meta(module):
-    files = list((ROOT / "knowledge" / module).glob("*_scenarios.json"))
+    files = list((ROOT / "scenario" / module).glob("*_scenarios.json"))
     if not files:
-        sys.exit(f"knowledge/{module}/*_scenarios.json tidak ditemukan")
+        sys.exit(f"scenario/{module}/*_scenarios.json tidak ditemukan")
     data = json.loads(files[0].read_text(encoding="utf-8"))
     return {s["id"]: s for s in data.get("scenarios", [])}
 

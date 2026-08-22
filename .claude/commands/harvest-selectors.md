@@ -2,8 +2,9 @@
 description: Ekstrak selector asli (id/data-testid/aria) tiap layar sebuah modul. Usage — /harvest-selectors <modul>
 ---
 
-Untuk modul $1: cari folder yang cocok di `knowledge/` (boleh fuzzy match).
-Baca indeks layar (SCR-xx) dari `*_ui-inventory.md` modul tersebut, lalu buka
+Untuk modul $1: baca indeks layar (SCR-xx) dari `scenario/<modul>/*_ui-inventory.md`
+(cari folder yang cocok di `scenario/`, boleh fuzzy match) bila ada; bila tidak ada,
+petakan layar berdasarkan route modul tersebut di `explore/module-map.md`. Lalu buka
 setiap layar itu memakai browser (login pakai `config/env.md`).
 
 Di tiap layar jalankan `browser_evaluate` dengan script:
@@ -28,7 +29,10 @@ Aturan:
   yang sudah ada dengan hanya MEMBUKA halamannya, jangan menyimpan perubahan.
 - Layar yang tidak bisa dicapai tanpa aksi tulis → tandai "SKIPPED" + alasannya.
 
-Simpan hasil ke `knowledge/<modul>/selector-map.md` dengan format tabel:
+Simpan hasil ke `shared/selector-map-order.md` (untuk modul di route `/order` —
+selector-map ini dipakai bersama seluruh modul order FTL/FCL dan fitur task).
+Bila dipanggil untuk modul di luar `/order`, tulis ke `shared/selector-map-<area>.md`
+(mis. `shared/selector-map-master.md`). Format tabel:
 
 | SCR | Elemen (nama sesuai ui-inventory) | Selector terbaik | Sumber | Catatan |
 

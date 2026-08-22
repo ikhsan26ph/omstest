@@ -44,7 +44,7 @@ const test = base.test.extend({
         await page.getByPlaceholder('Masukkan Email').fill(main.email);
         await page.getByPlaceholder('Masukkan Password').fill(main.password);
         await page.getByRole('button', { name: 'Login' }).click();
-        // Login sukses redirect ke /monitoring (knowledge/module-map.md).
+        // Login sukses redirect ke /monitoring (explore/module-map.md).
         await page.waitForURL(/\/monitoring/, { timeout: 30_000 });
         writeFailures(0);
       } catch (err) {

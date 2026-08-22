@@ -1,4 +1,5 @@
 config/env.md
+.claude/settings.local.json
 results/
 reports/
 artifacts/

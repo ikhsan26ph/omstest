@@ -8,9 +8,18 @@ shift || true
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
-# Playwright butuh Node 22 (node sistem masih 18).
-NVM_NODE="$HOME/.nvm/versions/node/v22.19.0/bin"
-[ -d "$NVM_NODE" ] && export PATH="$NVM_NODE:$PATH"
+# Playwright butuh Node >= 22 (lihat .nvmrc). Pakai nvm bila tersedia, kalau tidak
+# validasi versi node di PATH.
+if [ -s "$HOME/.nvm/nvm.sh" ] && [ -f "$ROOT/.nvmrc" ]; then
+  # shellcheck disable=SC1091
+  . "$HOME/.nvm/nvm.sh"
+  nvm use >/dev/null || { echo "nvm use gagal — jalankan 'nvm install' sesuai .nvmrc" >&2; exit 1; }
+fi
+NODE_MAJOR="$(node -e 'console.log(process.versions.node.split(".")[0])' 2>/dev/null || echo 0)"
+if [ "$NODE_MAJOR" -lt 22 ]; then
+  echo "Butuh Node >= 22 (terdeteksi: $(node -v 2>/dev/null || echo 'tidak ada node')). Install Node 22 atau pakai nvm dengan .nvmrc." >&2
+  exit 1
+fi
 
 SPEC="tests/${MODULE}.spec.js"
 if [ ! -f "$SPEC" ]; then

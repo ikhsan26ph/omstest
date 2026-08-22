@@ -1,0 +1,11 @@
+# Keputusan Triage & Catatan Run
+
+Keputusan bertanggal yang memengaruhi assertion di `tests/*.spec.js`. Spec hanya menyimpan komentar satu baris yang merujuk ke file ini.
+
+| Tanggal | SCN | Keputusan | Alasan |
+|---|---|---|---|
+| 2026-08-22 | SCN-0004 | Assertion indikator step wizard memakai `.filter({ visible: true })` | Ada span stepper duplikat yang hidden di DOM (temuan run 20260822-0841). |
+| 2026-08-22 | SCN-0007 | Precondition: pilih Tipe Pengiriman dulu sebelum assert field PIC | Field PIC baru dirender setelah Tipe Pengiriman dipilih (dikonfirmasi triage run 20260822-0858). |
+| 2026-08-22 | SCN-0007 | **KEPUTUSAN user: BUKAN BUG** — assertion helper text diselaraskan ke perilaku live | Live menampilkan label field "PIC Pengirim \*" / "PIC Penerima \*" (bukan teks helper terpisah M-13 "Nama PIC Pengirim"), dan tidak ada teks contoh M-14 "Contoh: 081234567898" sama sekali — dikonfirmasi via probe manual, bukan masalah selector/precondition. Variasi copy yang diterima: AC-004/REQ-007 hanya mensyaratkan field Data Pengirim/Penerima tampil, bukan wording helper persis M-13/M-14. |
+| 2026-08-22 | SCN-0011 | Klik langsung tombol Selanjutnya untuk memverifikasi blokir validasi; tetap ditandai **BUG (probable)** REQ-010/AC-007 | Dikonfirmasi 2x independen (harvest + run 20260822-0858): atribut `disabled` tidak ada di DOM saat field wajib kosong — tapi belum jelas apakah validasi tetap memblokir lewat jalur lain (toast/inline saat klik). Klik aman: navigasi wizard, tidak membuat/menyimpan order. |
+| 2026-08-22 | SCN-0133 | **ASM-D03 RESOLVED via triage** — filter Tipe Pengiriman enabled tidak lagi diassert sebagai failure | Enabled penuh dikonfirmasi 2x independen (harvest + run SCN-0133 sebelumnya); tidak ada REQ yang mewajibkan disabled — styling-only, bukan bug. |

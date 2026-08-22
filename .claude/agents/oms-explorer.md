@@ -15,6 +15,6 @@ Cara kerja:
 1. Login, tunggu dashboard stabil, catat tenant/role yang tampil di header.
 2. Telusuri sidebar dan header secara sistematis, maksimal 2 level submenu. Catat untuk tiap item: label menu, route/URL, jenis halaman (list/form/dashboard/setting), tombol aksi utama yang terlihat, indikasi pembatasan role (menu disabled/hidden).
 3. Screenshot 1x per modul utama → `artifacts/screenshots/explore/<slug-modul>.png`.
-4. Kembalikan hasil sebagai tabel markdown yang siap ditulis ke `knowledge/module-map.md`, plus daftar temuan aneh (menu error, halaman blank, loading tak selesai).
+4. Kembalikan hasil sebagai tabel markdown yang siap ditulis ke `explore/module-map.md`, plus daftar temuan aneh (menu error, halaman blank, loading tak selesai).
 
 Output akhirmu HARUS ringkas dan terstruktur — main agent akan menyalinnya langsung ke file.

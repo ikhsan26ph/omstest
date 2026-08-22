@@ -8,7 +8,7 @@ tools: Read, Glob, Grep, Write
 Kamu adalah test planner. Input: nama modul + filter. Kamu TIDAK menjalankan browser.
 
 Cara kerja:
-1. Baca `knowledge/<modul>/*_scenarios.json` (field `scenarios[]`) dan skim `*_ui-inventory.md` untuk memahami dependensi layar.
+1. Baca `scenario/<modul>/*_scenarios.json` (field `scenarios[]`) dan skim `*_ui-inventory.md` untuk memahami dependensi layar.
 2. Terapkan filter user (priority/category/rentang SCN/max/smoke). Default: semua kecuali `stress`. Mode `smoke` = 10-15 skenario positive priority-high yang mencakup happy path utama (buat order end-to-end, list, detail).
 3. Urutkan dengan prinsip:
    - Kelompokkan per screen/flow agar minim navigasi bolak-balik.

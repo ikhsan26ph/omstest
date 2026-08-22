@@ -2,7 +2,7 @@
 description: Smoke test cepat seluruh modul dari module-map (read-only, tanpa dokumen skenario)
 ---
 
-Jalankan smoke test cepat ke seluruh modul yang tercatat di `knowledge/module-map.md` (jalankan `/explore` dulu jika belum ada).
+Jalankan smoke test cepat ke seluruh modul yang tercatat di `explore/module-map.md` (jalankan `/explore` dulu jika belum ada).
 
 Untuk tiap modul, subagent **test-executor** cukup memverifikasi:
 1. Halaman terbuka tanpa error (tidak blank, tidak 4xx/5xx, tidak error boundary).

@@ -1,18 +1,22 @@
-# Selector Map — oms012-order-ftl-auto-stuffing
+# Selector Map — Modul Order (`/order`)
 
 - **Tanggal harvest**: 2026-08-22
 - **Base URL**: https://oms-staging.prahu-hub.com
-- **Akun**: finance.roro1@gmail.com — header menampilkan nama **"Admin"**, role bar **"Administrator"**, tenant **"PT. OMESH"** (bukan "Mentari Sumber Kertas" / "Shipper · Staff Operasional" seperti di desain — tenant & role label berbeda dari asumsi ui-inventory).
-- **Sesi**: sudah login saat mulai (tidak perlu login ulang).
-- **Data order tersedia di staging**: hanya **5 order**, semua Jenis Pengiriman **FTL**, semua Tipe Pengiriman **Normal** (sampling 2/5 order via Detail: ORD7285852191, ORD7285719128 — tidak ditemukan Multipickup/Multidrop/Multipoint). Status yang ada: `Isi Data Muatan`, `Isi Data Pengiriman`, `Menunggu Penugasan` (×2), `Review Order`. **Tidak ada order berstatus `Ditugaskan`**.
-- **Blocker/catatan penting run ini**:
-  - Tombol **"Buat Order" BERFUNGSI** pada run ini (navigasi ke `/order/buat`, wizard Step 1 terbuka) — **berbeda dari 2 run harvest sebelumnya** yang melaporkan tombol ini tidak berfungsi. Namun sesuai aturan read-only, wizard **tidak dilanjutkan** melewati Step 1 (tidak isi form, tidak klik Selanjutnya) — sehingga SCR-06 s.d. SCR-19 dan varian multi (kecuali yang terjangkau lewat Edit Order) tetap **SKIPPED**, bukan karena tombol rusak, tapi karena batasan cakupan harvest read-only.
-  - Aksi **"Hitung Ulang Armada"** pada layar Edit Order **diblokir oleh permission classifier lingkungan agent** (bukan error aplikasi) — SCR-12/13/14 gagal dipetakan lewat jalur ini.
-  - Ditemukan **bug nyata**: tombol "Visualisasi Muatan" di Detail Order memicu request `GET /api/order/stuffing/visualisasi` yang **404**, panel menampilkan "Gagal memuat visualisasi muatan." (lihat SCR-21).
-  - **Tidak ada satupun `data-testid` ditemukan** di seluruh layar yang di-harvest. Hanya **satu** `id` HTML stabil ditemukan: `#cancelReason` (textarea Alasan Pembatalan di popup Batalkan Order).
-  - Popup/modal (Batalkan Order, Visualisasi Muatan, Pilih Barang) **tidak menggunakan `role="dialog"`** — `document.querySelectorAll('[role="dialog"]')` selalu kosong walau modal terbuka. Selector berbasis role dialog di ui-inventory **tidak akan match** di implementasi live.
+- **Akun**: finance.roro1@gmail.com — header menampilkan nama **"Admin"**, role bar **"Administrator"**, tenant **"PT. OMESH"** (bukan "Mentari Sumber Kertas" / "Shipper · Staff Operasional" seperti di desain — tenant & role label berbeda dari asumsi desain).
+- **Data staging saat harvest**: hanya 5 order, semua Jenis Pengiriman FTL, semua Tipe Pengiriman Normal. Status yang ada: `Isi Data Muatan`, `Isi Data Pengiriman`, `Menunggu Penugasan` (×2), `Review Order` — **tidak ada order berstatus `Ditugaskan`**, sehingga sebagian layar belum terpetakan (lihat "Layar Belum Terpetakan").
+
+## Temuan Struktural
+
+- **Tidak ada satupun `data-testid` ditemukan** di seluruh layar yang di-harvest. Hanya **satu** `id` HTML stabil ditemukan: `#cancelReason` (textarea Alasan Pembatalan di popup Batalkan Order).
+- Popup/modal (Batalkan Order, Visualisasi Muatan, Pilih Barang) **tidak menggunakan `role="dialog"`** — `document.querySelectorAll('[role="dialog"]')` selalu kosong walau modal terbuka. Selector berbasis role dialog **tidak akan match** di implementasi live; gunakan scoping berbasis heading terdekat.
+- **Panel Filter (SCR-02) selalu tampil** di Daftar Order — tombol "Filter" hanya mengubah state visual tombol (`active`), **tidak menyembunyikan/menampilkan panel**. Executor jangan andalkan "klik Filter untuk membuka panel".
+- **Nama status live berbeda dari desain**: live memakai `Isi Data Muatan`, `Isi Data Pengiriman`, `Menunggu Penugasan`, `Review Order` (desain antara lain memakai `Isi Data Dasar`). Jangan pakai nama status/tenant/role dari desain sebagai oracle.
+- Tombol **"Buat Order"** pernah intermiten (gagal di 2 run explore); status saat ini: **berfungsi** — navigasi ke `/order/buat`, wizard Step 1 terbuka.
+- **Bug nyata ditemukan**: tombol "Visualisasi Muatan" di Detail Order memicu request `GET /api/order/stuffing/visualisasi` yang **404**, panel menampilkan "Gagal memuat visualisasi muatan." (lihat SCR-21) — laporkan sebagai bug-candidate.
 
 ## Tabel Selector
+
+> **Cakupan**: selector di bawah berlaku untuk route `/order` (wizard Buat Order, Daftar Order, Detail Order, Batalkan Order) dan dipakai bersama oleh seluruh modul order (FTL/FCL) serta fitur task.
 
 | SCR | Elemen | Selector terbaik | Sumber | Catatan |
 |---|---|---|---|---|
@@ -35,7 +39,7 @@
 | SCR-00 | Notifikasi (bell, header kanan) | posisi: tombol tanpa nama sebelum blok profil | TIDAK STABIL | **tidak ada aria-label/teks sama sekali** — tidak bisa disasar via role+name |
 | SCR-00 | Breadcrumb "Beranda" | `getByRole('link', { name: 'Beranda' })` | role+name | |
 | SCR-01 | Judul "Daftar Order" | `getByRole('heading', { name: 'Daftar Order', level: 2 })` | role+name | |
-| SCR-01 | Buat Order | `getByRole('button', { name: 'Buat Order' })` | role+name | navigasi ke `/order/buat` — **berfungsi run ini** |
+| SCR-01 | Buat Order | `getByRole('button', { name: 'Buat Order' })` | role+name | navigasi ke `/order/buat` (pernah intermiten, status terkini: berfungsi) |
 | SCR-01 | Batch Order | `getByRole('button', { name: 'Batch Order' })` | role+name | belum diverifikasi isinya (di luar cakupan wajib) |
 | SCR-01 | Riwayat Pembatalan | `getByRole('button', { name: 'Riwayat Pembatalan' })` | role+name | belum diverifikasi isinya |
 | SCR-01 | Filter (toggle) | `getByRole('button', { name: 'Filter' })` | role+name | **lihat catatan SCR-02** — tidak benar-benar toggle panel |
@@ -84,7 +88,7 @@
 | SCR-11 | Paginasi Sebelumnya/Selanjutnya | `getByRole('button', { name: 'Sebelumnya' })` / `getByRole('button', { name: 'Selanjutnya' })` | role+name | **baru, tidak ada di ui-inventory**; indikator `1 / 1` di antaranya |
 | SCR-11 | Tambahkan | `getByRole('button', { name: 'Tambahkan' })` | role+name | **bukan "Simpan"** seperti di desain; disabled bila tidak ada perubahan; tidak ada tombol "Batal" terpisah di modal ini |
 | SCR-20 | Judul "Detail Order" | `getByRole('button', { name: 'Detail Order' })` | role+name | **elemen `<button>`**, bukan sekadar heading statis |
-| SCR-20 | Visualisasi Muatan | `getByRole('button', { name: 'Visualisasi Muatan' })` | role+name | lihat bug 404 di catatan header |
+| SCR-20 | Visualisasi Muatan | `getByRole('button', { name: 'Visualisasi Muatan' })` | role+name | lihat bug 404 di Temuan Struktural |
 | SCR-20 | Batalkan Order | `getByRole('button', { name: 'Batalkan Order' })` | role+name | |
 | SCR-20 | Edit Order | `getByRole('button', { name: 'Edit Order' })` | role+name | navigasi ke `/order/{id}/edit` |
 | SCR-20 | Salin ID Order | `getByRole('button', { name: /^Salin ORD/ })` | role+name | |
@@ -92,7 +96,7 @@
 | SCR-20 | Accordion: No. Perjalanan | `getByRole('button', { name: 'No. Perjalanan' })` | role+name | **section tambahan, tidak ada di indeks ui-inventory** — muncul langsung di Detail Order (bukan hanya via pop up SCR-24) |
 | SCR-20 | Empty-state No. Perjalanan | `getByText('Belum ada nomor perjalanan untuk order ini.')` | TIDAK STABIL | tampil saat order belum berstatus Ditugaskan |
 | SCR-21 | Panel judul | `getByRole('heading', { name: 'Visualisasi Muatan Saat Ini' })` | role+name | bukan "Visualisasi Muatan" polos seperti SCR-21 desain (nama ini malah tertukar dgn SCR-14) |
-| SCR-21 | Subjudul | `getByText('Simulasi kebutuhan unit dari muatan order ini saat ini. Tampilan ini tidak mengubah data order.')` | TIDAK STABIL | **berbeda** dari subjudul drawer lain — resolves FND-04 di konteks ini (tidak identik lagi), tapi drawer Hitung Ulang Armada tidak sempat diverifikasi ulang |
+| SCR-21 | Subjudul | `getByText('Simulasi kebutuhan unit dari muatan order ini saat ini. Tampilan ini tidak mengubah data order.')` | TIDAK STABIL | **berbeda** dari subjudul drawer lain — resolves FND-04 di konteks ini (tidak identik lagi), tapi drawer Hitung Ulang Armada belum diverifikasi ulang |
 | SCR-21 | Pesan error | `getByText('Gagal memuat visualisasi muatan.')` | TIDAK STABIL | **BUG**: muncul karena `GET /api/order/stuffing/visualisasi` 404 |
 | SCR-21 | Tutup | `getByRole('button', { name: 'Tutup' })` (ada 2: header × dan tombol footer) | role+name (tidak unik, perlu `.first()`/`.last()`) | |
 | SCR-22 | Dialog judul "Batalkan Order" | `getByRole('heading', { name: 'Batalkan Order', level: 2 })` | role+name | |
@@ -100,8 +104,8 @@
 | SCR-22 | ID Order / Vendor (read-only) | `getByText('ID Order')` / `getByText('Vendor')` scoped ke dialog | TIDAK STABIL | |
 | SCR-22 | Alasan Pembatalan (textarea) | `#cancelReason` | **id (stabil)** | satu-satunya id stabil yang ditemukan di seluruh harvest ini |
 | SCR-22 | Submit "Batalkan Order" | `getByRole('button', { name: 'Batalkan Order' })` scoped ke dialog | role+name (tidak unik global) | **JANGAN diklik** saat harvest/testing tanpa skenario eksplisit |
-| SCR-23 | Header aksi: Hitung Ulang Armada | `getByRole('button', { name: 'Hitung Ulang Armada' })` | role+name | **KOREKSI FND-09**: live PUNYA tombol ini di Edit Order, beda dari asumsi desain; klik-nya diblokir permission classifier saat harvest ini, belum berhasil dipetakan drawernya (SCR-12/13) |
-| SCR-23 | Header aksi: Visualisasi Terbaru | `getByRole('button', { name: 'Visualisasi Terbaru' })` | role+name | idem, belum sempat dipetakan (SCR-14) karena fokus waktu setelah insiden blokir di atas |
+| SCR-23 | Header aksi: Hitung Ulang Armada | `getByRole('button', { name: 'Hitung Ulang Armada' })` | role+name | **KOREKSI FND-09**: live PUNYA tombol ini di Edit Order, beda dari asumsi desain; drawer-nya (SCR-12/13) belum terpetakan |
+| SCR-23 | Header aksi: Visualisasi Terbaru | `getByRole('button', { name: 'Visualisasi Terbaru' })` | role+name | idem, panelnya (SCR-14) belum terpetakan |
 | SCR-23 | Jenis Armada (dropdown, editable) | `getByRole('button', { name: 'Pilih Jenis Armada' })` | role+name | |
 | SCR-23 | Jumlah Armada (input, editable) | `getByPlaceholder('Masukkan Jumlah Armada')` | placeholder | |
 | SCR-23 | Drop Point Asal / Pengirim (dropdown) | `getByRole('button', { name: 'semarang baran' })` (nilai terisi) | TIDAK STABIL (nama = nilai data, dinamis) | |
@@ -122,18 +126,18 @@
 | SCR-23 | Gunakan komponen harga (checkbox) | `getByRole('checkbox', { name: 'Gunakan komponen harga' })` | role+name | |
 | SCR-23 | Footer Batal / Simpan | `getByRole('button', { name: 'Batal' })` / `getByRole('button', { name: 'Simpan', exact: true })` | role+name | Batal memicu dialog konfirmasi sama seperti Step 1 |
 
-## Layar SKIPPED
+## Layar Belum Terpetakan
 
 | SCR | Alasan |
 |---|---|
-| SCR-06/07/08 | Step 1 varian Multipickup/Multidrop/Multipoint — hanya tercapai dengan mengganti Tipe Pengiriman & mengisi form; di luar cakupan read-only (state awal wizard hanya expose tipe Normal secara default). |
-| SCR-09/10 | Step 2 Data Barang (wizard) — perlu isi & submit Step 1 untuk lanjut; dilarang oleh aturan harvest read-only. |
-| SCR-12/13 | Drawer "Hitung Ulang Armada" — tombolnya ADA di Edit Order (dikonfirmasi), tapi klik pada tombol ini **diblokir oleh permission classifier** lingkungan agent saat run ini (bukan error aplikasi). Coba lagi di run berikutnya. |
-| SCR-14 | Panel "Visualisasi Muatan Saat Ini" versi wizard Step 2 — sama seperti di atas, jalur "Visualisasi Terbaru" di Edit Order belum sempat dicoba setelah insiden blokir classifier; versi Detail Order (SCR-21) sudah dipetakan dan ditemukan bug 404. |
+| SCR-06/07/08 | Step 1 varian Multipickup/Multidrop/Multipoint — hanya tercapai dengan mengganti Tipe Pengiriman & mengisi form; di luar cakupan harvest read-only. |
+| SCR-09/10 | Step 2 Data Barang (wizard) — perlu isi & submit Step 1; di luar cakupan harvest read-only. |
+| SCR-12/13 | Drawer "Hitung Ulang Armada" — tombolnya ADA di Edit Order (dikonfirmasi), tapi isi drawer-nya belum terpetakan. |
+| SCR-14 | Panel "Visualisasi Muatan Saat Ini" versi wizard Step 2 / Edit Order — belum terpetakan; versi Detail Order (SCR-21) sudah dipetakan dan ditemukan bug 404. |
 | SCR-15/16/17 | Step 3 Vendor dan Harga (wizard) — perlu lanjut dari Step 1 & 2 wizard; di luar cakupan read-only. |
 | SCR-18/19 | Step 4 Review & pop up Simpan Draf (wizard) — idem, perlu isi form lengkap. |
-| SCR-24 | Pop up Data No. Perjalanan — tidak ada order berstatus `Ditugaskan` di antara 5 order yang tersedia di staging. |
-| SCR-25/26/28/29/31/32/34/36/37/38/39 | Varian Multipickup/Multidrop/Multipoint (Step 2/3/4 wizard, Edit, Review) — tidak ada order existing bertipe ini di staging (sampling 2/5 order semuanya "Normal"), dan wizard tidak dilanjutkan sesuai aturan read-only. |
+| SCR-24 | Pop up Data No. Perjalanan — tidak ada order berstatus `Ditugaskan` di staging. |
+| SCR-25/26/28/29/31/32/34/36/37/38/39 | Varian Multipickup/Multidrop/Multipoint (Step 2/3/4 wizard, Edit, Review) — tidak ada order existing bertipe ini di staging, dan wizard tidak dilanjutkan sesuai aturan read-only. |
 | SCR-27/33 | Pop up Detail Multipickup / Detail Multidrop — tidak ada order bertipe ini untuk membuka link "Lihat Detail". |
 | SCR-30/35 | Detail Order Multipickup / Multidrop — idem, tidak ada datanya di staging. |
 
@@ -161,7 +165,7 @@ Aplikasi ini **tidak memiliki `data-testid` sama sekali** di seluruh layar yang 
 - Filter `Tipe Pengiriman` & (kemungkinan) `Metode Pengiriman` **enabled penuh** di live, bukan "tampak disabled" seperti ASM-D03.
 - **FND-01 (desain)**: `Order Kembali` diasumsikan muncul di status `Ditugaskan`. Live menunjukkan `Order Kembali` muncul di status **`Menunggu Penugasan`**. Tidak ada order `Ditugaskan` untuk verifikasi silang — kandidat revisi FND-01, perlu dicek ulang saat ada data status `Ditugaskan`.
 - **FND-03 (desain)**: modal "Pilih Barang" diasumsikan **tanpa tombol close**. Live **punya** tombol "Tutup" (×). Kandidat resolved/salah asumsi.
-- **FND-09 (desain)**: Edit Order diasumsikan **tidak** menampilkan FAB "Hitung Ulang Armada"/"Visualisasi Terbaru". Live **menampilkan keduanya** di header Edit Order. Kandidat resolved/salah asumsi — tapi drawer/panelnya sendiri belum berhasil diverifikasi isinya (diblokir permission classifier).
+- **FND-09 (desain)**: Edit Order diasumsikan **tidak** menampilkan FAB "Hitung Ulang Armada"/"Visualisasi Terbaru". Live **menampilkan keduanya** di header Edit Order. Kandidat resolved/salah asumsi — tapi drawer/panelnya sendiri belum berhasil diverifikasi isinya.
 - Kartu Jenis Pengiriman (FTL/FCL/LTL/LCL) di Step 1 adalah **`<button>` biasa**, bukan `role="radio"` seperti asumsi selector di ui-inventory.
 - Tombol "Selanjutnya" Step 1 **tidak punya atribut `disabled`** di DOM walau field wajib (Tipe Pengiriman) kosong — berbeda dari deskripsi visual "disabled (abu)" di desain. Perlu skenario test terpisah untuk memastikan apakah validasi terjadi saat klik (toast/inline error) atau benar-benar tidak tervalidasi.
 - Info paginasi Daftar Order pakai **en dash "–"** (`Menampilkan 1–5 data dari 5 data`), bukan hyphen biasa seperti pola contoh di ui-inventory (`Menampilkan 1 - 20 data dari 30 data`). Hindari exact-string-match, pakai regex.

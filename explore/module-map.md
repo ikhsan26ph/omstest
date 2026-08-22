@@ -6,6 +6,7 @@ Hasil eksplorasi `/explore` pada 2026-08-22 (run kedua; run pertama 2026-08-21 �
 
 - **Base URL**: https://oms-staging.prahu-hub.com
 - **Login**: Sukses percobaan pertama, redirect otomatis ke `/monitoring`.
+- **Selector login**: `getByPlaceholder('Masukkan Email')`, `getByPlaceholder('Masukkan Password')`, tombol `Login`; sukses → redirect `/monitoring`.
 - **Tenant/Perusahaan**: PT. OMESH
 - **Role terdeteksi**: Admin / Administrator (akun `finance.roro1@gmail.com`)
 - **Tidak ada dialog pemilihan tenant** — akun ini hanya terhubung ke satu tenant.
@@ -13,13 +14,13 @@ Hasil eksplorasi `/explore` pada 2026-08-22 (run kedua; run pertama 2026-08-21 �
 
 ## Tabel Modul
 
-| # | Modul | Route | Jenis Halaman | Aksi Utama | Ada Knowledge Doc? | Catatan |
+| # | Modul | Route | Jenis Halaman | Aksi Utama | Ada Dokumen Skenario? | Catatan |
 |---|---|---|---|---|---|---|
 | 1 | Monitoring | /monitoring | Dashboard (peta + kartu statistik) | Tab "Data Kasus"/"Armada Terdekat", filter "Semua Customer", Refresh, link "Riwayat" (/monitoring/riwayat) | Tidak | Data staging kosong — "Tidak ada kasus saat ini" (bukan bug) |
 | 2 | Progres Pengiriman | /progres-pengiriman | List dengan filter wajib | Filter (Nopol/Nama Sopir/ID Order), Reset, Terapkan | Tidak | Data dimuat hanya setelah filter diisi & "Terapkan" — by design |
 | 3 | Tracking & Location | /tracking-location | Dashboard/detail dengan tab | Tab "Tracking Terkini"/"Riwayat Tracking", pilih ID Order, Cari | Tidak | Field "Nopol/No. Kontainer" disabled sampai ID Order dipilih |
 | 4 | Operasional (Dashboard Analitik) | /dashboard-operasional | Dashboard analitik (chart) | Filter periode (Harian/Mingguan/Bulanan/Tahunan/Pilih Tanggal), Export | Tidak | 3 section: Volume & Aktivitas, Produktivitas Vendor, Performa Pengiriman |
-| 5 | Order | /order | List/tabel (Daftar Order) | "Buat Order", "Batch Order", "Riwayat Pembatalan", Filter | **Ya** — `oms012-order-ftl-auto-stuffing`, `oms013-order-fcl-auto-stuffing`, `oms014-order-ftl-fcl-normal` | 5 data order tampil. **Tombol "Buat Order" INTERMITEN** — gagal di 2 run explore, tapi berfungsi di run harvest 2026-08-22 (lihat Temuan Janggal #1) |
+| 5 | Order | /order | List/tabel (Daftar Order) | "Buat Order", "Batch Order", "Riwayat Pembatalan", Filter | Tidak | 5 data order tampil. Tombol "Buat Order" pernah intermiten — lihat Temuan Janggal #1 |
 | 6 | Penugasan Tracking | /penugasan-tracking | List/tabel | "Tambah Penugasan", Filter | Tidak | Data kosong ("Tidak ada data") |
 | 7 | Simulasi Muatan | /simulasi-muatan | Wizard/tool kalkulasi | Pilih unit (Armada/Kontainer), "Pilih Barang", "Cek Visualisasi", "Lanjutkan Order" (disabled) | Tidak | Tool kalkulasi muatan, bukan CRUD biasa |
 | 8 | Master Provinsi | /master/provinsi | List/tabel CRUD | "Tambah Provinsi", Filter, Riwayat | Tidak | Sub-menu Master Wilayah. 38 data, 2 halaman paginasi |
@@ -36,7 +37,7 @@ Hasil eksplorasi `/explore` pada 2026-08-22 (run kedua; run pertama 2026-08-21 �
 | 19 | Master Sopir | /master/sopir | List/tabel CRUD | "Tambah Sopir" (tombol, kemungkinan modal), Filter | Tidak | Sub-menu Master Operasional. Tidak punya tombol "Riwayat" (inkonsisten dgn master lain) |
 | 20 | Master CS | /master/cs | List/tabel CRUD | "Tambah Customer Service" (link ke /master/cs/tambah), Filter, Riwayat | Tidak | Sub-menu Master Operasional. Title tab browser: "Master Customer Service" |
 | 21 | Manajemen Vendor | /manajemen-vendor | List/tabel CRUD | "Tambah Vendor" (link ke /manajemen-vendor/tambah), Filter | Tidak | 10 vendor, status "Menunggu"/"Aktif"/"Tidak Aktif" |
-| 22 | Pengaturan Akun | /pengaturan-akun | List/tabel, 2 tab | Tab "Sub User"/"Hak Akses", "Tambah Sub User", Riwayat, Filter | Tidak | **Tab "Hak Akses" tidak mengganti konten saat diklik** — temuan baru (lihat Temuan Janggal #2) |
+| 22 | Pengaturan Akun | /pengaturan-akun | List/tabel, 2 tab | Tab "Sub User"/"Hak Akses", "Tambah Sub User", Riwayat, Filter | Tidak | **Tab "Hak Akses" tidak mengganti konten saat diklik** — lihat Temuan Janggal #2 |
 | 23 | Akun Saya | /akun-saya | Detail/profile | "Edit Informasi", "Ubah Password", Riwayat | Tidak | Menampilkan Nama, Email, No WA, Bagian Staff |
 | 24 | Pengaturan Sistem | /setting/sistem | Form setting (8 accordion) | Batal, Simpan | Tidak | SLA, radius notifikasi, deteksi keluar jalur, kelayakan armada, dll |
 | 25 | Pengaturan Notifikasi | /setting/general | Form setting (list toggle) | Switch global, Batal, Simpan | Tidak | Sub-menu Pusat Notifikasi. 10/10 notifikasi aktif global |
@@ -44,24 +45,20 @@ Hasil eksplorasi `/explore` pada 2026-08-22 (run kedua; run pertama 2026-08-21 �
 
 ## Ringkasan Kesiapan Test
 
-**Siap dites detail (punya scenarios.json)** — semuanya modul Order (`/order`):
-- `oms012-order-ftl-auto-stuffing` — lengkap (analysis, ui-inventory, feature, scenarios.json, coverage)
-- `oms013-order-fcl-auto-stuffing` — ada scenarios.json, **belum ada ui-inventory.md**
-- `oms014-order-ftl-fcl-normal` — ada scenarios.json, **belum ada ui-inventory.md**
+**Dokumen skenario**: folder `scenario/` saat ini kosong — dokumen skenario per modul akan diisi ulang oleh user. Sebelumnya modul Order (`/order`) punya dokumen untuk `oms012-order-ftl-auto-stuffing` (lengkap), `oms013-order-fcl-auto-stuffing`, dan `oms014-order-ftl-fcl-normal`.
 
-`selector-map.md` untuk `oms012-order-ftl-auto-stuffing` sudah tersedia (harvest 2026-08-22) — jadi sumber selector utama executor. Temuan kunci harvest: aplikasi **tidak punya data-testid sama sekali**, modal tidak memakai `role="dialog"`, panel filter selalu tampil (tombol Filter hanya toggle visual). Modul oms013/oms014 belum di-harvest.
+`shared/selector-map-order.md` (harvest 2026-08-22) tersedia untuk seluruh modul order — jadi sumber selector utama executor. Temuan kunci harvest: aplikasi **tidak punya data-testid sama sekali**, modal tidak memakai `role="dialog"`, panel filter selalu tampil (tombol Filter hanya toggle visual).
 
 **Baru bisa smoke test (belum ada dokumen skenario)**: 25 modul lainnya — Monitoring, Progres Pengiriman, Tracking & Location, Operasional, Penugasan Tracking, Simulasi Muatan, Master Wilayah (Provinsi/Kota/Kecamatan/Kelurahan), Master Operasional (Drop Point, Waktu Perjalanan, Pelabuhan, Pelayaran, Barang, Kemasan, Unit, Sopir, CS), Manajemen Vendor, Pengaturan Akun, Akun Saya, Pengaturan Sistem, Pengaturan Notifikasi, Preferensi Notifikasi.
 
 ## Temuan Janggal
 
-1. **[INTERMITEN — kandidat bug prioritas tinggi]** Tombol **"Buat Order"** di `/order`: pada 2 run explore (2026-08-21 & pagi 2026-08-22) tidak memicu efek apa pun (URL tetap, snapshot identik, tanpa console error). Namun pada run harvest-selectors 2026-08-22 tombol **berfungsi normal** (navigasi ke `/order/buat`, wizard Step 1 terbuka). Kesimpulan: bug intermiten/flaky, bukan rusak permanen — saat `/test-module`, jika klik pertama gagal coba reload halaman + retry 1x, dan catat kegagalannya sebagai bug-candidate.
-2. **[BARU 2026-08-22]** Tab **"Hak Akses"** di `/pengaturan-akun` tidak mengganti konten saat diklik — konten tetap tabel Sub User. Kemungkinan belum diimplementasi atau bug state switching.
-3. Console error **401** pada `https://apioms-staging.prahu-hub.com/api/auth/refresh` di awal sesi — konsisten di 2 run, severity rendah, tidak mengganggu fungsi.
+1. **[INTERMITEN — kandidat bug prioritas tinggi]** Tombol **"Buat Order"** di `/order`: pernah tidak memicu efek apa pun di 2 run explore; status saat ini **berfungsi** (navigasi ke `/order/buat`). Saat `/test-module`: jika klik pertama gagal, reload halaman + retry 1x, dan catat kegagalannya sebagai bug-candidate.
+2. **Tab "Hak Akses"** di `/pengaturan-akun` tidak mengganti konten saat diklik — status saat ini: masih terjadi, kemungkinan belum diimplementasi atau bug state switching.
+3. Console error **401** pada `https://apioms-staging.prahu-hub.com/api/auth/refresh` di awal sesi — status saat ini: konsisten muncul, severity rendah, tidak mengganggu fungsi.
 4. **Master Sopir** tidak memiliki tombol "Riwayat" seperti master data lain — kandidat inkonsistensi UI kecil.
 5. Modul dashboard (Monitoring, Penugasan Tracking) menampilkan data kosong/nol — wajar untuk staging, bukan bug.
 
 ## Screenshot
 
-Tersimpan di `artifacts/screenshots/explore/` (diperbarui 2026-08-22):
-dashboard-monitoring.png, dashboard-operasional.png, order.png, penugasan-tracking.png, simulasi-muatan.png, master-wilayah.png, master-operasional.png, manajemen-vendor.png, pengaturan-akun.png, akun-saya.png, pengaturan-sistem.png, pusat-notifikasi.png
+Screenshot eksplorasi sebelumnya di `artifacts/screenshots/explore/` dihapus saat restrukturisasi project — jalankan `/explore` untuk membuat ulang.
