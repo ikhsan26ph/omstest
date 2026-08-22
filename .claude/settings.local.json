@@ -1,0 +1,19 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /home/icun/Project/omstest/knowledge /home/icun/Project/omstest/artifacts 2>/dev/null; find /home/icun/Project/omstest -iname \"*.mcp*\" -o -iname \"mcp*.json\" 2>/dev/null; cat /home/icun/Project/omstest/.mcp.json 2>/dev/null; cat ~/.claude.json 2>/dev/null | head -50)",
+      "Read(//home/icun/**)",
+      "Bash(sort -t' ' -k2)",
+      "Bash(uniq -c -f1)",
+      "Bash(python3 -c ' *)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "Bash(bash scripts/run-playwright.sh oms012-order-ftl-auto-stuffing)",
+      "Bash(python3 -c \"import json; p=json.load\\(open\\('/home/icun/Project/omstest/package.json'\\)\\); print\\(json.dumps\\(p, indent=1\\)\\)\")",
+      "Bash(rm -f /tmp/claude-1000/-home-icun-Project-omstest/d7e35d6f-7897-4dd6-bfbb-9c4c48e0df84/scratchpad/probe-*.js /tmp/claude-1000/-home-icun-Project-omstest/d7e35d6f-7897-4dd6-bfbb-9c4c48e0df84/scratchpad/scn*.png 2>/dev/null; echo done)"
+    ],
+    "additionalDirectories": [
+      "/tmp/claude-1000/-home-icun-Project-omstest/d7e35d6f-7897-4dd6-bfbb-9c4c48e0df84/scratchpad"
+    ]
+  }
+}

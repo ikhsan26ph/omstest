@@ -1,0 +1,15 @@
+{
+ "name": "omstest",
+ "version": "1.0.0",
+ "description": "Mesin automation testing OMS berbasis **VS Code + Claude Code + Playwright MCP (browser agent)**.",
+ "main": "index.js",
+ "scripts": {
+  "test:oms012": "bash scripts/run-playwright.sh oms012-order-ftl-auto-stuffing"
+ },
+ "keywords": [],
+ "author": "",
+ "license": "ISC",
+ "devDependencies": {
+  "@playwright/test": "^1.62.1"
+ }
+}
