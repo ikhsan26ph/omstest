@@ -1,64 +1,65 @@
 # Module Map — OMS (PT. OMESH)
 
-Hasil eksplorasi `/explore` pada 2026-08-22 (run kedua; run pertama 2026-08-21 — tidak ada perubahan struktural).
+Hasil eksplorasi `/explore` pada 2026-08-22 (run ketiga; run pertama 2026-08-21). Tidak ada perubahan struktural vs run kedua — set 26 route persis sama.
 
 ## Info Login & Environment
 
 - **Base URL**: https://oms-staging.prahu-hub.com
-- **Login**: Sukses percobaan pertama, redirect otomatis ke `/monitoring`.
-- **Selector login**: `getByPlaceholder('Masukkan Email')`, `getByPlaceholder('Masukkan Password')`, tombol `Login`; sukses → redirect `/monitoring`.
-- **Tenant/Perusahaan**: PT. OMESH
-- **Role terdeteksi**: Admin / Administrator (akun `finance.roro1@gmail.com`)
-- **Tidak ada dialog pemilihan tenant** — akun ini hanya terhubung ke satu tenant.
-- Tidak ada indikasi pembatasan role untuk akun Admin — seluruh 26 menu dapat diakses (perbandingan lintas-role belum bisa dilakukan; akun #2/#3 di `config/env.md` belum diisi).
+- **Login**: Sukses percobaan pertama, redirect otomatis ke `/monitoring` (akses root `/` juga redirect ke sana).
+- **Selector login terbukti**: `getByRole('textbox', {name:'Masukkan Email'})`, `getByRole('textbox', {name:'Masukkan Password'})`, `getByRole('button', {name:'Login'})`. Link "Lupa Password?" → `/lupa-password`.
+- **Tenant/Perusahaan**: PT. OMESH — **tidak ada dialog pemilihan tenant** (single-tenant).
+- **Role terdeteksi**: Administrator (akun `finance.roro1@gmail.com`). Seluruh 26 menu dapat diakses, tidak ada indikasi pembatasan role. Perbandingan lintas-role belum bisa dilakukan (akun #3 di `config/env.md` belum diisi).
+- **Struktur sidebar**: 4 grup collapsible — **Dashboard** (Monitoring, Progres Pengiriman, Tracking & Location, Operasional), **Master Wilayah** (Provinsi/Kota/Kecamatan/Kelurahan), **Master Operasional** (Drop Point/Waktu Perjalanan/Pelabuhan/Pelayaran/Barang/Kemasan/Unit/Sopir/CS), **Pusat Notifikasi** (Pengaturan Notifikasi, Preferensi Notifikasi); sisanya item level-1.
+- **Widget "Kuota Order"** persisten di sidebar bawah: 1/200 (0,5%).
 
 ## Tabel Modul
 
 | # | Modul | Route | Jenis Halaman | Aksi Utama | Ada Dokumen Skenario? | Catatan |
 |---|---|---|---|---|---|---|
-| 1 | Monitoring | /monitoring | Dashboard (peta + kartu statistik) | Tab "Data Kasus"/"Armada Terdekat", filter "Semua Customer", Refresh, link "Riwayat" (/monitoring/riwayat) | Tidak | Data staging kosong — "Tidak ada kasus saat ini" (bukan bug) |
-| 2 | Progres Pengiriman | /progres-pengiriman | List dengan filter wajib | Filter (Nopol/Nama Sopir/ID Order), Reset, Terapkan | Tidak | Data dimuat hanya setelah filter diisi & "Terapkan" — by design |
-| 3 | Tracking & Location | /tracking-location | Dashboard/detail dengan tab | Tab "Tracking Terkini"/"Riwayat Tracking", pilih ID Order, Cari | Tidak | Field "Nopol/No. Kontainer" disabled sampai ID Order dipilih |
-| 4 | Operasional (Dashboard Analitik) | /dashboard-operasional | Dashboard analitik (chart) | Filter periode (Harian/Mingguan/Bulanan/Tahunan/Pilih Tanggal), Export | Tidak | 3 section: Volume & Aktivitas, Produktivitas Vendor, Performa Pengiriman |
-| 5 | Order | /order | List/tabel (Daftar Order) | "Buat Order", "Batch Order", "Riwayat Pembatalan", Filter | Tidak | 5 data order tampil. Tombol "Buat Order" pernah intermiten — lihat Temuan Janggal #1 |
-| 6 | Penugasan Tracking | /penugasan-tracking | List/tabel | "Tambah Penugasan", Filter | Tidak | Data kosong ("Tidak ada data") |
-| 7 | Simulasi Muatan | /simulasi-muatan | Wizard/tool kalkulasi | Pilih unit (Armada/Kontainer), "Pilih Barang", "Cek Visualisasi", "Lanjutkan Order" (disabled) | Tidak | Tool kalkulasi muatan, bukan CRUD biasa |
-| 8 | Master Provinsi | /master/provinsi | List/tabel CRUD | "Tambah Provinsi", Filter, Riwayat | Tidak | Sub-menu Master Wilayah. 38 data, 2 halaman paginasi |
-| 9 | Master Kota | /master/kota | List/tabel CRUD | "Tambah Kota" (link ke /master/kota/tambah), Filter, Riwayat | Tidak | Sub-menu Master Wilayah |
-| 10 | Master Kecamatan | /master/kecamatan | List/tabel CRUD | "Tambah Kecamatan" (link), Filter, Riwayat | Tidak | Sub-menu Master Wilayah |
-| 11 | Master Kelurahan | /master/kelurahan | List/tabel CRUD | "Tambah Kelurahan" (link), Filter, Riwayat | Tidak | Sub-menu Master Wilayah |
-| 12 | Master Drop Point (Perusahaan) | /master/customer | List/tabel CRUD | "Tambah Perusahaan" (link ke /master/customer/tambah), Filter, Riwayat | Tidak | Sub-menu Master Operasional. Drop point dikelola via detail perusahaan. 10 data |
-| 13 | Master Waktu Perjalanan | /master/waktu-perjalanan | List/tabel CRUD | "Tambah Waktu Perjalanan" (link), "Perbarui Waktu Perjalanan", Riwayat, Filter | Tidak | Sub-menu Master Operasional |
-| 14 | Master Pelabuhan | /master/pelabuhan | List/tabel CRUD | "Tambah Pelabuhan" (link), Filter, Riwayat | Tidak | Sub-menu Master Operasional |
-| 15 | Master Pelayaran | /master/pelayaran | List/tabel CRUD | "Tambah Pelayaran" (link), Filter, Riwayat | Tidak | Sub-menu Master Operasional |
-| 16 | Master Barang | /master/barang | List/tabel CRUD | "Tambah Barang" (link), Filter, Riwayat | Tidak | Sub-menu Master Operasional |
-| 17 | Master Kemasan | /master/kemasan | List/tabel CRUD | "Tambah Kemasan" (link), Filter, Riwayat | Tidak | Sub-menu Master Operasional |
-| 18 | Master Unit | /master/unit | List/tabel, 3 tab | Tab "Armada"/"Jenis Armada"/"Jenis Kontainer", "Tambah Armada", Filter | Tidak | Sub-menu Master Operasional. Armada dikelola per-vendor ("Kelola Armada") |
-| 19 | Master Sopir | /master/sopir | List/tabel CRUD | "Tambah Sopir" (tombol, kemungkinan modal), Filter | Tidak | Sub-menu Master Operasional. Tidak punya tombol "Riwayat" (inkonsisten dgn master lain) |
-| 20 | Master CS | /master/cs | List/tabel CRUD | "Tambah Customer Service" (link ke /master/cs/tambah), Filter, Riwayat | Tidak | Sub-menu Master Operasional. Title tab browser: "Master Customer Service" |
-| 21 | Manajemen Vendor | /manajemen-vendor | List/tabel CRUD | "Tambah Vendor" (link ke /manajemen-vendor/tambah), Filter | Tidak | 10 vendor, status "Menunggu"/"Aktif"/"Tidak Aktif" |
-| 22 | Pengaturan Akun | /pengaturan-akun | List/tabel, 2 tab | Tab "Sub User"/"Hak Akses", "Tambah Sub User", Riwayat, Filter | Tidak | **Tab "Hak Akses" tidak mengganti konten saat diklik** — lihat Temuan Janggal #2 |
+| 1 | Dashboard ▸ Monitoring | /monitoring | Dashboard (peta + statistik) | Perbesar/Perkecil, Layar Penuh, filter "Semua Customer"/"Semua Kasus", link Riwayat → /monitoring/riwayat, link Lacak → /tracking-location?orderCode=... | Tidak | Halaman default setelah login |
+| 2 | Dashboard ▸ Progres Pengiriman | /progres-pengiriman | List dengan filter wajib | Filter (Nopol/Nama Sopir/ID Order), Reset, Terapkan | Tidak | Tabel kosong sampai filter diisi & Terapkan — by design (pesan eksplisit di UI) |
+| 3 | Dashboard ▸ Tracking & Location | /tracking-location | Form pencarian + tab | Cari (disabled sampai ID Order & Nopol dipilih) | Tidak | Tab: Tracking Terkini (default), Riwayat Tracking |
+| 4 | Dashboard ▸ Operasional | /dashboard-operasional | Dashboard analitik (chart) | Filter periode (Harian/Mingguan/Bulanan/Tahunan/Pilih Tanggal), dropdown Tipe Order, Export | Tidak | Breadcrumb "Dashboard", bukan "Beranda" seperti halaman lain (inkonsistensi kecil) |
+| 5 | Order | /order | List/tabel (Daftar Order) | "Buat Order" ⚠️, "Batch Order", "Riwayat Pembatalan", Filter, kolom Aksi per baris | Tidak | 14 data. Tombol "Buat Order" TIDAK berfungsi run ini — lihat Temuan Janggal #1 |
+| 6 | Penugasan Tracking | /penugasan-tracking | List/tabel | "Tambah Penugasan", Filter | Tidak | 1 data |
+| 7 | Simulasi Muatan | /simulasi-muatan | Wizard/tool kalkulasi | Radio unit (Armada/Kontainer), "Pilih Barang", "Cek Visualisasi", "Lanjutkan Order" (disabled) | Tidak | Tool kalkulasi muatan, bukan CRUD biasa |
+| 8 | Master Wilayah ▸ Master Provinsi | /master/provinsi | List/tabel CRUD | "Tambah Provinsi" (button, bukan link), Filter, Riwayat; per baris Edit/Hapus Data | Tidak | 38 data, 2 halaman |
+| 9 | Master Wilayah ▸ Master Kota | /master/kota | List/tabel CRUD | "Tambah Kota" (link → /master/kota/tambah), Filter, Riwayat | Tidak | 514 data, 26 halaman |
+| 10 | Master Wilayah ▸ Master Kecamatan | /master/kecamatan | List/tabel CRUD | "Tambah Kecamatan" (link → tambah), Filter, Riwayat | Tidak | 7.286 data |
+| 11 | Master Wilayah ▸ Master Kelurahan | /master/kelurahan | List/tabel CRUD | "Tambah Kelurahan" (link → tambah), Filter, Riwayat | Tidak | 83.762 data |
+| 12 | Master Operasional ▸ Master Drop Point | /master/customer | List/tabel CRUD | "Tambah Perusahaan" (link → /master/customer/tambah), Filter, Riwayat | Tidak | Heading "Master Drop Point", tombol tambah "Tambah Perusahaan" — label tidak konsisten. 12 data |
+| 13 | Master Operasional ▸ Master Waktu Perjalanan | /master/waktu-perjalanan | List/tabel CRUD | "Tambah Waktu Perjalanan" (link), "Perbarui Waktu Perjalanan", Riwayat, Filter | Tidak | 10 data |
+| 14 | Master Operasional ▸ Master Pelabuhan | /master/pelabuhan | List/tabel CRUD | "Tambah Pelabuhan" (link), Filter, Riwayat | Tidak | 11 data |
+| 15 | Master Operasional ▸ Master Pelayaran | /master/pelayaran | List/tabel CRUD | "Tambah Pelayaran" (link), Filter, Riwayat | Tidak | 9 data |
+| 16 | Master Operasional ▸ Master Barang | /master/barang | List/tabel CRUD | "Tambah Barang" (link), Filter, Riwayat | Tidak | 23 data |
+| 17 | Master Operasional ▸ Master Kemasan | /master/kemasan | List/tabel CRUD | "Tambah Kemasan" (link), Filter, Riwayat | Tidak | 10 data |
+| 18 | Master Operasional ▸ Master Unit | /master/unit | List/tabel, 3 tab | Tab "Armada"/"Jenis Armada"/"Jenis Kontainer", "Tambah Armada", Filter | Tidak | List dikelompokkan per vendor |
+| 19 | Master Operasional ▸ Master Sopir | /master/sopir | List/tabel CRUD | "Tambah Sopir", Filter | Tidak | Dikelompokkan per vendor (2 vendor). Tidak punya tombol "Riwayat" (inkonsisten dgn master lain) |
+| 20 | Master Operasional ▸ Master CS | /master/cs | List/tabel CRUD | "Tambah Customer Service" (link → /master/cs/tambah), Filter, Riwayat | Tidak | 1 data, expandable "2 Vendor". Title tab browser: "Master Customer Service" |
+| 21 | Manajemen Vendor | /manajemen-vendor | List/tabel CRUD | "Tambah Vendor" (link → /manajemen-vendor/tambah), Filter | Tidak | 13 data, status "Menunggu"/"Aktif"/"Tidak Aktif" |
+| 22 | Pengaturan Akun | /pengaturan-akun | List/tabel, 2 tab | Tab "Sub User"/"Hak Akses" ⚠️, "Tambah Sub User", Riwayat, Filter | Tidak | Tab "Hak Akses" tidak berfungsi — lihat Temuan Janggal #2 |
 | 23 | Akun Saya | /akun-saya | Detail/profile | "Edit Informasi", "Ubah Password", Riwayat | Tidak | Menampilkan Nama, Email, No WA, Bagian Staff |
-| 24 | Pengaturan Sistem | /setting/sistem | Form setting (8 accordion) | Batal, Simpan | Tidak | SLA, radius notifikasi, deteksi keluar jalur, kelayakan armada, dll |
-| 25 | Pengaturan Notifikasi | /setting/general | Form setting (list toggle) | Switch global, Batal, Simpan | Tidak | Sub-menu Pusat Notifikasi. 10/10 notifikasi aktif global |
-| 26 | Preferensi Notifikasi | /setting/preferensi-notifikasi | Form setting per kategori | Toggle per kategori (Order 3/3, Tracking 7/7, Monitoring & Tracking 5/5, KIR Armada 2/2) | Tidak | Sub-menu Pusat Notifikasi, preferensi personal |
+| 24 | Pengaturan Sistem | /setting/sistem | Form setting (accordion) | Batal, Simpan | Tidak | SLA, radius notifikasi, deteksi keluar jalur, kelayakan armada, dll |
+| 25 | Pusat Notifikasi ▸ Pengaturan Notifikasi | /setting/general | Form setting (list toggle) | Switch global, Batal, Simpan | Tidak | — |
+| 26 | Pusat Notifikasi ▸ Preferensi Notifikasi | /setting/preferensi-notifikasi | Form setting per kategori | Toggle per kategori, Batal, Simpan | Tidak | Preferensi personal |
 
 ## Ringkasan Kesiapan Test
 
-**Dokumen skenario**: folder `scenario/` saat ini kosong — dokumen skenario per modul akan diisi ulang oleh user. Sebelumnya modul Order (`/order`) punya dokumen untuk `oms012-order-ftl-auto-stuffing` (lengkap), `oms013-order-fcl-auto-stuffing`, dan `oms014-order-ftl-fcl-normal`.
+**Dokumen skenario**: folder `scenario/` saat ini hanya berisi README — **belum ada dokumen skenario untuk modul mana pun** (kolom "Ada Dokumen Skenario?" = Tidak untuk seluruh 26 modul). Sebelumnya modul Order pernah punya dokumen `oms012`/`oms013`/`oms014` yang akan diisi ulang oleh user.
 
-`shared/selector-map-order.md` (harvest 2026-08-22) tersedia untuk seluruh modul order — jadi sumber selector utama executor. Temuan kunci harvest: aplikasi **tidak punya data-testid sama sekali**, modal tidak memakai `role="dialog"`, panel filter selalu tampil (tombol Filter hanya toggle visual).
+`shared/selector-map-order.md` (harvest 2026-08-22) tersedia untuk seluruh modul order — sumber selector utama executor route `/order`. Temuan kunci harvest: aplikasi **tidak punya data-testid sama sekali**, modal tidak memakai `role="dialog"`, panel filter selalu tampil (tombol Filter hanya toggle visual).
 
-**Baru bisa smoke test (belum ada dokumen skenario)**: 25 modul lainnya — Monitoring, Progres Pengiriman, Tracking & Location, Operasional, Penugasan Tracking, Simulasi Muatan, Master Wilayah (Provinsi/Kota/Kecamatan/Kelurahan), Master Operasional (Drop Point, Waktu Perjalanan, Pelabuhan, Pelayaran, Barang, Kemasan, Unit, Sopir, CS), Manajemen Vendor, Pengaturan Akun, Akun Saya, Pengaturan Sistem, Pengaturan Notifikasi, Preferensi Notifikasi.
+**Semua 26 modul saat ini baru bisa smoke test** (`/smoke`) sampai dokumen skenario diisi.
 
 ## Temuan Janggal
 
-1. **[INTERMITEN — kandidat bug prioritas tinggi]** Tombol **"Buat Order"** di `/order`: pernah tidak memicu efek apa pun di 2 run explore; status saat ini **berfungsi** (navigasi ke `/order/buat`). Saat `/test-module`: jika klik pertama gagal, reload halaman + retry 1x, dan catat kegagalannya sebagai bug-candidate.
-2. **Tab "Hak Akses"** di `/pengaturan-akun` tidak mengganti konten saat diklik — status saat ini: masih terjadi, kemungkinan belum diimplementasi atau bug state switching.
-3. Console error **401** pada `https://apioms-staging.prahu-hub.com/api/auth/refresh` di awal sesi — status saat ini: konsisten muncul, severity rendah, tidak mengganggu fungsi.
-4. **Master Sopir** tidak memiliki tombol "Riwayat" seperti master data lain — kandidat inkonsistensi UI kecil.
-5. Modul dashboard (Monitoring, Penugasan Tracking) menampilkan data kosong/nol — wajar untuk staging, bukan bug.
+1. **[BUG-CANDIDATE PRIORITAS TINGGI — kini reproducible]** Tombol **"Buat Order"** di `/order` **tidak bereaksi sama sekali**: diklik 2x pada run ini — tidak ada navigasi ke `/order/buat`, tidak ada modal, tidak ada console error. Run sebelumnya intermiten (kadang berfungsi); run ini gagal konsisten. **Workaround resmi (keputusan user 2026-08-22, lihat `shared/decisions.md`)**: skenario yang butuh form buat order masuk via navigasi langsung `https://oms-staging.prahu-hub.com/order/buat` — jangan bergantung klik tombol. Skenario yang menguji tombolnya sendiri tetap klik & catat bug-candidate.
+2. **[INTERMITEN]** Tab **"Hak Akses"** di `/pengaturan-akun`: explore pagi 2026-08-22 terkonfirmasi 2x tidak mengganti konten (bukti: `artifacts/screenshots/explore/pengaturan-akun-hakakses.png`), tapi smoke run malam (`smoke__20260822-225445`) tab **berfungsi** (URL berubah `?tab=hak-akses`, konten berganti). Kandidat bug intermiten state switching — pantau di run berikutnya.
+3. Console error **401** pada `https://apioms-staging.prahu-hub.com/api/auth/refresh` — **tidak muncul pada run ini** (0 error console sepanjang sesi). Kemungkinan intermiten atau sudah diperbaiki; pantau di run berikutnya.
+4. **[BARU]** Tombol **lonceng notifikasi** (badge "5") di header tidak membuka panel/dropdown apa pun saat diklik — severity rendah. Bukti: `artifacts/screenshots/explore/notifikasi-bell.png`.
+5. **Master Sopir** tidak memiliki tombol "Riwayat" seperti master data lain — kandidat inkonsistensi UI kecil.
+6. Label `/master/customer` tidak konsisten: menu "Master Drop Point", tombol "Tambah Perusahaan" — kandidat inkonsistensi copywriting.
 
 ## Screenshot
 
-Screenshot eksplorasi sebelumnya di `artifacts/screenshots/explore/` dihapus saat restrukturisasi project — jalankan `/explore` untuk membuat ulang.
+28 file di `artifacts/screenshots/explore/` (1 per modul, nama = slug route, mis. `order.png`, `master-kota.png`), plus 2 bukti temuan: `pengaturan-akun-hakakses.png`, `notifikasi-bell.png`.
