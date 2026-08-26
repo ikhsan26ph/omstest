@@ -1,0 +1,3334 @@
+{
+  "module": "oms013-order-fcl-auto-stuffing",
+  "featureFile": "oms013-order-fcl-auto-stuffing.feature",
+  "generatedAt": "2026-08-24",
+  "counts": {
+    "positive": 35,
+    "negative": 15,
+    "edge": 16,
+    "stress": 9,
+    "total": 75
+  },
+  "background": {
+    "steps": [
+      {
+        "action": "goto",
+        "target": "Halaman login OMS",
+        "selectorHint": "url=/login",
+        "value": "kredensial Staff Operasional shipper"
+      },
+      {
+        "action": "goto",
+        "target": "Daftar Order",
+        "selectorHint": "role=link name=\"Order\" (sidebar)",
+        "expected": "breadcrumb Beranda > Daftar Order"
+      }
+    ]
+  },
+  "statusAliases": {
+    "Isi Data Pengiriman": "Isi Data Dasar (teks desain)",
+    "Selesai": "Terkirim (teks desain)"
+  },
+  "scenarios": [
+    {
+      "id": "OMS013-POS-001",
+      "title": "Buat Order FCL Normal end-to-end hingga status Menunggu Penugasan",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@e2e",
+        "@REQ-001",
+        "@REQ-031",
+        "@REQ-032"
+      ],
+      "requirements": [
+        "REQ-001",
+        "REQ-004",
+        "REQ-009",
+        "REQ-016",
+        "REQ-024",
+        "REQ-028",
+        "REQ-031",
+        "REQ-032"
+      ],
+      "screen": "Buat Order Step 1-4",
+      "preconditions": [
+        "Master Droppoint, Master Barang, dan vendor tersedia"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Buat Order",
+          "selectorHint": "role=button name=\"Buat Order\""
+        },
+        {
+          "action": "click",
+          "target": "Radio card FCL",
+          "selectorHint": "role=radio name=\"FCL\""
+        },
+        {
+          "action": "fill",
+          "target": "Seluruh field wajib Step 1 (tipe Normal)",
+          "selectorHint": "role=combobox name=\"Pelabuhan Asal\" dst.",
+          "value": "data valid"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "click",
+          "target": "Button Pilih Barang per kontainer",
+          "selectorHint": "role=button name=\"Pilih Barang\""
+        },
+        {
+          "action": "fill",
+          "target": "Jumlah per baris barang",
+          "selectorHint": "textbox name=\"Jumlah\" (scoped row)",
+          "value": "200"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "select",
+          "target": "Vendor",
+          "selectorHint": "role=combobox name=\"Vendor\"",
+          "value": "PT Logistik Transportasi Nusantara"
+        },
+        {
+          "action": "fill",
+          "target": "Tanggal Permintaan Muat",
+          "selectorHint": "textbox name=\"Tanggal Permintaan Muat\"",
+          "value": "24/07/2026 14:30"
+        },
+        {
+          "action": "fill",
+          "target": "Harga",
+          "selectorHint": "textbox name=\"Harga\"",
+          "value": "12000000"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "click",
+          "target": "Button Simpan (Review)",
+          "selectorHint": "role=button name=\"Simpan\""
+        },
+        {
+          "action": "expect",
+          "target": "Badge status order pada Daftar Order",
+          "selectorHint": "testid=badge-status",
+          "expected": "Menunggu Penugasan"
+        }
+      ],
+      "expectedResults": [
+        "Order tersimpan dan berstatus Menunggu Penugasan"
+      ]
+    },
+    {
+      "id": "OMS013-POS-002",
+      "title": "Step 1: mengisi field wajib lalu lanjut ke Step 2",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-004",
+        "@REQ-005",
+        "@REQ-006",
+        "@REQ-007",
+        "@step1",
+        "@REQ-008",
+        "@spec-conflict"
+      ],
+      "requirements": [
+        "REQ-004",
+        "REQ-005",
+        "REQ-006",
+        "REQ-007",
+        "REQ-008"
+      ],
+      "screen": "Buat Order Step 1 (060)",
+      "preconditions": [
+        "Wizard Buat Order terbuka"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Radio card FCL",
+          "selectorHint": "role=radio name=\"FCL\""
+        },
+        {
+          "action": "select",
+          "target": "Pelabuhan Asal",
+          "selectorHint": "role=combobox name=\"Pelabuhan Asal\"",
+          "value": "Tanjung Perak (SUB)"
+        },
+        {
+          "action": "select",
+          "target": "Pelabuhan Tujuan",
+          "selectorHint": "role=combobox name=\"Pelabuhan Tujuan\"",
+          "value": "Panjang (PNJ)"
+        },
+        {
+          "action": "select",
+          "target": "Jenis Kontainer",
+          "selectorHint": "role=combobox name=\"Jenis Kontainer\"",
+          "value": "20 DRY"
+        },
+        {
+          "action": "fill",
+          "target": "Jumlah Kontainer",
+          "selectorHint": "textbox name=\"Jumlah Kontainer\"",
+          "value": "2"
+        },
+        {
+          "action": "select",
+          "target": "Tipe Pengiriman",
+          "selectorHint": "role=combobox name=\"Tipe Pengiriman\"",
+          "value": "Normal"
+        },
+        {
+          "action": "click",
+          "target": "Metode Pengiriman Door to Door",
+          "selectorHint": "role=radio name=\"Door to Door\""
+        },
+        {
+          "action": "fill",
+          "target": "Data Pengirim & Data Penerima (wajib)",
+          "selectorHint": "testid=section-pengirim / section-penerima",
+          "value": "data valid"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Stepper langkah aktif",
+          "selectorHint": "testid=stepper",
+          "expected": "Data Barang"
+        }
+      ],
+      "expectedResults": [
+        "Navigasi ke Step 2 berhasil"
+      ],
+      "notes": [
+        "REQ-008: spec menyatakan Metode Pengiriman tidak diperlukan di OMS, namun seluruh desain menampilkannya; scenario mengikuti desain (Assumptions Log #10) — konflik ditandai @spec-conflict."
+      ]
+    },
+    {
+      "id": "OMS013-POS-003",
+      "title": "Step 1: auto-draft Data Pengirim dari Master Droppoint",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-004",
+        "@step1"
+      ],
+      "requirements": [
+        "REQ-004"
+      ],
+      "screen": "Buat Order Step 1 (060)",
+      "preconditions": [
+        "Master Droppoint memiliki entri 'Gudang MSK Region 2'"
+      ],
+      "steps": [
+        {
+          "action": "select",
+          "target": "Drop Point Asal",
+          "selectorHint": "role=combobox name=\"Drop Point Asal\"",
+          "value": "Gudang MSK Region 2"
+        },
+        {
+          "action": "expect",
+          "target": "Field Pengirim",
+          "selectorHint": "role=combobox name=\"Pengirim\"",
+          "expected": "terisi otomatis (PT Mentari Sumber Kertas)"
+        },
+        {
+          "action": "expect",
+          "target": "Field alamat asal (Provinsi s.d. Alamat)",
+          "selectorHint": "textbox name=\"Provinsi Asal\" [disabled]",
+          "expected": "terisi otomatis dan read-only"
+        }
+      ],
+      "expectedResults": [
+        "Data pengirim ter-draft otomatis dan read-only"
+      ]
+    },
+    {
+      "id": "OMS013-POS-004",
+      "title": "Step 1: auto-draft Data Penerima dari Master Droppoint",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-004",
+        "@step1"
+      ],
+      "requirements": [
+        "REQ-004"
+      ],
+      "screen": "Buat Order Step 1 (060)",
+      "preconditions": [
+        "Master Droppoint memiliki entri 'Gudang Jaya Retail Lampung'"
+      ],
+      "steps": [
+        {
+          "action": "select",
+          "target": "Drop Point Tujuan",
+          "selectorHint": "role=combobox name=\"Drop Point Tujuan\"",
+          "value": "Gudang Jaya Retail Lampung"
+        },
+        {
+          "action": "expect",
+          "target": "Field Penerima",
+          "selectorHint": "role=combobox name=\"Penerima\"",
+          "expected": "terisi otomatis"
+        },
+        {
+          "action": "expect",
+          "target": "Field alamat tujuan",
+          "selectorHint": "textbox name=\"Provinsi Tujuan\" [disabled]",
+          "expected": "terisi otomatis dan read-only"
+        }
+      ],
+      "expectedResults": [
+        "Data penerima ter-draft otomatis dan read-only"
+      ]
+    },
+    {
+      "id": "OMS013-POS-005",
+      "title": "Step 2: memilih barang dari Master Barang via modal Pilih Barang",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-009",
+        "@REQ-010",
+        "@REQ-011",
+        "@REQ-014",
+        "@step2",
+        "@modal-pilih-barang",
+        "@REQ-002"
+      ],
+      "requirements": [
+        "REQ-009",
+        "REQ-010",
+        "REQ-011",
+        "REQ-014",
+        "REQ-002"
+      ],
+      "screen": "Step 2 + modal Pilih Barang (hipotetis, asumsi #14)",
+      "preconditions": [
+        "Order FCL baru berada di Step 2"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Pilih Barang Kontainer 1",
+          "selectorHint": "role=button name=\"Pilih Barang\" (scoped testid=card-kontainer-1)"
+        },
+        {
+          "action": "fill",
+          "target": "Pencarian barang",
+          "selectorHint": "role=dialog name=\"Pilih Barang\" >> textbox name=\"Cari\"",
+          "value": "Kertas HVS"
+        },
+        {
+          "action": "check",
+          "target": "Checkbox barang SKU-PPR-001",
+          "selectorHint": "role=checkbox name=\"SKU-PPR-001\""
+        },
+        {
+          "action": "check",
+          "target": "Checkbox barang SKU-PPR-002",
+          "selectorHint": "role=checkbox name=\"SKU-PPR-002\""
+        },
+        {
+          "action": "click",
+          "target": "Button Simpan modal",
+          "selectorHint": "role=dialog >> role=button name=\"Simpan\""
+        },
+        {
+          "action": "expect",
+          "target": "Tabel barang Kontainer 1",
+          "selectorHint": "testid=table-barang-1",
+          "expected": "baris SKU-PPR-001 dan SKU-PPR-002 tampil"
+        }
+      ],
+      "expectedResults": [
+        "Barang dari Master Barang masuk ke kontainer"
+      ]
+    },
+    {
+      "id": "OMS013-POS-006",
+      "title": "Step 2: field barang ter-draft read-only dari Master Barang",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-015",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-015"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Kontainer 1 memuat SKU-PPR-001"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Kolom Kode SKU/Nama/Kemasan/Kubikasi/Dimensi/Berat",
+          "selectorHint": "testid=row-barang-SKU-PPR-001",
+          "expected": "terisi dari Master Barang (0,018 m³; 31×22×26,4 cm; 12,5 kg)"
+        },
+        {
+          "action": "expect",
+          "target": "Kolom read-only",
+          "selectorHint": "testid=row-barang-SKU-PPR-001 >> [readonly]",
+          "expected": "tidak dapat diedit"
+        }
+      ],
+      "expectedResults": [
+        "Data master read-only"
+      ]
+    },
+    {
+      "id": "OMS013-POS-007",
+      "title": "Step 2: label Sudah Ditambahkan pada barang yang sudah masuk kontainer",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-012",
+        "@step2",
+        "@modal-pilih-barang"
+      ],
+      "requirements": [
+        "REQ-012"
+      ],
+      "screen": "Modal Pilih Barang (hipotetis)",
+      "preconditions": [
+        "Kontainer 1 sudah memuat SKU-PPR-001"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Pilih Barang Kontainer 1",
+          "selectorHint": "role=button name=\"Pilih Barang\""
+        },
+        {
+          "action": "expect",
+          "target": "Label pada baris SKU-PPR-001",
+          "selectorHint": "role=dialog >> testid=item-SKU-PPR-001 >> text=\"Sudah Ditambahkan\"",
+          "expected": "label Sudah Ditambahkan tampil"
+        }
+      ],
+      "expectedResults": [
+        "Barang yang sudah masuk berlabel Sudah Ditambahkan"
+      ]
+    },
+    {
+      "id": "OMS013-POS-008",
+      "title": "Step 2: counter jumlah barang terpilih pada modal",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-013",
+        "@step2",
+        "@modal-pilih-barang"
+      ],
+      "requirements": [
+        "REQ-013"
+      ],
+      "screen": "Modal Pilih Barang (hipotetis)",
+      "preconditions": [
+        "Modal Pilih Barang terbuka"
+      ],
+      "steps": [
+        {
+          "action": "check",
+          "target": "3 checkbox barang",
+          "selectorHint": "role=dialog >> role=checkbox",
+          "value": "3 barang"
+        },
+        {
+          "action": "expect",
+          "target": "Counter terpilih",
+          "selectorHint": "testid=counter-terpilih",
+          "expected": "3"
+        }
+      ],
+      "expectedResults": [
+        "Counter mencerminkan jumlah barang dicentang"
+      ]
+    },
+    {
+      "id": "OMS013-POS-009",
+      "title": "Step 2: mengisi Jumlah per baris barang lalu lanjut",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-016",
+        "@step2",
+        "@REQ-023"
+      ],
+      "requirements": [
+        "REQ-016",
+        "REQ-023"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Kontainer 1 memuat 2 barang"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Jumlah tiap baris",
+          "selectorHint": "textbox name=\"Jumlah\" (scoped row)",
+          "value": "200"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Stepper",
+          "selectorHint": "testid=stepper",
+          "expected": "Vendor dan Harga aktif"
+        }
+      ],
+      "expectedResults": [
+        "Lanjut ke Step 3 tanpa error"
+      ]
+    },
+    {
+      "id": "OMS013-POS-010",
+      "title": "Step 2: centang Tambahkan Asuransi memunculkan kolom Nilai Barang per kontainer",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-017",
+        "@REQ-018",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-017",
+        "REQ-018"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Kontainer 1 dan 2 memuat barang"
+      ],
+      "steps": [
+        {
+          "action": "check",
+          "target": "Checkbox Tambahkan Asuransi Kontainer 1",
+          "selectorHint": "role=checkbox name=\"Tambahkan Asuransi\" (scoped testid=card-kontainer-1)"
+        },
+        {
+          "action": "expect",
+          "target": "Kolom Nilai Barang Kontainer 1",
+          "selectorHint": "testid=table-barang-1 >> columnheader name=\"Nilai Barang\"",
+          "expected": "tampil pada semua baris"
+        },
+        {
+          "action": "expect",
+          "target": "Kolom Nilai Barang Kontainer 2",
+          "selectorHint": "testid=table-barang-2 >> columnheader name=\"Nilai Barang\"",
+          "expected": "tidak tampil"
+        },
+        {
+          "action": "fill",
+          "target": "Nilai Barang seluruh baris Kontainer 1",
+          "selectorHint": "textbox name=\"Nilai Barang\"",
+          "value": "365000"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Stepper",
+          "selectorHint": "testid=stepper",
+          "expected": "Vendor dan Harga aktif"
+        }
+      ],
+      "expectedResults": [
+        "Asuransi per kontainer memunculkan Nilai Barang wajib hanya pada kontainer terkait"
+      ]
+    },
+    {
+      "id": "OMS013-POS-011",
+      "title": "Step 2: Nomor DO multi-nilai dipisah koma tampil sebagai chip",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-019",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-019"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Berada di Step 2"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Input Nomor DO Kontainer 1",
+          "selectorHint": "testid=input-nomor-do-1",
+          "value": "TGK783898202U,TBL28371302"
+        },
+        {
+          "action": "expect",
+          "target": "Chips Nomor DO",
+          "selectorHint": "testid=chip-do",
+          "expected": "2 chip: TGK783898202U, TBL28371302, masing-masing dengan tombol ×"
+        }
+      ],
+      "expectedResults": [
+        "Multi-DO dirender sebagai chip"
+      ]
+    },
+    {
+      "id": "OMS013-POS-012",
+      "title": "Step 2: menghapus barang per baris",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-020",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-020"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Kontainer 1 memuat 3 baris barang"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Icon hapus baris SKU-BKU-001",
+          "selectorHint": "testid=row-barang-SKU-BKU-001 >> role=button name=\"Hapus\""
+        },
+        {
+          "action": "expect",
+          "target": "Tabel barang",
+          "selectorHint": "testid=table-barang-1",
+          "expected": "baris SKU-BKU-001 hilang"
+        },
+        {
+          "action": "expect",
+          "target": "Total kubikasi/berat",
+          "selectorHint": "testid=total-kubikasi-1 / total-berat-1",
+          "expected": "terhitung ulang"
+        }
+      ],
+      "expectedResults": [
+        "Baris terhapus dan total terkoreksi"
+      ]
+    },
+    {
+      "id": "OMS013-POS-013",
+      "title": "Step 3: mengisi Vendor, Tanggal Permintaan Muat, dan Harga",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-024",
+        "@step3"
+      ],
+      "requirements": [
+        "REQ-024"
+      ],
+      "screen": "Step 3 (064)",
+      "preconditions": [
+        "Step 1-2 selesai"
+      ],
+      "steps": [
+        {
+          "action": "select",
+          "target": "Vendor",
+          "selectorHint": "role=combobox name=\"Vendor\"",
+          "value": "PT Logistik Transportasi Nusantara"
+        },
+        {
+          "action": "fill",
+          "target": "Tanggal Permintaan Muat",
+          "selectorHint": "textbox name=\"Tanggal Permintaan Muat\"",
+          "value": "24/07/2026 14:30"
+        },
+        {
+          "action": "fill",
+          "target": "Harga",
+          "selectorHint": "textbox name=\"Harga\"",
+          "value": "12000000"
+        },
+        {
+          "action": "expect",
+          "target": "Ringkasan alamat",
+          "selectorHint": "testid=ringkasan-alamat",
+          "expected": "Drop Point Asal, Drop Point Tujuan, Jenis Kontainer tampil"
+        },
+        {
+          "action": "expect",
+          "target": "Tabel ringkasan muatan",
+          "selectorHint": "testid=table-ringkasan-muatan",
+          "expected": "Total Berat/Kubikasi/Nilai Barang per kontainer tampil"
+        }
+      ],
+      "expectedResults": [
+        "Field terisi dan ringkasan konsisten dengan Step 2"
+      ]
+    },
+    {
+      "id": "OMS013-POS-014",
+      "title": "Step 3: komponen harga PPN dan PPh via checkbox Gunakan komponen harga",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-024",
+        "@step3"
+      ],
+      "requirements": [
+        "REQ-024"
+      ],
+      "screen": "Step 3 (074/082/090)",
+      "preconditions": [
+        "Harga terisi 30.000.000"
+      ],
+      "steps": [
+        {
+          "action": "check",
+          "target": "Checkbox Gunakan komponen harga",
+          "selectorHint": "role=checkbox name=\"Gunakan komponen harga\""
+        },
+        {
+          "action": "expect",
+          "target": "Input persentase PPN & PPh",
+          "selectorHint": "textbox name=\"PPN\" / name=\"PPh\"",
+          "expected": "tampil (default 1,1% dan 2%)"
+        },
+        {
+          "action": "expect",
+          "target": "Panel kalkulasi",
+          "selectorHint": "testid=panel-kalkulasi-harga",
+          "expected": "Harga DPP Rp. 30.000.000; PPN Rp. 330.000; PPh -Rp. 600.000; Total Harga Rp. 29.730.000"
+        }
+      ],
+      "expectedResults": [
+        "Kalkulasi PPN/PPh benar"
+      ]
+    },
+    {
+      "id": "OMS013-POS-015",
+      "title": "Step 3: komponen Asuransi ikut terhitung saat ada kontainer diasuransikan",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-026",
+        "@step3"
+      ],
+      "requirements": [
+        "REQ-026"
+      ],
+      "screen": "Step 3/Review (065)",
+      "preconditions": [
+        "Kontainer 2 diasuransikan, Total Nilai Barang Rp1.006.750.000"
+      ],
+      "steps": [
+        {
+          "action": "check",
+          "target": "Checkbox Gunakan komponen harga",
+          "selectorHint": "role=checkbox name=\"Gunakan komponen harga\""
+        },
+        {
+          "action": "expect",
+          "target": "Baris Asuransi",
+          "selectorHint": "testid=panel-kalkulasi-harga >> text=/Asuransi \\(0,2%\\)/",
+          "expected": "tampil dengan catatan (Total Nilai Barang = Rp1.006.750.000)"
+        },
+        {
+          "action": "expect",
+          "target": "Total Harga",
+          "selectorHint": "testid=review-total-harga",
+          "expected": "memuat DPP + PPN - PPh + Asuransi (persentase × Total Nilai Barang)"
+        }
+      ],
+      "expectedResults": [
+        "Asuransi = persentase × Total Nilai Barang masuk Total Harga"
+      ]
+    },
+    {
+      "id": "OMS013-POS-016",
+      "title": "Step 4: review read-only dengan struktur Data Barang OMS dan label Diasuransikan",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-028",
+        "@REQ-029",
+        "@step4"
+      ],
+      "requirements": [
+        "REQ-028",
+        "REQ-029"
+      ],
+      "screen": "Step 4 Review (065)",
+      "preconditions": [
+        "Kontainer 2 diasuransikan"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Seluruh section review",
+          "selectorHint": "testid=review-section-*",
+          "expected": "read-only (tanpa kontrol input)"
+        },
+        {
+          "action": "expect",
+          "target": "Struktur Data Barang",
+          "selectorHint": "testid=review-kontainer-1",
+          "expected": "Kode SKU, Nama Barang, Kemasan, Kubikasi/Dimensi, Berat, Jumlah"
+        },
+        {
+          "action": "expect",
+          "target": "Kolom Nilai Barang",
+          "selectorHint": "testid=review-kontainer-2 >> columnheader name=\"Nilai Barang\"",
+          "expected": "hanya pada kontainer diasuransikan"
+        },
+        {
+          "action": "expect",
+          "target": "Label Diasuransikan",
+          "selectorHint": "testid=chip-diasuransikan-2",
+          "expected": "tampil pada judul Kontainer 2"
+        }
+      ],
+      "expectedResults": [
+        "Review mengikuti struktur Step 2 OMS"
+      ]
+    },
+    {
+      "id": "OMS013-POS-017",
+      "title": "Step 4: membuka pop up Visualisasi Muatan dari card Data Barang",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-003",
+        "@REQ-030",
+        "@step4",
+        "@visualisasi"
+      ],
+      "requirements": [
+        "REQ-003",
+        "REQ-030"
+      ],
+      "screen": "Step 4 (065) + panel visualisasi (063)",
+      "preconditions": [
+        "Berada di Step 4"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Visualisasi Muatan",
+          "selectorHint": "role=button name=\"Visualisasi Muatan\""
+        },
+        {
+          "action": "expect",
+          "target": "Panel visualisasi",
+          "selectorHint": "role=dialog name=/Visualisasi Muatan/",
+          "expected": "tampil"
+        },
+        {
+          "action": "expect",
+          "target": "Isi panel",
+          "selectorHint": "testid=viz-summary / role=tab / testid=viz-berat / viz-ruang / viz-canvas",
+          "expected": "Total Kubikasi & Berat, tab per kontainer, progress Berat/Ruang Terpakai, canvas 3D"
+        }
+      ],
+      "expectedResults": [
+        "Pop up visualisasi muatan tampil lengkap"
+      ]
+    },
+    {
+      "id": "OMS013-POS-018",
+      "title": "Step 4: Simpan mengubah status menjadi Menunggu Penugasan",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-031",
+        "@REQ-032",
+        "@step4"
+      ],
+      "requirements": [
+        "REQ-031",
+        "REQ-032"
+      ],
+      "screen": "Step 4 (065)",
+      "preconditions": [
+        "Seluruh data valid"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Simpan",
+          "selectorHint": "role=button name=\"Simpan\""
+        },
+        {
+          "action": "expect",
+          "target": "Status order",
+          "selectorHint": "testid=badge-status",
+          "expected": "Menunggu Penugasan"
+        }
+      ],
+      "expectedResults": [
+        "Submit berhasil, status Menunggu Penugasan"
+      ]
+    },
+    {
+      "id": "OMS013-POS-019",
+      "title": "Simpan ke Draf pada tiap step menghasilkan status draft yang sesuai",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-033",
+        "@draft"
+      ],
+      "requirements": [
+        "REQ-033"
+      ],
+      "screen": "Step 1-4",
+      "preconditions": [
+        "Wizard Buat Order aktif"
+      ],
+      "outline": true,
+      "examples": [
+        {
+          "step": "1",
+          "status": "Isi Data Pengiriman"
+        },
+        {
+          "step": "2",
+          "status": "Isi Data Muatan"
+        },
+        {
+          "step": "3",
+          "status": "Isi Data Vendor"
+        },
+        {
+          "step": "4",
+          "status": "Review Order"
+        }
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Simpan ke Draf pada Step <step>",
+          "selectorHint": "role=button name=\"Simpan ke Draf\""
+        },
+        {
+          "action": "expect",
+          "target": "Badge status di Daftar Order",
+          "selectorHint": "testid=badge-status",
+          "expected": "<status> (alias desain: Isi Data Pengiriman = 'Isi Data Dasar')"
+        }
+      ],
+      "expectedResults": [
+        "Status draft sesuai step terakhir"
+      ]
+    },
+    {
+      "id": "OMS013-POS-020",
+      "title": "Lanjutkan Pengisian membuka draft pada step terakhir",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-033",
+        "@REQ-042",
+        "@daftar-order"
+      ],
+      "requirements": [
+        "REQ-033",
+        "REQ-042"
+      ],
+      "screen": "Daftar Order (058)",
+      "preconditions": [
+        "Order draft berstatus Isi Data Muatan"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Action menu order",
+          "selectorHint": "testid=order-row-{id} >> role=button name=\"Aksi\""
+        },
+        {
+          "action": "click",
+          "target": "Menu Lanjutkan Pengisian",
+          "selectorHint": "role=menuitem name=\"Lanjutkan Pengisian\""
+        },
+        {
+          "action": "expect",
+          "target": "Wizard",
+          "selectorHint": "testid=stepper",
+          "expected": "terbuka di Step 2 dengan data tersimpan"
+        }
+      ],
+      "expectedResults": [
+        "Draft dilanjutkan tepat di step terakhir"
+      ]
+    },
+    {
+      "id": "OMS013-POS-021",
+      "title": "Edit order berstatus Menunggu Penugasan lalu simpan dengan konfirmasi",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-034",
+        "@REQ-036",
+        "@REQ-037",
+        "@REQ-038",
+        "@edit-order"
+      ],
+      "requirements": [
+        "REQ-034",
+        "REQ-036",
+        "REQ-037",
+        "REQ-038"
+      ],
+      "screen": "Edit Order (068)",
+      "preconditions": [
+        "Order berstatus Menunggu Penugasan"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Menu Edit",
+          "selectorHint": "role=menuitem name=\"Edit\""
+        },
+        {
+          "action": "expect",
+          "target": "Jenis & Tipe Pengiriman",
+          "selectorHint": "testid=edit-locked-info",
+          "expected": "read-only"
+        },
+        {
+          "action": "expect",
+          "target": "Field lain",
+          "selectorHint": "role=combobox name=\"Jenis Kontainer\" dst.",
+          "expected": "dapat diubah"
+        },
+        {
+          "action": "fill",
+          "target": "Jumlah Kontainer",
+          "selectorHint": "textbox name=\"Jumlah Kontainer\"",
+          "value": "1"
+        },
+        {
+          "action": "click",
+          "target": "Button Simpan",
+          "selectorHint": "role=button name=\"Simpan\""
+        },
+        {
+          "action": "expect",
+          "target": "Pop up konfirmasi",
+          "selectorHint": "role=dialog",
+          "expected": "tampil"
+        },
+        {
+          "action": "click",
+          "target": "Konfirmasi simpan",
+          "selectorHint": "role=dialog >> role=button name=/Simpan|Ya/",
+          "expected": "perubahan tersimpan, kembali ke Detail Order"
+        }
+      ],
+      "expectedResults": [
+        "Edit tersimpan setelah konfirmasi"
+      ]
+    },
+    {
+      "id": "OMS013-POS-022",
+      "title": "Membatalkan order draft dengan Alasan Pembatalan",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-039",
+        "@REQ-040",
+        "@REQ-041",
+        "@pembatalan"
+      ],
+      "requirements": [
+        "REQ-039",
+        "REQ-040",
+        "REQ-041"
+      ],
+      "screen": "Daftar Order + dialog pembatalan (hipotetis)",
+      "preconditions": [
+        "Order berstatus Review Order"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Menu Batalkan Order",
+          "selectorHint": "role=menuitem name=\"Batalkan Order\""
+        },
+        {
+          "action": "fill",
+          "target": "Alasan Pembatalan",
+          "selectorHint": "role=dialog >> textbox name=\"Alasan Pembatalan\"",
+          "value": "Perubahan jadwal produksi"
+        },
+        {
+          "action": "click",
+          "target": "Konfirmasi pembatalan",
+          "selectorHint": "role=dialog >> role=button name=/Batalkan|Ya/"
+        },
+        {
+          "action": "expect",
+          "target": "Status order",
+          "selectorHint": "testid=badge-status",
+          "expected": "Dibatalkan"
+        }
+      ],
+      "expectedResults": [
+        "Order dibatalkan dengan alasan tercatat"
+      ]
+    },
+    {
+      "id": "OMS013-POS-023",
+      "title": "Membatalkan order berstatus Ditugaskan",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-039",
+        "@pembatalan"
+      ],
+      "requirements": [
+        "REQ-039"
+      ],
+      "screen": "Daftar Order (069)",
+      "preconditions": [
+        "Order berstatus Ditugaskan"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Menu Batalkan Order",
+          "selectorHint": "role=menuitem name=\"Batalkan Order\""
+        },
+        {
+          "action": "fill",
+          "target": "Alasan Pembatalan",
+          "selectorHint": "role=dialog >> textbox name=\"Alasan Pembatalan\"",
+          "value": "Vendor tidak tersedia"
+        },
+        {
+          "action": "click",
+          "target": "Konfirmasi",
+          "selectorHint": "role=dialog >> role=button name=/Batalkan|Ya/"
+        },
+        {
+          "action": "expect",
+          "target": "Status",
+          "selectorHint": "testid=badge-status",
+          "expected": "Dibatalkan"
+        }
+      ],
+      "expectedResults": [
+        "Order Ditugaskan masih dapat dibatalkan"
+      ]
+    },
+    {
+      "id": "OMS013-POS-024",
+      "title": "Lihat No. Perjalanan menampilkan pop up Data No. Perjalanan per kontainer",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-047",
+        "@REQ-048",
+        "@no-perjalanan",
+        "@REQ-046"
+      ],
+      "requirements": [
+        "REQ-047",
+        "REQ-048",
+        "REQ-046"
+      ],
+      "screen": "Pop up Data No. Perjalanan (070)",
+      "preconditions": [
+        "Order FCL Ditugaskan dengan 2 kontainer"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Menu Lihat No. Perjalanan",
+          "selectorHint": "role=menuitem name=\"Lihat No. Perjalanan\""
+        },
+        {
+          "action": "expect",
+          "target": "Dialog",
+          "selectorHint": "role=dialog name=\"Data No. Perjalanan\"",
+          "expected": "tampil dengan ID Order dan badge FCL"
+        },
+        {
+          "action": "expect",
+          "target": "Baris perjalanan",
+          "selectorHint": "testid=trip-row-*",
+          "expected": "2 baris: No. Perjalanan + No. Kontainer + jenis (40 DRY)"
+        }
+      ],
+      "expectedResults": [
+        "Pop up menampilkan data per kontainer"
+      ]
+    },
+    {
+      "id": "OMS013-POS-025",
+      "title": "Menyalin No. Perjalanan via icon copy",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-049",
+        "@no-perjalanan",
+        "@REQ-044"
+      ],
+      "requirements": [
+        "REQ-049",
+        "REQ-044"
+      ],
+      "screen": "Pop up Data No. Perjalanan (070)",
+      "preconditions": [
+        "Pop up terbuka"
+      ],
+      "steps": [
+        {
+          "action": "copy",
+          "target": "Icon copy baris 1",
+          "selectorHint": "testid=btn-copy-trip-1"
+        },
+        {
+          "action": "expect",
+          "target": "Clipboard",
+          "selectorHint": "clipboard",
+          "expected": "berisi No. Perjalanan baris 1 (mis. TRC79289802)"
+        }
+      ],
+      "expectedResults": [
+        "Nomor tersalin ke clipboard"
+      ]
+    },
+    {
+      "id": "OMS013-POS-026",
+      "title": "No. Perjalanan dapat dilihat pada halaman Detail Order",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-050",
+        "@no-perjalanan",
+        "@detail-order"
+      ],
+      "requirements": [
+        "REQ-050"
+      ],
+      "screen": "Detail Order (067)",
+      "preconditions": [
+        "Order FCL Ditugaskan"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Menu Detail",
+          "selectorHint": "role=menuitem name=\"Detail\""
+        },
+        {
+          "action": "expect",
+          "target": "Informasi No. Perjalanan",
+          "selectorHint": "testid=detail-no-perjalanan",
+          "expected": "No. Perjalanan per kontainer tampil"
+        }
+      ],
+      "expectedResults": [
+        "Detail Order memuat No. Perjalanan"
+      ]
+    },
+    {
+      "id": "OMS013-POS-027",
+      "title": "Riwayat Pembatalan menampilkan seluruh order yang pernah dibatalkan",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-043",
+        "@daftar-order"
+      ],
+      "requirements": [
+        "REQ-043"
+      ],
+      "screen": "Daftar Order (058)",
+      "preconditions": [
+        "Minimal 1 order Dibatalkan"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Riwayat Pembatalan",
+          "selectorHint": "role=button name=\"Riwayat Pembatalan\""
+        },
+        {
+          "action": "expect",
+          "target": "Daftar pembatalan",
+          "selectorHint": "testid=list-riwayat-pembatalan",
+          "expected": "seluruh order yang pernah dibatalkan tampil"
+        }
+      ],
+      "expectedResults": [
+        "Riwayat pembatalan global tampil"
+      ]
+    },
+    {
+      "id": "OMS013-POS-028",
+      "title": "Riwayat Perubahan menampilkan histori perubahan order tertentu",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-042",
+        "@daftar-order"
+      ],
+      "requirements": [
+        "REQ-042"
+      ],
+      "screen": "Daftar Order (069)",
+      "preconditions": [
+        "Order pernah diedit"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Menu Riwayat Perubahan",
+          "selectorHint": "role=menuitem name=\"Riwayat Perubahan\""
+        },
+        {
+          "action": "expect",
+          "target": "Histori",
+          "selectorHint": "testid=list-riwayat-perubahan",
+          "expected": "histori perubahan order tersebut tampil"
+        }
+      ],
+      "expectedResults": [
+        "Riwayat per-order tampil"
+      ]
+    },
+    {
+      "id": "OMS013-POS-029",
+      "title": "Buat Order FCL Multipickup dengan 2 titik pick up",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-004",
+        "@REQ-005",
+        "@multipickup",
+        "@step1",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "screen": "Step 1 (072) + Step 2 (073)",
+      "preconditions": [
+        "Wizard terbuka"
+      ],
+      "steps": [
+        {
+          "action": "select",
+          "target": "Tipe Pengiriman",
+          "selectorHint": "role=combobox name=\"Tipe Pengiriman\"",
+          "value": "Multipickup"
+        },
+        {
+          "action": "expect",
+          "target": "Blok Pick Up",
+          "selectorHint": "testid=pick-up-1 / pick-up-2 + link \"Tambah Baris Input\"",
+          "expected": "Pick Up 1 & 2 tampil dengan info alert urutan pengiriman"
+        },
+        {
+          "action": "fill",
+          "target": "Kedua blok pick up",
+          "selectorHint": "testid=pick-up-*",
+          "value": "data valid"
+        },
+        {
+          "action": "click",
+          "target": "Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Step 2 per titik",
+          "selectorHint": "testid=card-kontainer-1 >> text=/Pick Up 1|Pick Up 2/",
+          "expected": "sub-section per pick up dengan tabel barang masing-masing"
+        }
+      ],
+      "expectedResults": [
+        "Struktur multipickup benar di Step 1 dan 2"
+      ]
+    },
+    {
+      "id": "OMS013-POS-030",
+      "title": "Buat Order FCL Multidrop dengan 2 titik drop off",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-004",
+        "@REQ-005",
+        "@multidrop",
+        "@step1",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "screen": "Step 1 (080) + Step 2 (081)",
+      "preconditions": [
+        "Wizard terbuka"
+      ],
+      "steps": [
+        {
+          "action": "select",
+          "target": "Tipe Pengiriman",
+          "selectorHint": "role=combobox name=\"Tipe Pengiriman\"",
+          "value": "Multidrop"
+        },
+        {
+          "action": "expect",
+          "target": "Blok Drop Off",
+          "selectorHint": "testid=drop-off-1 / drop-off-2",
+          "expected": "Drop Off 1 & 2 tampil + Tambah Baris Input"
+        },
+        {
+          "action": "fill",
+          "target": "Kedua blok drop off",
+          "selectorHint": "testid=drop-off-*",
+          "value": "data valid"
+        },
+        {
+          "action": "click",
+          "target": "Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Step 2 per titik",
+          "selectorHint": "testid=card-kontainer-1 >> text=/Drop Off 1|Drop Off 2/",
+          "expected": "sub-section per drop off dengan tabel barang masing-masing"
+        }
+      ],
+      "expectedResults": [
+        "Struktur multidrop benar di Step 1 dan 2"
+      ]
+    },
+    {
+      "id": "OMS013-POS-031",
+      "title": "Buat Order FCL Multipoint dengan kombinasi pick up dan drop off",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-004",
+        "@REQ-005",
+        "@multipoint",
+        "@step1",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-004",
+        "REQ-005"
+      ],
+      "screen": "Step 1 (088) + Step 2 (089)",
+      "preconditions": [
+        "Wizard terbuka"
+      ],
+      "steps": [
+        {
+          "action": "select",
+          "target": "Tipe Pengiriman",
+          "selectorHint": "role=combobox name=\"Tipe Pengiriman\"",
+          "value": "Multipoint"
+        },
+        {
+          "action": "expect",
+          "target": "Blok pengirim & penerima",
+          "selectorHint": "testid=pick-up-* / drop-off-*",
+          "expected": "Pick Up 1-2 dan Drop Off 1-2 tampil"
+        },
+        {
+          "action": "fill",
+          "target": "Seluruh blok",
+          "selectorHint": "testid=pick-up-* / drop-off-*",
+          "value": "data valid"
+        },
+        {
+          "action": "click",
+          "target": "Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Step 2 kombinasi",
+          "selectorHint": "text=/Pick Up \\d – Drop Off \\d/",
+          "expected": "sub-section kombinasi Pick Up i – Drop Off j"
+        }
+      ],
+      "expectedResults": [
+        "Struktur multipoint benar"
+      ]
+    },
+    {
+      "id": "OMS013-POS-032",
+      "title": "Step 3: link Lihat Detail menampilkan modal Detail Multipickup/Multidrop",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-024",
+        "@multipickup",
+        "@multidrop",
+        "@step3"
+      ],
+      "requirements": [
+        "REQ-024"
+      ],
+      "screen": "Step 3 (090) + modal (091, 092)",
+      "preconditions": [
+        "Order Multipoint di Step 3"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Link Lihat Detail (Drop Point Asal)",
+          "selectorHint": "role=link name=\"Lihat Detail\" (baris Drop Point Asal)"
+        },
+        {
+          "action": "expect",
+          "target": "Modal Detail Multipickup",
+          "selectorHint": "role=dialog name=\"Detail Multipickup\"",
+          "expected": "daftar Pick Up i – Kota + gudang + alamat"
+        },
+        {
+          "action": "click",
+          "target": "Tutup modal",
+          "selectorHint": "role=dialog >> role=button name=\"Close\""
+        },
+        {
+          "action": "click",
+          "target": "Link Lihat Detail (Drop Point Tujuan)",
+          "selectorHint": "role=link name=\"Lihat Detail\" (baris Drop Point Tujuan)"
+        },
+        {
+          "action": "expect",
+          "target": "Modal Detail Multidrop",
+          "selectorHint": "role=dialog name=\"Detail Multidrop\"",
+          "expected": "daftar Drop Off i – Kota + gudang + alamat"
+        }
+      ],
+      "expectedResults": [
+        "Kedua modal detail alamat tampil benar"
+      ]
+    },
+    {
+      "id": "OMS013-POS-033",
+      "title": "Hitung Ulang Kontainer: simulasi ubah jumlah kontainer lalu Terapkan ke Order",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-003",
+        "@visualisasi",
+        "@auto-stuffing"
+      ],
+      "requirements": [
+        "REQ-003"
+      ],
+      "screen": "Panel Hitung Ulang Kontainer (062)",
+      "preconditions": [
+        "Panel terbuka dari Step 2 (icon mata/hitung ulang)"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Stepper + Jumlah Kontainer",
+          "selectorHint": "testid=viz-jumlah-kontainer >> role=button name=\"+\""
+        },
+        {
+          "action": "expect",
+          "target": "Visualisasi & progress",
+          "selectorHint": "testid=viz-berat / viz-ruang / viz-canvas",
+          "expected": "terhitung ulang"
+        },
+        {
+          "action": "click",
+          "target": "Button Terapkan ke Order",
+          "selectorHint": "role=button name=\"Terapkan ke Order\""
+        },
+        {
+          "action": "expect",
+          "target": "Data order",
+          "selectorHint": "testid=card-data-unit",
+          "expected": "jumlah kontainer order berubah sesuai simulasi"
+        }
+      ],
+      "expectedResults": [
+        "Simulasi diterapkan ke order"
+      ]
+    },
+    {
+      "id": "OMS013-POS-034",
+      "title": "Action menu per-baris sesuai status order",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@REQ-042",
+        "@daftar-order"
+      ],
+      "requirements": [
+        "REQ-042"
+      ],
+      "screen": "Daftar Order (058, 069)",
+      "preconditions": [
+        "Order tersedia pada tiap status"
+      ],
+      "outline": true,
+      "examples": [
+        {
+          "status": "Isi Data Pengiriman",
+          "aksi": "Detail, Lanjutkan Pengisian, Batalkan Order, Riwayat Perubahan"
+        },
+        {
+          "status": "Isi Data Muatan",
+          "aksi": "Detail, Lanjutkan Pengisian, Batalkan Order, Riwayat Perubahan"
+        },
+        {
+          "status": "Isi Data Vendor",
+          "aksi": "Detail, Lanjutkan Pengisian, Batalkan Order, Riwayat Perubahan"
+        },
+        {
+          "status": "Review Order",
+          "aksi": "Detail, Lanjutkan Pengisian, Batalkan Order, Riwayat Perubahan"
+        },
+        {
+          "status": "Menunggu Penugasan",
+          "aksi": "Detail, Edit, Batalkan Order, Riwayat Perubahan"
+        },
+        {
+          "status": "Ditugaskan",
+          "aksi": "Detail, Batalkan Order, Riwayat Perubahan, Lihat No. Perjalanan"
+        }
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Action menu order berstatus <status>",
+          "selectorHint": "testid=order-row-* >> role=button name=\"Aksi\""
+        },
+        {
+          "action": "expect",
+          "target": "Daftar menu",
+          "selectorHint": "role=menu >> role=menuitem",
+          "expected": "<aksi>"
+        }
+      ],
+      "expectedResults": [
+        "Aksi kontekstual sesuai matriks status"
+      ]
+    },
+    {
+      "id": "OMS013-POS-035",
+      "title": "Filter Daftar Order berdasarkan status",
+      "category": "positive",
+      "tags": [
+        "@positive",
+        "@daftar-order",
+        "@filter"
+      ],
+      "requirements": [],
+      "screen": "Daftar Order + panel filter (069)",
+      "preconditions": [
+        "Order beragam status tersedia"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Filter",
+          "selectorHint": "role=button name=\"Filter\""
+        },
+        {
+          "action": "select",
+          "target": "Status",
+          "selectorHint": "role=combobox name=\"Status\"",
+          "value": "Menunggu Penugasan"
+        },
+        {
+          "action": "click",
+          "target": "Button Terapkan",
+          "selectorHint": "role=button name=\"Terapkan\""
+        },
+        {
+          "action": "expect",
+          "target": "Tabel",
+          "selectorHint": "testid=badge-status",
+          "expected": "hanya baris berstatus Menunggu Penugasan"
+        },
+        {
+          "action": "click",
+          "target": "Button Reset",
+          "selectorHint": "role=button name=\"Reset\"",
+          "expected": "filter kosong kembali"
+        }
+      ],
+      "expectedResults": [
+        "Filter status bekerja dan dapat direset"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-001",
+      "title": "Step 1: field wajib kosong memblokir lanjut ke Step 2",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-006",
+        "@step1",
+        "@validasi"
+      ],
+      "requirements": [
+        "REQ-006"
+      ],
+      "screen": "Step 1 (059)",
+      "preconditions": [
+        "FCL dipilih, field wajib kosong"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\"",
+          "expected": "disabled, atau menampilkan error validasi saat diklik"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya (bila enabled)",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Field wajib",
+          "selectorHint": "role=combobox name=\"Pelabuhan Asal\" dst.",
+          "expected": "indikasi error tampil; tetap di Step 1"
+        }
+      ],
+      "expectedResults": [
+        "Tidak dapat lanjut dengan field wajib kosong"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-002",
+      "title": "Step 2: Jumlah kosong menampilkan helper error dan border merah",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-016",
+        "@REQ-022",
+        "@step2",
+        "@validasi"
+      ],
+      "requirements": [
+        "REQ-016",
+        "REQ-022"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Barang dengan Jumlah kosong"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Helper error",
+          "selectorHint": "text=\"Jumlah harus diisi\"",
+          "expected": "tampil di bawah field"
+        },
+        {
+          "action": "expect",
+          "target": "Border field Jumlah",
+          "selectorHint": "textbox name=\"Jumlah\" (scoped row)",
+          "expected": "berwarna error (merah)"
+        },
+        {
+          "action": "expect",
+          "target": "Stepper",
+          "selectorHint": "testid=stepper",
+          "expected": "tetap di Data Barang"
+        }
+      ],
+      "expectedResults": [
+        "Validasi Jumlah bekerja"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-003",
+      "title": "Step 2: Nilai Barang kosong saat asuransi aktif menampilkan error",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-017",
+        "@REQ-022",
+        "@step2",
+        "@validasi"
+      ],
+      "requirements": [
+        "REQ-017",
+        "REQ-022"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Asuransi Kontainer 1 dicentang, Nilai Barang salah satu baris kosong"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Helper error",
+          "selectorHint": "text=\"Nilai Barang harus diisi\"",
+          "expected": "tampil"
+        },
+        {
+          "action": "expect",
+          "target": "Border Nilai Barang",
+          "selectorHint": "textbox name=\"Nilai Barang\"",
+          "expected": "berwarna error"
+        },
+        {
+          "action": "expect",
+          "target": "Stepper",
+          "selectorHint": "testid=stepper",
+          "expected": "tetap di Data Barang"
+        }
+      ],
+      "expectedResults": [
+        "Validasi Nilai Barang bekerja saat asuransi aktif"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-004",
+      "title": "Step 3: Vendor, Tanggal, atau Harga kosong memblokir lanjut",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-027",
+        "@step3",
+        "@validasi"
+      ],
+      "requirements": [
+        "REQ-027"
+      ],
+      "screen": "Step 3 (064)",
+      "preconditions": [
+        "Field wajib Step 3 kosong"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Field wajib",
+          "selectorHint": "role=combobox name=\"Vendor\"; textbox name=\"Tanggal Permintaan Muat\"; textbox name=\"Harga\"",
+          "expected": "indikasi error tampil; tetap di Step 3"
+        }
+      ],
+      "expectedResults": [
+        "Tidak dapat lanjut tanpa field wajib Step 3"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-005",
+      "title": "Pembatalan tanpa Alasan Pembatalan ditolak",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-041",
+        "@pembatalan",
+        "@validasi"
+      ],
+      "requirements": [
+        "REQ-041"
+      ],
+      "screen": "Dialog pembatalan (hipotetis)",
+      "preconditions": [
+        "Dialog pembatalan terbuka"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Alasan Pembatalan",
+          "selectorHint": "role=dialog >> textbox name=\"Alasan Pembatalan\"",
+          "value": ""
+        },
+        {
+          "action": "click",
+          "target": "Konfirmasi pembatalan",
+          "selectorHint": "role=dialog >> role=button name=/Batalkan|Ya/"
+        },
+        {
+          "action": "expect",
+          "target": "Dialog",
+          "selectorHint": "role=dialog",
+          "expected": "pembatalan tidak diproses; error pada field Alasan Pembatalan"
+        }
+      ],
+      "expectedResults": [
+        "Alasan Pembatalan wajib"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-006",
+      "title": "Edit Order: Jenis Pengiriman dan Tipe Pengiriman tidak dapat diubah",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-036",
+        "@edit-order"
+      ],
+      "requirements": [
+        "REQ-036"
+      ],
+      "screen": "Edit Order (068)",
+      "preconditions": [
+        "Order Menunggu Penugasan dibuka di Edit"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Jenis Pengiriman",
+          "selectorHint": "testid=edit-locked-info >> text=/Jenis Pengiriman/",
+          "expected": "read-only tanpa kontrol input"
+        },
+        {
+          "action": "expect",
+          "target": "Tipe Pengiriman",
+          "selectorHint": "testid=edit-locked-info >> text=/Tipe Pengiriman/",
+          "expected": "read-only tanpa kontrol input"
+        }
+      ],
+      "expectedResults": [
+        "Kedua field locked"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-007",
+      "title": "Order berstatus Ditugaskan tidak menyediakan aksi Edit",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-035",
+        "@REQ-042",
+        "@daftar-order",
+        "@spec-conflict"
+      ],
+      "requirements": [
+        "REQ-035",
+        "REQ-042"
+      ],
+      "screen": "Daftar Order (069) / Detail Order (067)",
+      "preconditions": [
+        "Order Ditugaskan; catatan diskrepansi #12 — spec menang atas desain 067"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Action menu order Ditugaskan",
+          "selectorHint": "role=button name=\"Aksi\""
+        },
+        {
+          "action": "expect",
+          "target": "Menu",
+          "selectorHint": "role=menu",
+          "expected": "aksi Edit tidak tampil"
+        }
+      ],
+      "expectedResults": [
+        "Edit tidak tersedia pada Ditugaskan (per spec)"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-008",
+      "title": "Order berstatus Proses Pengiriman tidak dapat dibatalkan",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-039",
+        "@daftar-order",
+        "@pembatalan"
+      ],
+      "requirements": [
+        "REQ-039"
+      ],
+      "screen": "Daftar Order (058)",
+      "preconditions": [
+        "Order Proses Pengiriman"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Action menu order",
+          "selectorHint": "role=button name=\"Aksi\""
+        },
+        {
+          "action": "expect",
+          "target": "Menu",
+          "selectorHint": "role=menu",
+          "expected": "aksi Batalkan Order tidak tampil"
+        }
+      ],
+      "expectedResults": [
+        "Pembatalan terkunci setelah Proses Pengiriman"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-009",
+      "title": "Menghapus centang Tambahkan Asuransi menyembunyikan kolom Nilai Barang",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-017",
+        "@REQ-018",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-017",
+        "REQ-018"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Asuransi Kontainer 1 tercentang, kolom Nilai Barang tampil"
+      ],
+      "steps": [
+        {
+          "action": "uncheck",
+          "target": "Checkbox Tambahkan Asuransi Kontainer 1",
+          "selectorHint": "role=checkbox name=\"Tambahkan Asuransi\""
+        },
+        {
+          "action": "expect",
+          "target": "Kolom Nilai Barang",
+          "selectorHint": "testid=table-barang-1 >> columnheader name=\"Nilai Barang\"",
+          "expected": "tidak tampil"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Validasi",
+          "selectorHint": "text=\"Nilai Barang harus diisi\"",
+          "expected": "tidak muncul; lanjut berhasil"
+        }
+      ],
+      "expectedResults": [
+        "Nilai Barang tidak divalidasi saat asuransi non-aktif"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-010",
+      "title": "Aksi Lihat No. Perjalanan tidak tampil sebelum status Ditugaskan",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-047",
+        "@no-perjalanan",
+        "@daftar-order"
+      ],
+      "requirements": [
+        "REQ-047"
+      ],
+      "screen": "Daftar Order (058)",
+      "preconditions": [
+        "Order Menunggu Penugasan"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Action menu order",
+          "selectorHint": "role=button name=\"Aksi\""
+        },
+        {
+          "action": "expect",
+          "target": "Menu",
+          "selectorHint": "role=menu",
+          "expected": "aksi Lihat No. Perjalanan tidak tampil"
+        }
+      ],
+      "expectedResults": [
+        "No. Perjalanan tersembunyi sebelum penugasan"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-011",
+      "title": "Step 2: kontainer tanpa barang tidak dapat lanjut",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@step2",
+        "@validasi",
+        "@assumption-20"
+      ],
+      "requirements": [],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Kontainer 2 kosong (empty state tampil); asumsi #20: tiap kontainer wajib ≥1 barang"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Empty state",
+          "selectorHint": "testid=empty-barang",
+          "expected": "Belum ada barang. Klik 'Pilih Barang'"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Stepper",
+          "selectorHint": "testid=stepper",
+          "expected": "tetap di Data Barang dengan indikasi kontainer kosong"
+        }
+      ],
+      "expectedResults": [
+        "Kontainer kosong memblokir lanjut (asumsi)"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-012",
+      "title": "Batal pengisian menampilkan konfirmasi dan tidak menyimpan order",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-007",
+        "@REQ-038",
+        "@step1"
+      ],
+      "requirements": [
+        "REQ-007",
+        "REQ-038"
+      ],
+      "screen": "Step 1 (060)",
+      "preconditions": [
+        "Sebagian field terisi, belum pernah Simpan ke Draf"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Batal",
+          "selectorHint": "role=button name=\"Batal\""
+        },
+        {
+          "action": "expect",
+          "target": "Pop up konfirmasi",
+          "selectorHint": "role=dialog",
+          "expected": "tampil"
+        },
+        {
+          "action": "click",
+          "target": "Konfirmasi batal",
+          "selectorHint": "role=dialog >> role=button name=/Ya|Batalkan/"
+        },
+        {
+          "action": "expect",
+          "target": "Daftar Order",
+          "selectorHint": "role=heading name=\"Daftar Order\"",
+          "expected": "kembali tanpa order baru tersimpan"
+        }
+      ],
+      "expectedResults": [
+        "Batal tidak meninggalkan data"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-013",
+      "title": "Modal Pilih Barang: pencarian tanpa hasil menampilkan keadaan kosong",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-010",
+        "@step2",
+        "@modal-pilih-barang"
+      ],
+      "requirements": [
+        "REQ-010"
+      ],
+      "screen": "Modal Pilih Barang (hipotetis)",
+      "preconditions": [
+        "Modal terbuka"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Pencarian",
+          "selectorHint": "role=dialog >> textbox name=\"Cari\"",
+          "value": "zzz-tidak-ada"
+        },
+        {
+          "action": "expect",
+          "target": "Daftar barang",
+          "selectorHint": "role=dialog >> testid=list-barang",
+          "expected": "kosong dengan pesan tidak ada hasil"
+        },
+        {
+          "action": "expect",
+          "target": "Counter",
+          "selectorHint": "testid=counter-terpilih",
+          "expected": "0"
+        }
+      ],
+      "expectedResults": [
+        "Empty state pencarian benar"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-014",
+      "title": "Pembatalan hanya tersedia bagi admin shipper, bukan vendor",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-040",
+        "@pembatalan",
+        "@role",
+        "@assumption-21"
+      ],
+      "requirements": [
+        "REQ-040"
+      ],
+      "screen": "Aplikasi vendor (di luar OMS shipper; asumsi #21)",
+      "preconditions": [
+        "Akun vendor memiliki akses order yang sama"
+      ],
+      "steps": [
+        {
+          "action": "goto",
+          "target": "Halaman order pada aplikasi vendor",
+          "selectorHint": "url=vendor-app"
+        },
+        {
+          "action": "expect",
+          "target": "Aksi Batalkan Order",
+          "selectorHint": "role=button/menuitem name=\"Batalkan Order\"",
+          "expected": "tidak tersedia bagi vendor"
+        }
+      ],
+      "expectedResults": [
+        "Vendor tidak dapat membatalkan order"
+      ]
+    },
+    {
+      "id": "OMS013-NEG-015",
+      "title": "Order berstatus akhir tidak menyediakan aksi Edit maupun Batalkan",
+      "category": "negative",
+      "tags": [
+        "@negative",
+        "@REQ-034",
+        "@REQ-035",
+        "@daftar-order"
+      ],
+      "requirements": [
+        "REQ-034",
+        "REQ-035",
+        "REQ-039"
+      ],
+      "screen": "Daftar Order (058)",
+      "preconditions": [
+        "Order berstatus akhir tersedia"
+      ],
+      "outline": true,
+      "examples": [
+        {
+          "status": "Selesai"
+        },
+        {
+          "status": "Dibatalkan"
+        }
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Action menu order berstatus <status>",
+          "selectorHint": "role=button name=\"Aksi\""
+        },
+        {
+          "action": "expect",
+          "target": "Menu",
+          "selectorHint": "role=menu",
+          "expected": "aksi Edit dan Batalkan Order tidak tampil"
+        }
+      ],
+      "expectedResults": [
+        "Status akhir terkunci dari edit/batal"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-001",
+      "title": "Alert kubikasi melebihi kapasitas bersifat informasional dan tidak memblokir",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-021",
+        "@step2",
+        "@alert-kapasitas"
+      ],
+      "requirements": [
+        "REQ-021"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Total kubikasi Kontainer 1 > kapasitas (mis. 19,2 / 17,86 m³)"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Alert kapasitas",
+          "selectorHint": "testid=alert-kapasitas-1",
+          "expected": "Kubikasi melebihi kapasitas armada (teks desain; spec: kontainer)"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Stepper",
+          "selectorHint": "testid=stepper",
+          "expected": "Vendor dan Harga aktif (tidak diblokir)"
+        }
+      ],
+      "expectedResults": [
+        "Alert informasional, non-blocking"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-002",
+      "title": "Alert berat melebihi kapasitas bersifat informasional dan tidak memblokir",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-021",
+        "@step2",
+        "@alert-kapasitas"
+      ],
+      "requirements": [
+        "REQ-021"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Total berat Kontainer 1 > kapasitas (mis. 25.400 / 24.800 kg)"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Alert kapasitas",
+          "selectorHint": "testid=alert-kapasitas-1",
+          "expected": "Berat melebihi kapasitas armada"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Stepper",
+          "selectorHint": "testid=stepper",
+          "expected": "Vendor dan Harga aktif"
+        }
+      ],
+      "expectedResults": [
+        "Alert berat non-blocking"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-003",
+      "title": "Alert kubikasi dan berat melebihi kapasitas tampil sekaligus",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-021",
+        "@step2",
+        "@alert-kapasitas"
+      ],
+      "requirements": [
+        "REQ-021"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Kubikasi dan berat sama-sama melebihi kapasitas"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Alert kapasitas",
+          "selectorHint": "testid=alert-kapasitas-1",
+          "expected": "Kubikasi dan Berat melebihi kapasitas armada"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\"",
+          "expected": "tetap dapat lanjut"
+        }
+      ],
+      "expectedResults": [
+        "Pesan gabungan benar dan non-blocking"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-004",
+      "title": "Nomor DO dengan koma berlebih dan duplikat dinormalisasi menjadi chip",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-019",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-019"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Berada di Step 2"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Nomor DO",
+          "selectorHint": "testid=input-nomor-do-1",
+          "value": "DO-1,,DO-2, DO-1 ,"
+        },
+        {
+          "action": "expect",
+          "target": "Chips",
+          "selectorHint": "testid=chip-do",
+          "expected": "hanya DO-1 dan DO-2; tanpa chip kosong/duplikat"
+        }
+      ],
+      "expectedResults": [
+        "Normalisasi input koma"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-005",
+      "title": "Menghapus seluruh barang mengembalikan keadaan kosong kontainer",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-020",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-020"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Kontainer 1 memuat 2 baris"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Icon hapus semua baris",
+          "selectorHint": "testid=table-barang-1 >> role=button name=\"Hapus\""
+        },
+        {
+          "action": "expect",
+          "target": "Empty state",
+          "selectorHint": "testid=empty-barang",
+          "expected": "Belum ada barang. Klik 'Pilih Barang'"
+        },
+        {
+          "action": "expect",
+          "target": "Total",
+          "selectorHint": "testid=total-kubikasi-1 / total-berat-1",
+          "expected": "0"
+        }
+      ],
+      "expectedResults": [
+        "Empty state pulih dan total 0"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-006",
+      "title": "Nilai Barang bernilai 0 saat asuransi aktif dianggap belum diisi",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-017",
+        "@step2",
+        "@validasi"
+      ],
+      "requirements": [
+        "REQ-017"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Asuransi aktif; desain menampilkan 'Rp 0' dengan error"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Nilai Barang",
+          "selectorHint": "textbox name=\"Nilai Barang\"",
+          "value": "0"
+        },
+        {
+          "action": "click",
+          "target": "Button Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Helper error",
+          "selectorHint": "text=\"Nilai Barang harus diisi\"",
+          "expected": "tampil; tetap di Step 2"
+        }
+      ],
+      "expectedResults": [
+        "Nilai 0 tidak lolos validasi"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-007",
+      "title": "Jumlah No. Perjalanan mengikuti jumlah kontainer order",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-045",
+        "@no-perjalanan"
+      ],
+      "requirements": [
+        "REQ-045"
+      ],
+      "screen": "Pop up Data No. Perjalanan (070)",
+      "preconditions": [
+        "Order Ditugaskan dengan 3 kontainer"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Menu Lihat No. Perjalanan",
+          "selectorHint": "role=menuitem name=\"Lihat No. Perjalanan\""
+        },
+        {
+          "action": "expect",
+          "target": "Baris No. Perjalanan",
+          "selectorHint": "testid=trip-row-*",
+          "expected": "tepat 3 baris"
+        }
+      ],
+      "expectedResults": [
+        "Jumlah nomor = jumlah kontainer"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-008",
+      "title": "Multipoint: setiap kombinasi Pick Up × Drop Off memiliki tabel barang terpisah",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@multipoint",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-005"
+      ],
+      "screen": "Step 2 Multipoint (089)",
+      "preconditions": [
+        "2 pick up × 2 drop off"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Sub-section kombinasi",
+          "selectorHint": "text=/Pick Up 1 – Drop Off 1|Pick Up 1 – Drop Off 2|Pick Up 2 – Drop Off 1|Pick Up 2 – Drop Off 2/",
+          "expected": "4 sub-section per kontainer"
+        },
+        {
+          "action": "expect",
+          "target": "Komponen per sub-section",
+          "selectorHint": "testid=input-nomor-do-* / table-barang-* / role=button name=\"Pilih Barang\"",
+          "expected": "Nomor DO, tabel barang, Pilih Barang, dan total masing-masing"
+        }
+      ],
+      "expectedResults": [
+        "Struktur kombinasi lengkap"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-009",
+      "title": "Asuransi parsial: hanya kontainer terasuransi yang memengaruhi komponen Asuransi",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-026",
+        "@REQ-029",
+        "@step3",
+        "@step4"
+      ],
+      "requirements": [
+        "REQ-026",
+        "REQ-029"
+      ],
+      "screen": "Step 3 (064) + Step 4 (065)",
+      "preconditions": [
+        "Kontainer 1 tanpa asuransi, Kontainer 2 diasuransikan"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Tabel ringkasan Step 3",
+          "selectorHint": "testid=table-ringkasan-muatan",
+          "expected": "Kontainer 1: 'Tanpa Asuransi'; Kontainer 2: nominal Total Nilai Barang"
+        },
+        {
+          "action": "expect",
+          "target": "Komponen Asuransi",
+          "selectorHint": "testid=panel-kalkulasi-harga",
+          "expected": "dihitung hanya dari Kontainer 2"
+        },
+        {
+          "action": "click",
+          "target": "Selanjutnya ke Review",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Label Diasuransikan",
+          "selectorHint": "testid=chip-diasuransikan-2",
+          "expected": "hanya pada Kontainer 2"
+        }
+      ],
+      "expectedResults": [
+        "Asuransi parsial dihitung dan dilabeli benar"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-010",
+      "title": "Visualisasi muatan menandai koli yang melebihi kapasitas dengan outline merah",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@visualisasi",
+        "@auto-stuffing",
+        "@assumption-19"
+      ],
+      "requirements": [
+        "REQ-021",
+        "REQ-030"
+      ],
+      "screen": "Panel visualisasi (063)",
+      "preconditions": [
+        "Muatan melebihi kapasitas unit"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Buka panel visualisasi",
+          "selectorHint": "role=button name=\"Visualisasi Muatan\""
+        },
+        {
+          "action": "expect",
+          "target": "Indikator overload",
+          "selectorHint": "testid=viz-canvas >> text=/koli melebihi kapasitas/",
+          "expected": "mis. '110 koli melebihi kapasitas (outline merah)'"
+        },
+        {
+          "action": "expect",
+          "target": "Koli berlebih",
+          "selectorHint": "testid=viz-canvas",
+          "expected": "digambar dengan outline merah"
+        }
+      ],
+      "expectedResults": [
+        "Overload tervisualisasi jelas"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-011",
+      "title": "Waktu Perjalanan hanya tampil pada Detail Order berstatus Ditugaskan",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-025",
+        "@detail-order"
+      ],
+      "requirements": [
+        "REQ-025"
+      ],
+      "screen": "Detail Order (066 vs 067)",
+      "preconditions": [
+        "Order Menunggu Penugasan dan order Ditugaskan tersedia"
+      ],
+      "steps": [
+        {
+          "action": "goto",
+          "target": "Detail Order (Menunggu Penugasan)",
+          "selectorHint": "role=menuitem name=\"Detail\""
+        },
+        {
+          "action": "expect",
+          "target": "Baris Waktu Perjalanan",
+          "selectorHint": "testid=detail-rute >> text=/Waktu Perjalanan/",
+          "expected": "tidak tampil"
+        },
+        {
+          "action": "goto",
+          "target": "Detail Order (Ditugaskan)",
+          "selectorHint": "role=menuitem name=\"Detail\""
+        },
+        {
+          "action": "expect",
+          "target": "Baris Waktu Perjalanan",
+          "selectorHint": "testid=detail-rute >> text=/Waktu Perjalanan/",
+          "expected": "tampil dengan durasi (mis. '8 Jam')"
+        }
+      ],
+      "expectedResults": [
+        "Waktu Perjalanan muncul hanya setelah Ditugaskan"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-012",
+      "title": "Hitung Ulang Kontainer: mengubah jenis kontainer memperbarui kapasitas maksimal",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@visualisasi",
+        "@auto-stuffing"
+      ],
+      "requirements": [
+        "REQ-003"
+      ],
+      "screen": "Panel Hitung Ulang Kontainer (062)",
+      "preconditions": [
+        "Panel terbuka"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Pilih Jenis Kontainer",
+          "selectorHint": "role=button name=\"Pilih Jenis Kontainer\""
+        },
+        {
+          "action": "select",
+          "target": "Jenis kontainer baru",
+          "selectorHint": "role=option",
+          "value": "40 DRY"
+        },
+        {
+          "action": "expect",
+          "target": "Info kapasitas",
+          "selectorHint": "testid=viz-kapasitas",
+          "expected": "Berat Maksimal & Kubikasi Maksimal diperbarui"
+        },
+        {
+          "action": "expect",
+          "target": "Progress keterpakaian",
+          "selectorHint": "testid=viz-berat / viz-ruang",
+          "expected": "dihitung ulang terhadap kapasitas baru"
+        }
+      ],
+      "expectedResults": [
+        "Kapasitas dan persentase konsisten dengan jenis baru"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-013",
+      "title": "Tambah dan hapus baris titik pick up/drop off",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-005",
+        "@multipickup",
+        "@multipoint",
+        "@step1"
+      ],
+      "requirements": [
+        "REQ-005"
+      ],
+      "screen": "Step 1 Multipoint (088)",
+      "preconditions": [
+        "Order Multipoint dengan 2 pick up dan 2 drop off"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Link Tambah Baris Input (Data Pengirim)",
+          "selectorHint": "role=link name=\"Tambah Baris Input\""
+        },
+        {
+          "action": "expect",
+          "target": "Blok Pick Up 3",
+          "selectorHint": "testid=pick-up-3",
+          "expected": "tampil"
+        },
+        {
+          "action": "click",
+          "target": "Icon hapus blok Pick Up 3",
+          "selectorHint": "testid=pick-up-3 >> role=button name=\"Hapus\""
+        },
+        {
+          "action": "expect",
+          "target": "Blok Pick Up 3",
+          "selectorHint": "testid=pick-up-3",
+          "expected": "hilang"
+        },
+        {
+          "action": "expect",
+          "target": "Data Penerima",
+          "selectorHint": "testid=drop-off-*",
+          "expected": "dapat ditambah/dihapus dengan cara sama"
+        }
+      ],
+      "expectedResults": [
+        "Baris titik dinamis berfungsi"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-014",
+      "title": "Siklus status penuh dari draft hingga Selesai",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-032",
+        "@status-lifecycle"
+      ],
+      "requirements": [
+        "REQ-032"
+      ],
+      "screen": "Daftar Order (lintas status)",
+      "preconditions": [
+        "Order tersubmit; penugasan vendor dapat disimulasikan"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Status awal",
+          "selectorHint": "testid=badge-status",
+          "expected": "Menunggu Penugasan"
+        },
+        {
+          "action": "expect",
+          "target": "Setelah penugasan vendor",
+          "selectorHint": "testid=badge-status",
+          "expected": "Ditugaskan"
+        },
+        {
+          "action": "expect",
+          "target": "Saat armada dalam perjalanan",
+          "selectorHint": "testid=badge-status",
+          "expected": "Proses Pengiriman"
+        },
+        {
+          "action": "expect",
+          "target": "Setelah seluruh armada selesai bongkar",
+          "selectorHint": "testid=badge-status",
+          "expected": "Selesai (alias desain: 'Terkirim')"
+        }
+      ],
+      "expectedResults": [
+        "Transisi status sesuai spec"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-015",
+      "title": "Barang berlabel Sudah Ditambahkan tidak dapat ditambahkan ganda ke kontainer yang sama",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-012",
+        "@step2",
+        "@modal-pilih-barang"
+      ],
+      "requirements": [
+        "REQ-012"
+      ],
+      "screen": "Modal Pilih Barang (hipotetis)",
+      "preconditions": [
+        "Kontainer 1 memuat SKU-PPR-001"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Pilih Barang Kontainer 1",
+          "selectorHint": "role=button name=\"Pilih Barang\""
+        },
+        {
+          "action": "expect",
+          "target": "Baris SKU-PPR-001",
+          "selectorHint": "role=dialog >> testid=item-SKU-PPR-001",
+          "expected": "berlabel Sudah Ditambahkan dan tidak dapat dicentang ulang"
+        },
+        {
+          "action": "click",
+          "target": "Simpan modal",
+          "selectorHint": "role=dialog >> role=button name=\"Simpan\""
+        },
+        {
+          "action": "expect",
+          "target": "Tabel barang",
+          "selectorHint": "testid=table-barang-1",
+          "expected": "tanpa baris duplikat SKU-PPR-001"
+        }
+      ],
+      "expectedResults": [
+        "Tidak ada duplikasi barang dalam kontainer"
+      ]
+    },
+    {
+      "id": "OMS013-EDG-016",
+      "title": "Draft menyimpan seluruh isian dan dapat dilanjutkan lintas sesi",
+      "category": "edge",
+      "tags": [
+        "@edge",
+        "@REQ-033",
+        "@draft"
+      ],
+      "requirements": [
+        "REQ-033"
+      ],
+      "screen": "Step 2 + Daftar Order",
+      "preconditions": [
+        "Step 1-2 terisi lalu Simpan ke Draf"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Simpan ke Draf di Step 2",
+          "selectorHint": "role=button name=\"Simpan ke Draf\""
+        },
+        {
+          "action": "goto",
+          "target": "Logout lalu login kembali",
+          "selectorHint": "role=button name=\"Logout\" → login"
+        },
+        {
+          "action": "click",
+          "target": "Lanjutkan Pengisian",
+          "selectorHint": "role=menuitem name=\"Lanjutkan Pengisian\""
+        },
+        {
+          "action": "expect",
+          "target": "Isian Step 2",
+          "selectorHint": "testid=table-barang-* / chip-do / checkbox asuransi",
+          "expected": "barang, jumlah, asuransi, Nomor DO tetap tersimpan"
+        }
+      ],
+      "expectedResults": [
+        "Persistensi draft lintas sesi"
+      ]
+    },
+    {
+      "id": "OMS013-STR-001",
+      "title": "Step 2 memuat 50 baris barang per kontainer",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@REQ-016",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-016"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Master Barang ≥ 50 barang aktif"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Pilih Barang → centang 50 barang → Simpan",
+          "selectorHint": "role=dialog >> role=checkbox"
+        },
+        {
+          "action": "fill",
+          "target": "Jumlah tiap baris",
+          "selectorHint": "textbox name=\"Jumlah\"",
+          "value": "10"
+        },
+        {
+          "action": "expect",
+          "target": "Render tabel",
+          "selectorHint": "testid=table-barang-1",
+          "expected": "50 baris tampil tanpa kegagalan render"
+        },
+        {
+          "action": "expect",
+          "target": "Total",
+          "selectorHint": "testid=total-kubikasi-1 / total-berat-1",
+          "expected": "sesuai penjumlahan seluruh baris"
+        }
+      ],
+      "expectedResults": [
+        "Skala 50 baris stabil dan akurat"
+      ]
+    },
+    {
+      "id": "OMS013-STR-002",
+      "title": "Nomor DO dengan 20 nomor sekaligus",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@REQ-019",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-019"
+      ],
+      "screen": "Step 2 (061)",
+      "preconditions": [
+        "Berada di Step 2"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Nomor DO",
+          "selectorHint": "testid=input-nomor-do-1",
+          "value": "DO-01,DO-02,...,DO-20 (20 nomor)"
+        },
+        {
+          "action": "expect",
+          "target": "Chips",
+          "selectorHint": "testid=chip-do",
+          "expected": "20 chip tampil"
+        },
+        {
+          "action": "click",
+          "target": "Hapus chip satu per satu",
+          "selectorHint": "testid=chip-do >> role=button name=\"×\"",
+          "expected": "setiap chip dapat dihapus"
+        }
+      ],
+      "expectedResults": [
+        "Input DO skala besar stabil"
+      ]
+    },
+    {
+      "id": "OMS013-STR-003",
+      "title": "Order dengan 10 kontainer",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@REQ-045",
+        "@no-perjalanan",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-045"
+      ],
+      "screen": "Step 2 + pop up No. Perjalanan",
+      "preconditions": [
+        "Jumlah Kontainer = 10"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Jumlah Kontainer",
+          "selectorHint": "textbox name=\"Jumlah Kontainer\"",
+          "value": "10"
+        },
+        {
+          "action": "expect",
+          "target": "Card kontainer Step 2",
+          "selectorHint": "testid=card-kontainer-*",
+          "expected": "10 card tampil"
+        },
+        {
+          "action": "expect",
+          "target": "Pop up No. Perjalanan (setelah Ditugaskan)",
+          "selectorHint": "testid=trip-row-*",
+          "expected": "10 baris"
+        }
+      ],
+      "expectedResults": [
+        "Skala 10 kontainer konsisten end-to-end"
+      ]
+    },
+    {
+      "id": "OMS013-STR-004",
+      "title": "Multipoint dengan 5 pick up dan 5 drop off",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@multipoint",
+        "@step1",
+        "@step2"
+      ],
+      "requirements": [
+        "REQ-005"
+      ],
+      "screen": "Step 1 (088) + Step 2 (089)",
+      "preconditions": [
+        "Tipe Multipoint"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Tambah Baris Input hingga 5 pick up & 5 drop off",
+          "selectorHint": "role=link name=\"Tambah Baris Input\""
+        },
+        {
+          "action": "expect",
+          "target": "Step 1",
+          "selectorHint": "testid=pick-up-5 / drop-off-5",
+          "expected": "5 blok Pick Up dan 5 blok Drop Off"
+        },
+        {
+          "action": "click",
+          "target": "Selanjutnya",
+          "selectorHint": "role=button name=\"Selanjutnya\""
+        },
+        {
+          "action": "expect",
+          "target": "Step 2",
+          "selectorHint": "text=/Pick Up \\d – Drop Off \\d/",
+          "expected": "25 sub-section kombinasi per kontainer tanpa kegagalan render"
+        }
+      ],
+      "expectedResults": [
+        "Kombinasi 5×5 stabil"
+      ]
+    },
+    {
+      "id": "OMS013-STR-005",
+      "title": "Navigasi pagination Daftar Order dengan banyak data",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@daftar-order",
+        "@pagination"
+      ],
+      "requirements": [],
+      "screen": "Daftar Order (058)",
+      "preconditions": [
+        "> 200 order tersedia"
+      ],
+      "steps": [
+        {
+          "action": "select",
+          "target": "Tampilkan N data",
+          "selectorHint": "role=combobox name=\"Tampilkan\"",
+          "value": "nilai terbesar"
+        },
+        {
+          "action": "click",
+          "target": "Tombol halaman terakhir",
+          "selectorHint": "role=button name=\"»\""
+        },
+        {
+          "action": "expect",
+          "target": "Tabel",
+          "selectorHint": "role=table",
+          "expected": "responsif; data halaman terakhir benar"
+        },
+        {
+          "action": "click",
+          "target": "Tombol halaman pertama",
+          "selectorHint": "role=button name=\"«\"",
+          "expected": "kembali ke halaman 1"
+        }
+      ],
+      "expectedResults": [
+        "Pagination stabil pada volume besar"
+      ]
+    },
+    {
+      "id": "OMS013-STR-006",
+      "title": "Nilai Barang bernominal sangat besar",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@REQ-026",
+        "@step3"
+      ],
+      "requirements": [
+        "REQ-026"
+      ],
+      "screen": "Step 2 + Step 3",
+      "preconditions": [
+        "Seluruh baris Kontainer 1 diasuransikan"
+      ],
+      "steps": [
+        {
+          "action": "fill",
+          "target": "Nilai Barang",
+          "selectorHint": "textbox name=\"Nilai Barang\"",
+          "value": "999999999999"
+        },
+        {
+          "action": "check",
+          "target": "Gunakan komponen harga",
+          "selectorHint": "role=checkbox name=\"Gunakan komponen harga\""
+        },
+        {
+          "action": "expect",
+          "target": "Kalkulasi",
+          "selectorHint": "testid=panel-kalkulasi-harga",
+          "expected": "Total Nilai Barang & Asuransi terhitung tanpa overflow; format ribuan konsisten"
+        }
+      ],
+      "expectedResults": [
+        "Angka besar aman"
+      ]
+    },
+    {
+      "id": "OMS013-STR-007",
+      "title": "Muatan 500% dari kapasitas tetap non-blocking",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@REQ-021",
+        "@step2",
+        "@visualisasi"
+      ],
+      "requirements": [
+        "REQ-021"
+      ],
+      "screen": "Step 2 + panel visualisasi (063)",
+      "preconditions": [
+        "Kubikasi & berat = 5× kapasitas"
+      ],
+      "steps": [
+        {
+          "action": "expect",
+          "target": "Alert",
+          "selectorHint": "testid=alert-kapasitas-1",
+          "expected": "Kubikasi dan Berat melebihi kapasitas armada"
+        },
+        {
+          "action": "click",
+          "target": "Buka visualisasi",
+          "selectorHint": "role=button name=\"Visualisasi Muatan\""
+        },
+        {
+          "action": "expect",
+          "target": "Canvas",
+          "selectorHint": "testid=viz-canvas",
+          "expected": "koli berlebih outline merah, tanpa crash"
+        },
+        {
+          "action": "click",
+          "target": "Lanjut hingga submit",
+          "selectorHint": "role=button name=\"Selanjutnya\" / \"Simpan\"",
+          "expected": "submit tetap berhasil"
+        }
+      ],
+      "expectedResults": [
+        "Overload ekstrem tidak merusak alur"
+      ]
+    },
+    {
+      "id": "OMS013-STR-008",
+      "title": "Klik Simpan berulang kali pada Review tidak membuat order ganda",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@REQ-031",
+        "@step4"
+      ],
+      "requirements": [
+        "REQ-031"
+      ],
+      "screen": "Step 4 (065)",
+      "preconditions": [
+        "Data valid; catat kuota order awal"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Button Simpan 5× cepat",
+          "selectorHint": "role=button name=\"Simpan\"",
+          "value": "5 kali berturut-turut"
+        },
+        {
+          "action": "expect",
+          "target": "Daftar Order",
+          "selectorHint": "testid=order-row-*",
+          "expected": "hanya 1 order baru berstatus Menunggu Penugasan"
+        },
+        {
+          "action": "expect",
+          "target": "Kuota Order",
+          "selectorHint": "testid=kuota-order",
+          "expected": "berkurang tepat 1"
+        }
+      ],
+      "expectedResults": [
+        "Submit idempoten"
+      ]
+    },
+    {
+      "id": "OMS013-STR-009",
+      "title": "Interaksi canvas visualisasi dengan ribuan koli",
+      "category": "stress",
+      "tags": [
+        "@stress",
+        "@visualisasi",
+        "@auto-stuffing"
+      ],
+      "requirements": [
+        "REQ-030"
+      ],
+      "screen": "Panel visualisasi (062/063)",
+      "preconditions": [
+        "Kontainer memuat >1.300 koli (baseline desain 1306 koli)"
+      ],
+      "steps": [
+        {
+          "action": "click",
+          "target": "Buka panel visualisasi",
+          "selectorHint": "role=button name=\"Visualisasi Muatan\""
+        },
+        {
+          "action": "hover",
+          "target": "Drag putar 360°, scroll zoom, klik 2× reset",
+          "selectorHint": "testid=viz-canvas"
+        },
+        {
+          "action": "expect",
+          "target": "Respons canvas",
+          "selectorHint": "testid=viz-canvas",
+          "expected": "tanpa macet; overlay 'N koli • N kg dialokasikan ke unit ini' akurat"
+        }
+      ],
+      "expectedResults": [
+        "Interaksi 3D stabil pada volume besar"
+      ]
+    }
+  ]
+}

@@ -46,9 +46,10 @@ def parse_env_md():
 
 
 def load_scenario_meta(module):
-    files = list((ROOT / "scenario" / module).glob("*_scenarios.json"))
+    files = list((ROOT / "scenario" / module).glob("*_scenarios.json")) or \
+        list((ROOT / "scenario" / module).glob("*.scenarios.json"))
     if not files:
-        sys.exit(f"scenario/{module}/*_scenarios.json tidak ditemukan")
+        sys.exit(f"scenario/{module}/*_scenarios.json (atau *.scenarios.json) tidak ditemukan")
     data = json.loads(files[0].read_text(encoding="utf-8"))
     return {s["id"]: s for s in data.get("scenarios", [])}
 

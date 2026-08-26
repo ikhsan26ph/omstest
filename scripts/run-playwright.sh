@@ -9,8 +9,11 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 cd "$ROOT"
 
 # Playwright butuh Node >= 22 (lihat .nvmrc). Pakai nvm bila tersedia, kalau tidak
-# validasi versi node di PATH.
-if [ -s "$HOME/.nvm/nvm.sh" ] && [ -f "$ROOT/.nvmrc" ]; then
+# validasi versi node di PATH. Skip nvm use bila PATH sudah menunjuk node >=22 (mis.
+# diarahkan manual) — nvm use bisa gagal karena konflik nvm/npmrc (globalconfig/prefix)
+# meski versi node aktif sudah memenuhi syarat.
+CUR_MAJOR="$(node -e 'console.log(process.versions.node.split(".")[0])' 2>/dev/null || echo 0)"
+if [ "$CUR_MAJOR" -lt 22 ] && [ -s "$HOME/.nvm/nvm.sh" ] && [ -f "$ROOT/.nvmrc" ]; then
   # shellcheck disable=SC1091
   . "$HOME/.nvm/nvm.sh"
   nvm use >/dev/null || { echo "nvm use gagal — jalankan 'nvm install' sesuai .nvmrc" >&2; exit 1; }
