@@ -13,6 +13,9 @@
 - **Nama status live berbeda dari desain**: live memakai `Isi Data Muatan`, `Isi Data Pengiriman`, `Menunggu Penugasan`, `Review Order` (desain antara lain memakai `Isi Data Dasar`). Jangan pakai nama status/tenant/role dari desain sebagai oracle.
 - Tombol **"Buat Order"** pernah intermiten (gagal di 2 run explore); status saat ini: **berfungsi** — navigasi ke `/order/buat`, wizard Step 1 terbuka.
 - **Bug nyata ditemukan**: tombol "Visualisasi Muatan" di Detail Order memicu request `GET /api/order/stuffing/visualisasi` yang **404**, panel menampilkan "Gagal memuat visualisasi muatan." (lihat SCR-21) — laporkan sebagai bug-candidate.
+- **[Update 2026-08-28, hasil buat order ad hoc FTL/FCL/LTL/LCL]** Blok Data Pengirim/Data Penerima punya **field `Pengirim`/`Penerima` (nama perusahaan) yang WAJIB diisi SEBELUM `Drop Point Asal`/`Tujuan`** — dropdown Drop Point terfilter sesuai company yang dipilih; urutan terbalik membuat Drop Point ter-reset kosong tanpa toast. Memilih Drop Point juga men-auto-fill PIC & No. WhatsApp PIC dari data master (bukan kosong), menimpa isian manual — isi PIC/WA SETELAH Drop Point selesai dipilih. Detail: `shared/decisions.md` 2026-08-28.
+- **[Update 2026-08-28]** Validasi keunikan Drop Point Asal/Tujuan bersifat **GLOBAL per-order** (semua Drop Point di seluruh blok Pengirim+Penerima harus unik satu sama lain, bukan cuma pasangan asal-tujuan yang berhadapan) dan **silent-block** (tombol "Selanjutnya" tetap enabled, klik tidak menavigasi, tanpa toast — pesan hanya inline). Detail: `shared/decisions.md` 2026-08-28.
+- **[Update 2026-08-28]** Checkbox "Gunakan komponen harga" (Step 3) defaultnya **TERCENTANG** — PPN 11%/PPh 2% otomatis diterapkan ke Harga DPP. Konsisten dengan `FND-OMS015-05` di triage oms015.
 
 ## Tabel Selector
 
@@ -130,7 +133,7 @@
 
 | SCR | Alasan |
 |---|---|
-| SCR-06/07/08 | Step 1 varian Multipickup/Multidrop/Multipoint — hanya tercapai dengan mengganti Tipe Pengiriman & mengisi form; di luar cakupan harvest read-only. |
+| SCR-06/07/08 | Step 1 varian Multipickup/Multidrop/Multipoint — masih belum di-harvest sistematis (role/selector penuh), tapi struktur & perilaku kuncinya sudah diketahui dari eksekusi ad hoc 2026-08-28: lihat catatan "Label blok multi-alamat" & "Pengirim/Penerima sebelum Drop Point" di atas. |
 | SCR-09/10 | Step 2 Data Barang (wizard) — perlu isi & submit Step 1; di luar cakupan harvest read-only. |
 | SCR-12/13 | Drawer "Hitung Ulang Armada" — tombolnya ADA di Edit Order (dikonfirmasi), tapi isi drawer-nya belum terpetakan. |
 | SCR-14 | Panel "Visualisasi Muatan Saat Ini" versi wizard Step 2 / Edit Order — belum terpetakan; versi Detail Order (SCR-21) sudah dipetakan dan ditemukan bug 404. |
@@ -173,3 +176,24 @@ Aplikasi ini **tidak memiliki `data-testid` sama sekali** di seluruh layar yang 
 - Detail Order punya section **"No. Perjalanan"** langsung sebagai accordion di halaman itu sendiri (dengan empty-state "Belum ada nomor perjalanan untuk order ini."), bukan hanya via pop up terpisah (SCR-24) seperti asumsi navigasi di desain.
 - **Bug baru ditemukan (tidak ada di daftar FND desain)**: tombol "Visualisasi Muatan" di Detail Order memicu `GET /api/order/stuffing/visualisasi` yang mengembalikan **404**, sehingga panel menampilkan pesan error "Gagal memuat visualisasi muatan." — perlu dilaporkan sebagai bug-candidate baru, bukan gap desain.
 - Tidak ada elemen bermakna dengan `role="dialog"` di popup manapun yang diuji (Batalkan Order, Visualisasi Muatan, Pilih Barang) — selector `getByRole('dialog', { name })` yang diusulkan di ui-inventory **tidak akan menemukan elemen**. Gunakan scoping berbasis heading terdekat sebagai gantinya, atau minta developer menambahkan `role="dialog"`.
+- **[2026-08-28]** Label blok multi-alamat Step 1 live adalah **"Pengirim 1/2/3.."** dan **"Penerima 1/2/3.."** — BUKAN "Pick Up n"/"Drop Off n" seperti asumsi `oms014...ui-inventory.md` S-03/S-05. Begitu Tipe Pengiriman Multipickup/Multidrop/Multipoint dipilih, **2 blok alamat pertama LANGSUNG muncul otomatis** — tombol "Tambah Baris Input" baru dibutuhkan untuk blok ke-3 dst, bukan untuk blok ke-2 seperti asumsi ui-inventory (yang berangkat dari 1 blok kosong).
+- **[2026-08-28]** FCL: field **"Waktu Perjalanan" di Step 3 tidak dirender sama sekali** (absen total dari DOM, bukan hanya read-only) — berbeda dari FTL yang selalu menampilkannya (read-only atau editable, lihat `shared/decisions.md` OMS014-NEG-016). Jangan cari-cari field ini saat mengisi Step 3 FCL.
+- **[2026-08-28]** Tips eksekusi: tutup popup kalender "Tanggal Permintaan Muat" dengan tombol **`Escape`**, JANGAN klik koordinat sembarang di luar kalender — pernah tidak sengaja mengenai link navigasi sidebar dan pindah halaman, menggagalkan progress wizard yang sedang diisi.
+
+## Tambahan: Struktur Step 1 untuk LTL & LCL (harvest ad hoc 2026-08-28)
+
+> Berbeda dari FTL/FCL, tidak ada dokumen ui-inventory formal untuk LTL/LCL — lihat `scenario/oms015-order-ltl-lcl-universal/` (analysis.md, scenarios.json) untuk cakupan penuh. Catatan struktural di bawah berasal dari eksekusi ad hoc (buat order langsung), bukan harvest sistematis.
+
+- **LTL** (Less Than Truck Load) — section "Jenis Pengiriman dan Rute": `Kota Asal *` / `Kota Tujuan *` (dropdown Master Kota, BUKAN Pelabuhan), `Jumlah Armada` (textbox **disabled**, terkunci `1`, tanpa `Jenis Armada`). Tidak ada pilihan "Tipe Pengiriman" (selalu Normal, field tidak muncul untuk dipilih). Step 3: `Waktu Perjalanan` **read-only**, auto-terhitung dari Master Waktu Perjalanan berdasarkan rute Kota Asal-Tujuan.
+- **LCL** (Less Than Container Load) — section sama: `Pelabuhan Asal *` / `Pelabuhan Tujuan *` (dropdown Master Pelabuhan), `Jumlah Kontainer` **tidak dirender sebagai input** (terkunci `1`, tanpa elemen di baris itu), `Metode Pengiriman *` (4 kartu: Door to Door/Door to CY/CY to CY/CY to Door). Tidak ada pilihan "Tipe Pengiriman" (selalu Normal). Step 3: field `Waktu Perjalanan` **tidak ada sama sekali** (beda dari LTL).
+- Data Pengirim/Data Penerima, Step 2 Data Barang (tabel tunggal, tanpa multi-block), dan Step 3 Vendor&Harga identik strukturnya dengan FTL/FCL Normal untuk kedua jenis ini.
+- **BUG-CANDIDATE** (`FND-OMS015-01`): Drop Point Asal/Tujuan pada **LTL** difilter oleh Kota Asal/Kota Tujuan (kontra REQ-009) — kombinasi kota sembarang bisa membuat dropdown Drop Point kosong total. LCL **tidak** kena filter serupa oleh Pelabuhan. Lihat `shared/decisions.md` 2026-08-28 untuk kombinasi kota yang terverifikasi valid.
+
+### Referensi Drop Point per Perusahaan (dipakai untuk data test 2026-08-28)
+
+| Perusahaan | Drop Point terkait (parsial, belum tentu lengkap) | Area |
+|---|---|---|
+| PT. Borneo Cinta Damai (IK) | IK - BPN Platinum, IK - BPN Market, Ban Jar Mechine Grand Tan, Ban Jar Mechine Hotel | Balikpapan |
+| PT. Trimurti Jayandaru (IK) | IK - Juicy Lucy Sumenep, UMGresik, Slopeng MDR, Gressmall, Kota Lama Surabaya, Balai Pemuda | Surabaya / Jawa Timur |
+
+> **Arah kombinasi (instruksi user 2026-08-28)**: pengirim→penerima TIDAK harus selalu Borneo → Trimurti; kebalikannya (Trimurti → Borneo) juga valid. Variasikan kedua arah saat membuat data test, jangan terpaku satu arah.
