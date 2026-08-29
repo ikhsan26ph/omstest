@@ -35,3 +35,12 @@ Hasil: 195 skenario — 112 passed, 22 failed, 37 blocked, 24 skipped (@stress).
 - **Blocked karena data/akun (bukan cacat)**: butuh ≥20 baris penugasan (pagination), order metode CY-*/Door-CY (tidak ada satu pun di staging), akun Shipper-scoped (akun #3 env.md kosong), Driver Hub.
 - Data test tercipta: Master Pelayaran `AUTOTEST20260829PELAYARAN` (field menstrip '-'), belasan penugasan ORD* (daftar di file triase) — boleh dibersihkan.
 - Catatan proses: eksekusi mengubah urutan plan (Grup B Tambah Penugasan dijalankan sebelum Batch 2-3) agar data tersedia; file plan tersimpan sebagai `_plan__oms017-penugasan-tracking__20260829-143000.md` sedangkan runId hasil = 20260829-102240.
+
+## 2026-08-29 — Task ad hoc: 12 order FTL (Normal/Multipickup/Multidrop/Multipoint × 1/2/3 armada) → penugasan → tracking sampai Terkirim
+
+Log: `results/_task__ftl-orders__20260829.json`; report: `reports/task-ftl-orders-penugasan-tracking__20260829-160500.xlsx`; resep alur lengkap: `shared/recipe-ftl-order-flow.md`.
+
+- **BUG-CANDIDATE FND-TASK-01 (double submit)**: klik "Simpan" di Step 4 (Review) tidak memberi feedback UI (dialog "Order Berhasil Dibuat"/redirect) selama ±2,5 detik padahal `POST /api/order` sudah 201 → klik kedua membuat **order duplikat identik** (`ORD7997900707`, masih "Menunggu Penugasan", **perlu dibatalkan manual oleh user** — aksi Batalkan Order diblokir classifier auto-mode). Executor berikutnya: tunggu response network `POST /api/order` (201) sebelum memutuskan klik ulang, jangan andalkan perubahan DOM.
+- **BUG-CANDIDATE**: dropdown No. Polisi master di form Tambah Penugasan **tidak memfilter nopol yang sudah dipakai card lain** dalam order yang sama — nopol duplikat bisa lolos ke Simpan; cek manual sebelum Simpan.
+- Perilaku (bukan bug): sopir master yang sama ("Mayora") boleh dipakai berulang lintas card/penugasan tanpa penolakan; tracking berjalan **per armada** (1 baris penugasan per armada, masing-masing punya progres Selesai Muat/Bongkar sendiri); Drop Point penerima/pengirim dalam satu kota digrup otomatis di form tracking ("N/N alamat selesai"); keunikan Drop Point hanya **per order** (boleh reuse lintas order).
+- Jebakan wizard: saat rute belum ada di Master Waktu Perjalanan, field "Waktu Perjalanan" jadi input editable dan **bergeser ke SEBELUM Harga DPP** dalam urutan `getByPlaceholder('0')` — jangan pakai `.first()` buta. Modal "Pilih Barang" bisa race-condition saat banyak section (Multipickup 3 armada × 3 pickup) — beri jeda ±650 ms per modal dan terima SKU apa pun yang ter-klik.
