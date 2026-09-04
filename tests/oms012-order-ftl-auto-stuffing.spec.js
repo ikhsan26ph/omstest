@@ -56,8 +56,8 @@ test.describe('Daftar Order (SCR-01/02/03)', () => {
   test('SCN-0004: Order FTL dapat dibuat manual melalui wizard 4 step maupun batch', async ({ page }) => {
     await gotoDaftarOrder(page);
     await expect(page.getByRole('button', { name: 'Batch Order' })).toBeVisible();
-    // Tombol "Buat Order" tidak bereaksi saat diklik (bug-candidate, explore 2026-08-22) —
-    // masuk wizard via navigasi langsung, lihat shared/decisions.md
+    // Navigasi langsung ke wizard (workaround lama untuk bug tombol, resolved 2026-09-04) —
+    // dipertahankan karena hasilnya sama, lihat shared/decisions.md
     await expect(page.getByRole('button', { name: 'Buat Order' })).toBeVisible();
     await page.goto('/order/buat');
     await expect(page).toHaveURL(/\/order\/buat/);
