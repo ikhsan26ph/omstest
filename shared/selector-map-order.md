@@ -71,7 +71,7 @@
 | SCR-03 | Menu item: Lanjutkan Pengisian | `getByRole('button', { name: 'Lanjutkan Pengisian' })` | role+name | muncul di status draft-like (Isi Data Muatan/Pengiriman, Review Order) |
 | SCR-03 | Menu item: Edit | `getByRole('button', { name: 'Edit', exact: true })` | role+name | muncul di status Menunggu Penugasan |
 | SCR-03 | Menu item: Batalkan Order | `getByRole('button', { name: 'Batalkan Order' })` scoped ke menu | role+name (tidak unik global) | muncul di semua status yang dicek |
-| SCR-03 | Menu item: Order Kembali | `getByRole('button', { name: 'Order Kembali' })` | role+name | **muncul di status `Menunggu Penugasan`** — berbeda dari asumsi FND-01 desain (desain: muncul di `Ditugaskan`); tidak ada order Ditugaskan untuk verifikasi silang |
+| SCR-03 | Menu item: Order Kembali | `getByRole('button', { name: 'Order Kembali' })` | role+name | muncul di status `Menunggu Penugasan` **DAN** `Ditugaskan` (verifikasi silang 2026-09-05 pada `ORD8338374164` Ditugaskan) — FND-01 desain terkoreksi: ada di kedua status |
 | SCR-03 | Menu item: Riwayat Perubahan | `getByRole('button', { name: 'Riwayat Perubahan' })` | role+name | muncul di semua status yang dicek |
 | SCR-04/05 | Kartu jenis pengiriman FTL/FCL/LTL/LCL | `getByRole('button', { name: /FTL/ })` dst | role+name | **elemen `<button>` biasa, bukan `role="radio"`** seperti asumsi desain |
 | SCR-04/05 | Jenis Armada (dropdown) | `getByRole('button', { name: 'Pilih Jenis Armada' })` | role+name | |
@@ -93,7 +93,7 @@
 | SCR-20 | Judul "Detail Order" | `getByRole('button', { name: 'Detail Order' })` | role+name | **elemen `<button>`**, bukan sekadar heading statis |
 | SCR-20 | Visualisasi Muatan | `getByRole('button', { name: 'Visualisasi Muatan' })` | role+name | lihat bug 404 di Temuan Struktural |
 | SCR-20 | Batalkan Order | `getByRole('button', { name: 'Batalkan Order' })` | role+name | |
-| SCR-20 | Edit Order | `getByRole('button', { name: 'Edit Order' })` | role+name | navigasi ke `/order/{id}/edit` |
+| SCR-20 | Edit Order | `getByRole('button', { name: 'Edit Order' })` | role+name | navigasi ke `/order/{uuid}/edit` — `{uuid}` = UUID internal, BUKAN kode ORD (direct-nav dengan kode ORD → API 400, lihat module-map Temuan #12). Hanya tampil di Menunggu Penugasan; akses URL edit pada Ditugaskan → redirect + toast "Order ini tidak dapat diedit lagi." (2026-09-05) |
 | SCR-20 | Salin ID Order | `getByRole('button', { name: /^Salin ORD/ })` | role+name | |
 | SCR-20 | Accordion: Data Pengirim / Data Penerima / Data Barang / Vendor dan Harga | `getByRole('button', { name: 'Data Pengirim' })` dst | role+name | heading dibungkus `<button>` (collapsible) |
 | SCR-20 | Accordion: No. Perjalanan | `getByRole('button', { name: 'No. Perjalanan' })` | role+name | **section tambahan, tidak ada di indeks ui-inventory** — muncul langsung di Detail Order (bukan hanya via pop up SCR-24) |
@@ -166,7 +166,7 @@ Aplikasi ini **tidak memiliki `data-testid` sama sekali** di seluruh layar yang 
 - **Panel Filter (SCR-02) selalu tampil** di Daftar Order — tombol "Filter" hanya mengubah state visual tombol (`active`), **tidak menyembunyikan/menampilkan panel**. Desain mengasumsikan panel adalah toggle. Executor jangan andalkan "klik Filter untuk membuka panel" — panel sudah ada begitu halaman dimuat.
 - Field filter live **beda dari desain**: ADA `Tanggal Buat`, `Pengirim`, `Penerima` (tidak ada di desain); **TIDAK ADA** `Total Harga`, `Metode Pengiriman` (ada di desain).
 - Filter `Tipe Pengiriman` & (kemungkinan) `Metode Pengiriman` **enabled penuh** di live, bukan "tampak disabled" seperti ASM-D03.
-- **FND-01 (desain)**: `Order Kembali` diasumsikan muncul di status `Ditugaskan`. Live menunjukkan `Order Kembali` muncul di status **`Menunggu Penugasan`**. Tidak ada order `Ditugaskan` untuk verifikasi silang — kandidat revisi FND-01, perlu dicek ulang saat ada data status `Ditugaskan`.
+- **FND-01 (desain)**: `Order Kembali` diasumsikan muncul di status `Ditugaskan`. Live menunjukkan `Order Kembali` muncul di status **`Menunggu Penugasan`**. Tidak ada order `Ditugaskan` untuk verifikasi silang — kandidat revisi FND-01, perlu dicek ulang saat ada data status `Ditugaskan`. **Update 2026-09-05**: terverifikasi muncul di **KEDUA** status (Menunggu Penugasan & Ditugaskan, order `ORD8338374164`) — FND-01 direvisi: `Order Kembali` tersedia di kedua status, bukan lagi kandidat bug.
 - **FND-03 (desain)**: modal "Pilih Barang" diasumsikan **tanpa tombol close**. Live **punya** tombol "Tutup" (×). Kandidat resolved/salah asumsi.
 - **FND-09 (desain)**: Edit Order diasumsikan **tidak** menampilkan FAB "Hitung Ulang Armada"/"Visualisasi Terbaru". Live **menampilkan keduanya** di header Edit Order. Kandidat resolved/salah asumsi — tapi drawer/panelnya sendiri belum berhasil diverifikasi isinya.
 - Kartu Jenis Pengiriman (FTL/FCL/LTL/LCL) di Step 1 adalah **`<button>` biasa**, bukan `role="radio"` seperti asumsi selector di ui-inventory.
