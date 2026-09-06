@@ -104,3 +104,33 @@ hampir semua skenario `scenarios.json`), pakai nilai yang sudah diusulkan dokume
 - Tambahan BARU yang perlu diusulkan (tidak ada di doc karena flow verifikasi tidak
   diantisipasi): `tracking-result-card`, `tracking-detail-button`, `otp-digit-0..3`,
   `otp-verify-button`, `otp-error-message`.
+
+## Update pasca-explore (2026-09-06, `/explore oms022-public-tracking-improve`)
+
+Koreksi/pelengkap atas tabel di atas (detail: `explore/module-map.md` section oms022, `shared/decisions.md` 2026-09-06 lanjutan 2):
+
+- **Modal verifikasi auto-close setelah 4 digit salah** — toast `Data yang diinputkan salah` muncul lalu modal tertutup sendiri (kontra baris "— Verifikasi gagal" di atas yang menyebut modal tetap terbuka). Retry = klik `Lihat Detail` lagi.
+- Modal verifikasi punya subjudul `No. Perjalanan: <no>` (`page.getByText('No. Perjalanan: TRC69283535')`) — berguna memastikan modal milik nomor yang benar saat multi-nomor.
+- **Deep link `?resi=<no>` auto-search on-load** (kartu ringkas langsung muncul tanpa klik) — koreksi catatan "hanya mengisi ulang kotak pencarian". Direct `/tracking/<no>` tanpa verifikasi **selalu redirect** ke `/tracking?resi=<no>`; verifikasi tidak bisa di-bypass.
+- State awal punya section baru `page.getByRole('heading', { name: 'Cara Lacak Pengiriman', level: 2 })` dengan 3 langkah `Masukkan Nomor Perjalanan` / `Verifikasi Nomor Telepon` / `Lihat Status Kiriman` — jangan dihitung sebagai elemen terlarang UI-T10.
+- Teks hero: tagline `Pelacakan Pengiriman`; paragraf `Pantau perjalanan pengiriman barang Anda secara real-time. Masukkan nomor perjalanan untuk mendapatkan informasi terkini.`; helper input `Maksimal 10 nomor perjalanan dalam satu pencarian. Pisahkan nomor perjalanan dengan koma atau spasi.`
+- **UI-T08 (riwayat kosong) kini terpetakan**: `page.getByText('Belum ada riwayat pengiriman untuk nomor perjalanan ini.')` — semua order Ditugaskan (status publik `Pickup`) menampilkannya, mis. `TRC46182058` (4 digit 7901).
+- Badge status kartu ringkas: `Pickup` / `On Delivery` / `Delivered` (mapping admin Ditugaskan / Proses Pengiriman / Terkirim).
+- Halaman publik **menerima No. Resi LTL/LCL** (`RES…`); layar detail identik (label tetap `No. Perjalanan`).
+- Batas 10 nomor: nomor ke-11 di-drop diam-diam, tidak ada pesan untuk di-assert.
+
+### Data uji nyata tambahan (per 2026-09-06)
+
+| No. Perjalanan/Resi | Order | Tipe | Status admin → publik | 4 digit | Catatan |
+|---|---|---|---|---|---|
+| TRC37808714 | ORD7997900707 | FTL Multipoint | Proses Pengiriman → On Delivery | 1002 / 1003 | 3 entri, 0 sintetis (FND-01) |
+| TRC03546401 | ORD8338721286 | FCL Multipoint | Proses Pengiriman → On Delivery | 7702 / 7703 | 6 entri, timestamp masa depan |
+| TRC62627090 | ORD7466529895 | FCL Multipickup | Proses Pengiriman → On Delivery | 1881 | 3 entri, 0 sintetis |
+| TRC46182058 | ORD8337252940 | FTL Multidrop | Ditugaskan → Pickup | 7901 / 7902 | UI-T08 empty |
+| TRC11182633 / TRC90557595 | ORD7556205186 | FCL Normal 2 kontainer | Ditugaskan → Pickup | 7802 | POS-030 |
+| TRC08170473 | ORD8404971711 | FTL Normal | Proses Pengiriman | 2313 | belum dites publik |
+| RES90584378 | ORD8337730685 | LTL | Ditugaskan → Pickup | 6001 | resi diterima |
+| RES53860041 | ORD8416187200 | LCL | Ditugaskan → Pickup | 6761 | resi diterima |
+| RES16310509 / RES55726511 | ORD8331456722 / ORD8331533103 | LTL / LCL | **Dibatalkan** → "tidak ditemukan" | 0002 | EDG-017 |
+
+Daftar lengkap (19 nomor): `explore/module-map.md` section oms022.
