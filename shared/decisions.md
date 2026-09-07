@@ -532,3 +532,8 @@ Ketiga file JSON diupdate HANYA field `screenshot` via skrip Python kecil, field
 ## 2026-09-07 — oms000-jenis-produk run 20260907-115730
 
 Cakupan 174 non-stress dan perubahan entitlement tenant testing telah disetujui pengguna. Konfigurasi API ada di config/env.md (jangan salin kunci). Hasil {'passed': 11, 'blocked': 153, 'failed': 10, 'skipped': 22}. Guard tiga gagal identik NEG-009/010/011 (400 expected vs 422 actual) menghentikan eksekusi; skenario berikutnya blocked. Pemulihan OMS + 6 add-on berhasil dan diverifikasi lewat /api/system/status setelah propagasi. GET entitlement/client usulan 404, namun PATCH dan read-back status aplikasi berfungsi. JSON rusak menghasilkan 500 (FND-OMS000-RUN-01, probable major). Perbedaan status, duplikat, dan kapitalisasi banyak berbasis asumsi skenario; konfirmasi kontrak sebelum re-run. Triage: results/_triage__oms000-jenis-produk__20260907-115730.md. Tidak ada order atau data master dibuat.
+
+
+## 2026-09-07 — explore oms000-jenis-produk
+
+Eksplorasi read-only tertahan pada login admin/vendor (timeout navigasi; tidak ada respons login tertangkap, belum membuktikan kredensial salah). Tidak ada PATCH atau perubahan state. Status aplikasi teramati OMS+6 add-on, sumber core. Lihat explore/oms000-jenis-produk.md. Tindak lanjut: diagnosis timing/hydration form login sebelum retry; patuhi batas dua kegagalan login.

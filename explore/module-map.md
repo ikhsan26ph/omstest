@@ -402,3 +402,19 @@ Screenshot: 14 file prefix `oms022-*` di `artifacts/screenshots/explore/` — `o
 ## Screenshot
 
 28 file (run 2026-08-22) + 20 file (run 2026-09-04 pagi, prefix `order-*`) + 11 file (run 2026-09-04 lanjutan, prefix `order-fcl-*`) + **13 file (run 2026-09-05 lanjutan FCL, prefix `order-fcl-*`, daftar di section "lanjutan 2026-09-05")** di `artifacts/screenshots/explore/`, plus 2 bukti temuan: `pengaturan-akun-hakakses.png`, `notifikasi-bell.png`. **+ 34 file (run 2026-09-05 siang, oms014: prefix `order-ftl-*`, `verify2-*`, `recon-*`, `*-20260905.png`; daftar di section oms014).** **+ 10 file (run 2026-09-06, oms015: prefix `oms015-ltl-lcl-*`) + 13 file (run 2026-09-06 lanjutan, oms017: prefix `oms017-penugasan-*`) + 14 file (run 2026-09-06 lanjutan 2, oms022: prefix `oms022-*`; daftar di masing-masing section).**
+
+
+## Eksplorasi oms000-jenis-produk — 2026-09-07 12:18 WIB
+
+Status: **blocked pada login; peta navigasi internal belum diverifikasi ulang**. Eksplorasi read-only pada state yang sedang aktif, tanpa PATCH entitlement atau perubahan data.
+
+| # | Modul | Route | Jenis Halaman | Aksi Utama | Ada Dokumen Skenario? | Catatan |
+|---|---|---|---|---|---|---|
+| OMS000-1 | Login OMS | /login | Form autentikasi | Login, Lupa Password? | Ya — oms000-jenis-produk | Heading Selamat Datang; input Masukkan Email dan Masukkan Password terlihat dan enabled pada diagnosis read-only |
+| OMS000-2 | Status produk dan add-on | API: /api/system/status pada apioms-staging.prahu-hub.com | JSON konfigurasi frontend | GET read-only | Ya — oms000-jenis-produk | products=[OMS]; addOns=AUTO_STUFFING, SERVICE_FTL, SERVICE_LTL, SERVICE_LCL, SERVICE_AIR_FREIGHT, SERVICE_FCL; productSource=core, addOnSource=core |
+
+Percobaan akun Admin Utama dan Vendor masing-masing timeout menunggu navigasi setelah klik Login. Belum ada bukti penolakan kredensial: daftar respons JSON yang tercatat hanya setting/site, system/status, auth/refresh; tidak ada respons login yang tertangkap. Masalah timing/hydration pada executor masih mungkin. Dua percobaan dihentikan mengikuti batas login panduan; tidak menyimpulkan akun terkunci atau akses produk ditolak.
+
+Belum terpetakan ulang: matriks menu Shipper/Vendor, state TMS dan gabungan, Pengaturan Sistem, opsi Sopir/Pengurus, form order per add-on, varian TMS LKL. Peta modul dari eksplorasi sebelumnya tetap merupakan data historis. Tidak ada verdict test-module baru.
+
+Screenshot: `artifacts/screenshots/explore/oms000-jenis-produk-login-20260907.png`. Bukti terstruktur: `artifacts/oms000-current/explore-2026-09-07T05-18-12-400Z/map.json`; diagnosis login: `artifacts/oms000-current/explore-2026-09-07T05-18-12-400Z/login-diagnosis.json`.
