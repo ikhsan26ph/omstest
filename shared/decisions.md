@@ -527,3 +527,8 @@ Ketiga file JSON diupdate HANYA field `screenshot` via skrip Python kecil, field
 | `ORD7890736370` (LTL), `ORD7890583351` (LCL), `ORD7888480114`, `ORD8500349263` | — | Tidak disentuh | Sesuai arahan ("tidak perlu disentuh") |
 
 **MODUL oms017-penugasan-tracking SELESAI DIEKSEKUSI PENUH** (Batch 1-13, kecuali `TC-S-*` yang di-skip sesuai keputusan plan). Ringkasan bug/gap kumulatif signifikan: FND-OMS017-16 (Simpan Edit 404, KRITIS, blocking) & FND-OMS017-18 (No. Polisi tak bisa dikosongkan tanpa feedback, BARU) direkomendasikan sbg prioritas perbaikan tertinggi sebelum re-run berikutnya; FND-OMS017-11 kemungkinan sudah diperbaiki (mekanisme baru "Tidak Bisa Edit") tapi perlu dikonfirmasi PO apakah full-page-block ini disengaja atau efek samping fix lain.
+
+
+## 2026-09-07 — oms000-jenis-produk run 20260907-115730
+
+Cakupan 174 non-stress dan perubahan entitlement tenant testing telah disetujui pengguna. Konfigurasi API ada di config/env.md (jangan salin kunci). Hasil {'passed': 11, 'blocked': 153, 'failed': 10, 'skipped': 22}. Guard tiga gagal identik NEG-009/010/011 (400 expected vs 422 actual) menghentikan eksekusi; skenario berikutnya blocked. Pemulihan OMS + 6 add-on berhasil dan diverifikasi lewat /api/system/status setelah propagasi. GET entitlement/client usulan 404, namun PATCH dan read-back status aplikasi berfungsi. JSON rusak menghasilkan 500 (FND-OMS000-RUN-01, probable major). Perbedaan status, duplikat, dan kapitalisasi banyak berbasis asumsi skenario; konfirmasi kontrak sebelum re-run. Triage: results/_triage__oms000-jenis-produk__20260907-115730.md. Tidak ada order atau data master dibuat.
