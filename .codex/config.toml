@@ -1,0 +1,5 @@
+# Konfigurasi proyek; dimuat Codex setelah proyek dipercaya.
+# Setara dengan server Playwright pada .mcp.json untuk Claude Code.
+[mcp_servers.playwright]
+command = "npx"
+args = ["-y", "@playwright/mcp@latest"]
