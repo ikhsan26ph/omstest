@@ -537,3 +537,32 @@ Cakupan 174 non-stress dan perubahan entitlement tenant testing telah disetujui 
 ## 2026-09-07 — explore oms000-jenis-produk
 
 Eksplorasi read-only tertahan pada login admin/vendor (timeout navigasi; tidak ada respons login tertangkap, belum membuktikan kredensial salah). Tidak ada PATCH atau perubahan state. Status aplikasi teramati OMS+6 add-on, sumber core. Lihat explore/oms000-jenis-produk.md. Tindak lanjut: diagnosis timing/hydration form login sebelum retry; patuhi batas dua kegagalan login.
+
+## 2026-09-07 (lanjutan, 13:05) — explore oms000-jenis-produk, run 2 berhasil
+
+Root cause blocker run 1: script eksplorasi custom (`artifacts/oms000-current/explore.cjs`), bukan aplikasi — modul lain login sukses di hari sama via `tests/*.spec.js`. Retry pakai helper terbukti `artifacts/explore-scripts/lib.js` (script baru: `probe-oms000-entitlement.js`) → login Admin & Vendor sukses first-try, tanpa PATCH/perubahan data.
+
+Temuan utama (entitlement live: `products=[OMS]`, 6 add-on aktif):
+- `Dashboard ▸ Tracking & Location` **hilang** dari sidebar Admin (25 route, bukan 26 baseline lama) — sesuai REQ-031 (TMS-only).
+- `/setting/sistem` kini **tepat 2 item** (Durasi Kedaluwarsa Undangan Vendor + Nomor WhatsApp CS) — sesuai REQ-068 (OMS-only), **kontras dengan catatan lama `module-map.md` (8 item, 2026-09-05)**. Belum ada bukti riwayat perubahan entitlement tenant testing antara 09-05 dan 09-07 — **perlu konfirmasi tim backend/PO** sebelum eksekusi skenario REQ-058…068 (OMS000-POS-043/044/045/046), jangan asumsikan 8-item sebagai baseline masih valid.
+- Vendor login redirect ke `/vendor-portal/order` (bukan `/monitoring`); sidebar Vendor tepat 6 item, sesuai REQ-050.
+- Step 1 Buat Order: hanya kartu FTL/FCL/LTL/LCL, tidak ada "Air Freight" meski `SERVICE_AIR_FREIGHT` aktif — konsisten seluruh eksplorasi Order sebelumnya, kemungkinan besar Air Freight OMS belum diimplementasikan UI (REQ-077, NEED RECHECK, bukan bug baru).
+
+Detail lengkap & tabel: `explore/oms000-jenis-produk.md` (section "Run 2"). Update juga ditambahkan ke `explore/module-map.md` baris #3 dan #24.
+
+## 2026-09-07/08 — test-module oms000-jenis-produk, run lanjutan 20260907-191524 (153 skenario, SELESAI PENUH)
+
+Lanjutan dari run `20260907-115730` (21 skenario api-entitlement pertama, guard-stop pada pola "400 vs 422" — lihat entri di atas). Plan: `results/_plan__oms000-jenis-produk__20260907-191524.md` (153 skenario tersisa, 15 batch A–F dikelompokkan per state entitlement utk minimalkan PATCH switch, dijalankan via test-executor + Playwright lokal headless per batch). User menyetujui full 153 + Bucket F ditandai blocked (bukan skip) krn gap data (`config/env.md` cuma 1 `CLIENT_ID`).
+
+**Hasil**: 93 passed, 45 failed, 14 blocked, 1 skipped. Triage: `results/_triage__oms000-jenis-produk__20260907-191524.md`. Report: `reports/oms000-jenis-produk__20260907-191524.xlsx`. Entitlement dipulihkan ke baseline (`products:[OMS]`, 6 add-on) & diverifikasi via `/api/system/status` setelah run selesai.
+
+**7 bug-candidate baru (FND-OMS000-RUN-02 s/d 08)**, paling signifikan:
+- **FND-05 (CRITICAL)**: pada OMS-only, opsi "Tugaskan ke Sopir" hilang TOTAL dari form Tambah Penugasan (bukan disabled) — Admin maupun Vendor, 6 skenario independen. Melanggar inti modul R2 (REQ-021/024). TIDAK reproduce di TMS-only/gabungan.
+- **FND-07 (CRITICAL)**: endpoint `/api/pelabuhans`, `/api/pelayarans` sama sekali tidak cek entitlement/otorisasi, hanya autentikasi — termasuk **lintas role** (token Vendor bisa baca data master Shipper) dan client-side stale-nav (server tak re-cek saat SPA navigate tanpa reload). Guard UI/route sendiri sudah benar, gap murni di API.
+- **FND-02 (major, 19 skenario)**: struktur "TMS LKL" 5-grup, grup wrapper "Menu Utama"/"Menu Lainnya", dan "Dashboard - Progress Pengiriman" TIDAK ADA sama sekali di UI live, apa pun state entitlement — kemungkinan gap arsitektur/belum diimplementasi, bukan bug intermiten.
+- **FND-03 (major)**: `addOns` tidak divalidasi enum di PATCH (beda dari `products` yg all-or-nothing); guard route Master Bandara/Maskapai bypass total.
+- **FND-06 (major)**: `addOns` tanpa `SERVICE_*` apa pun → menu Order & Simulasi Muatan ikut hilang & diblokir route, padahal harusnya selalu ada.
+- **FND-08 (major)**: moda Udara/Air Freight tanpa opsi apa pun di wizard Buat Order meski `SERVICE_AIR_FREIGHT` aktif, disertai pesan error salah ("FTL tidak aktif" padahal FTL tak diminta).
+- **FND-04 (minor)**: body PATCH `{}` ditolak 422, diharapkan no-op 200.
+
+14 blocked: 10 krn gap data Bucket F (1 CLIENT_ID saja), 4 krn gap tooling (audit trail ASM-19, driver-app ASM-29 — tidak ada endpoint/akses nyata utk verifikasi).
