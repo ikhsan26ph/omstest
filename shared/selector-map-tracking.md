@@ -134,3 +134,118 @@ Koreksi/pelengkap atas tabel di atas (detail: `explore/module-map.md` section om
 | RES16310509 / RES55726511 | ORD8331456722 / ORD8331533103 | LTL / LCL | **Dibatalkan** → "tidak ditemukan" | 0002 | EDG-017 |
 
 Daftar lengkap (19 nomor): `explore/module-map.md` section oms022.
+
+## Update Harvest Public Tracking — `oms022-public-tracking-improve` 2026-09-14
+
+- **Output mentah**: `artifacts/explore-scripts/harvest-selectors-oms022-public-tracking-improve.json`
+- **Route**: `/tracking` dan `/tracking/<no>`
+- **Cakupan live**: state awal, hasil tidak ditemukan, hasil pencarian valid, modal OTP, detail tracking setelah OTP, deep link query `?resi=<no>`, dan deep link path `/tracking/<no>`.
+- **Skipped live**: tidak ada.
+- **Data uji live utama**: `TRC46182058`, OTP `7901`; data negatif `TRC00000000`.
+- **Catatan akses**: halaman publik, tidak perlu login.
+
+| SCR | Elemen (nama sesuai analysis.md) | Selector terbaik | Sumber | Catatan |
+|---|---|---|---|---|
+| UI-T01 | Brand/link publik | `page.getByRole('link', { name: 'PT. OMESH' })` | role+name | Link header publik. |
+| UI-T01 | Input nomor perjalanan | `page.getByPlaceholder('Masukkan nomor perjalanan...')` | placeholder | Pada state awal placeholder terlihat; setelah chip dibuat input kosong tidak lagi punya placeholder di harvest mentah. |
+| UI-T01 | Tombol Lacak Pengiriman | `page.getByRole('button', { name: 'Lacak Pengiriman' })` | role+name | Disabled sampai ada nomor perjalanan. Gunakan `dispatchEvent('click')` sesuai catatan lama. |
+| UI-T01 | Hero pelacakan | `page.getByRole('heading', { name: 'Lacak Pengiriman Anda dengan Mudah' })` | role+name | Heading non-interaktif untuk assertion state awal. |
+| UI-T01 | Section cara lacak | `page.getByRole('heading', { name: 'Cara Lacak Pengiriman' })` | role+name | Heading non-interaktif untuk assertion state awal. |
+| UI-T04 | Reset chip nomor tidak ditemukan | `page.getByRole('button', { name: 'Hapus TRC00000000' })` | aria-label | Nomor dinamis; gunakan regex `name: /^Hapus /` bila nomor tidak fixed. |
+| UI-T04 | Pesan nomor tidak ditemukan | `page.getByText('Nomor perjalanan tidak ditemukan')` | text | Assertion utama state negatif. |
+| UI-T04 | Input setelah chip | `page.locator('input').first()` scoped ke form tracking | tag scoped | Placeholder tidak muncul setelah token/chip aktif; lebih baik scope ke form/search container bila ada wrapper stabil. |
+| UI-T05 | Reset chip nomor valid | `page.getByRole('button', { name: 'Hapus TRC46182058' })` | aria-label | Nomor dinamis; chip tidak menghapus kartu hasil lama menurut catatan sebelumnya. |
+| UI-T05 | Kartu hasil pencarian valid | `page.getByText('TRC46182058')` atau card/list scope `hasText: 'TRC46182058'` | text dinamis | Root kartu belum punya role/testid stabil; scope assertions ke nomor perjalanan. |
+| UI-T05 | Tombol Lihat Detail | `page.getByRole('button', { name: 'Lihat Detail' })` | role+name | Gunakan `dispatchEvent('click')`; pada multi-nomor wajib scope ke kartu nomor yang dimaksud. |
+| UI-OTP | Modal verifikasi OTP | `page.getByText('Masukkan 4 Digit Terakhir Nomor Telepon Penerima')` | text | Root modal tidak punya `role="dialog"` pada harvest mentah. |
+| UI-OTP | Subjudul nomor perjalanan di modal | `page.getByText('No. Perjalanan: TRC46182058')` | text dinamis | Gunakan untuk memastikan OTP modal milik nomor benar. |
+| UI-OTP | Tombol tutup modal | `page.getByRole('button', { name: 'Tutup' })` | aria-label | Stabil via aria-label. |
+| UI-OTP | Input digit OTP | `page.locator('input').nth(i)` scoped ke modal OTP | tag scoped | Tidak ada placeholder/name/aria/testid. Isi 4 input terakhir/ter-scope; selector masih lemah. |
+| UI-OTP | Tombol Verifikasi | `page.getByRole('button', { name: 'Verifikasi' })` | role+name | Disabled sampai 4 digit terisi; gunakan `dispatchEvent('click')`. |
+| UI-T06/T07/T08 | Halaman detail tracking | `page.getByRole('button', { name: 'Detail Tracking' })` | role+name | Live berupa button/accordion, bukan heading. URL setelah OTP: `/tracking/TRC46182058`. |
+| UI-T06/T07/T08 | Nomor perjalanan di detail | `page.getByText('TRC46182058')` | text dinamis | Assertion identitas detail. |
+| UI-T06/T07/T08 | Step Pick Up | `page.getByText('Pick Up')` | text | Status publik untuk order `Ditugaskan`. |
+| UI-T06/T07/T08 | Step On Delivery | `page.getByText('On Delivery')` | text | Stepper non-interaktif; perlu data-testid untuk state reached/pending. |
+| UI-T06/T07/T08 | Step Delivered | `page.getByText('Delivered')` | text | Stepper non-interaktif; perlu data-testid untuk state reached/pending. |
+| UI-T06/T07/T08 | Riwayat Pengiriman | `page.getByText('Riwayat Pengiriman')` | text | Section riwayat detail. |
+| UI-T08 | Riwayat kosong | `page.getByText('Belum ada riwayat pengiriman untuk nomor perjalanan ini.')` | text | Terkonfirmasi untuk `TRC46182058`. |
+| UI-DEEPLINK-QUERY | Deep link query auto-search | `page.goto('/tracking?resi=TRC46182058'); page.getByRole('button', { name: 'Lihat Detail' })` | route+role | Kartu hasil muncul otomatis tanpa klik submit. |
+| UI-DEEPLINK-PATH | Deep link path setelah session OTP | `page.goto('/tracking/TRC46182058'); page.getByRole('button', { name: 'Detail Tracking' })` | route+role | Pada sesi yang sudah verifikasi, detail bisa dibuka langsung. Tanpa verifikasi ikuti catatan lama: redirect ke query/search. |
+
+### Ringkasan Harvest Public Tracking 2026-09-14
+
+- Layar/state berhasil dipetakan live: **7**.
+- Layar skipped live: **0**.
+- Elemen mentah dari query workflow: **28**.
+- Selector Public Tracking di tabel tambahan: **25**.
+- Selector stabil (`role/name`, `aria-label`, `placeholder`, text assertion): **20**.
+- Selector tidak stabil/perlu scoping khusus: **5** (`input` setelah chip, root kartu hasil, tombol `Lihat Detail` multi-nomor, input OTP, stepper state).
+
+## Tambahan Penugasan Tracking Admin — Harvest `oms017-penugasan-tracking` 2026-09-14
+
+- **Output mentah**: `artifacts/explore-scripts/harvest-selectors-oms017-penugasan-tracking.json`
+- **Route**: `/penugasan-tracking`
+- **Cakupan live**: Daftar Penugasan Tracking, Panel Filter, Daftar filter FCL, Detail Penugasan, Riwayat Penugasan inline, Riwayat Perubahan, Tambah Penugasan, Edit Penugasan direct URL.
+- **Skipped live**: tidak ada.
+- **Catatan perubahan data/precondition**: pada harvest 2026-09-14, `/penugasan-tracking/tambah` menampilkan kandidat order campuran FTL/FCL/LTL/LCL, bukan hanya FTL seperti catatan explore 2026-09-06.
+
+| SCR | Elemen (nama sesuai ui-inventory) | Selector terbaik | Sumber | Catatan |
+|---|---|---|---|---|
+| PT-LIST | Menu sidebar Penugasan Tracking | `getByRole('link', { name: 'Penugasan Tracking' })` | role+name | Route `/penugasan-tracking`. |
+| PT-LIST | Tombol Tambah Penugasan | `getByRole('button', { name: 'Tambah Penugasan' })` | role+name | Navigasi ke `/penugasan-tracking/tambah`. |
+| PT-LIST | Tombol Filter | `getByRole('button', { name: /Filter/ })` | role+name | Saat ada filter aktif teks bisa menjadi `Filter (1)`. |
+| PT-LIST | Input ID Order | `getByPlaceholder('Masukkan ID Order')` | placeholder | Stabil. |
+| PT-LIST | Filter Jenis Order | `getByRole('button', { name: 'Pilih Jenis Order' })` | role+name | Dropdown custom. |
+| PT-LIST | Filter Jenis Order FCL selected | `getByRole('button', { name: 'FCL - Full Container Load' })` | role+name | Setelah pilihan FCL aktif. |
+| PT-LIST | Filter Rute | `getByRole('button', { name: 'Pilih Rute' })` | role+name | Dropdown custom; menggantikan pemisahan Kota Asal/Tujuan pada catatan lama. |
+| PT-LIST | Filter No. Polisi/No. Kontainer | `getByPlaceholder('Masukkan No. Polisi/No. Kontainer')` | placeholder | Stabil. |
+| PT-LIST | Filter Sopir/Petugas | `getByPlaceholder('Masukkan Nama Sopir/Petugas')` | placeholder | Stabil. |
+| PT-LIST | Filter Status | `getByRole('button', { name: 'Pilih Status' })` | role+name | Dropdown custom. |
+| PT-LIST | Filter Tahapan Tracking | `getByRole('button', { name: 'Pilih Tahapan' })` | role+name | Dropdown custom; label live lebih pendek dari catatan `Tahapan Tracking`. |
+| PT-LIST | Filter Nama Vendor | `getByRole('button', { name: 'Semua Vendor' })` | role+name | Dropdown custom. |
+| PT-LIST | Tombol Terapkan filter | `getByRole('button', { name: 'Terapkan' })` | role+name | Submit filter list; bukan perubahan data. |
+| PT-LIST | Tombol Reset filter | `getByRole('button', { name: 'Reset' })` | role+name | Reset filter. |
+| PT-LIST | Tabel Penugasan Tracking | `getByRole('table')` | role | Gunakan row-scope. |
+| PT-LIST | Aksi row | `getByRole('button', { name: 'Aksi' }).nth(i)` scoped ke row | role+name (tidak unik) | Menu floating, perlu row/index. |
+| PT-LIST | Menu item Detail | `getByRole('button', { name: 'Detail', exact: true })` scoped ke menu aksi | role+name | Terlihat pada action menu. |
+| PT-LIST | Menu item Riwayat Perubahan | `getByRole('button', { name: 'Riwayat Perubahan' })` scoped ke menu aksi | role+name | Navigasi ke `/penugasan-tracking/{uuid}/riwayat`. |
+| PT-DETAIL | Tombol Kembali detail | `getByRole('button', { name: 'Kembali' })` | role+name | Detail Penugasan. |
+| PT-DETAIL | Accordion Detail Data Order | `getByRole('button', { name: 'Detail Data Order' })` | role+name | Detail Penugasan. |
+| PT-DETAIL | Accordion Informasi Penugasan | `getByRole('button', { name: 'Informasi Penugasan' })` | role+name | Detail Penugasan. |
+| PT-DETAIL | Tombol Lihat Detail Riwayat Penugasan | `getByRole('button', { name: 'Lihat Detail' })` scoped ke Informasi Penugasan | role+name | Membuka panel inline, bukan modal dialog. |
+| PT-DETAIL | Accordion Jadwal Kapal | `getByRole('button', { name: 'Jadwal Kapal' })` | role+name | Detail Penugasan. |
+| PT-DETAIL | Accordion History Tracking | `getByRole('button', { name: 'History Tracking' })` | role+name | Detail Penugasan. |
+| PT-DETAIL | Tab Per Lokasi | `getByRole('button', { name: 'Per Lokasi' })` | role+name | Live berupa button. |
+| PT-DETAIL | Tab Timeline | `getByRole('button', { name: 'Timeline' })` | role+name | Live berupa button. |
+| PT-DETAIL | Tombol Detail di History Tracking | `getByRole('button', { name: 'Detail' })` scoped ke History Tracking | role+name (tidak unik) | Nama generik; wajib scope. |
+| PT-RIWAYAT-PERUBAHAN | Link Kembali riwayat | `getByRole('link', { name: /Kembali/ })` | role+name | Teks live `← Kembali`. |
+| PT-RIWAYAT-PERUBAHAN | Filter riwayat perubahan | `getByRole('button', { name: 'Filter' })` | role+name | Membuka filter riwayat. |
+| PT-TAMBAH | Cari order | `getByPlaceholder('Cari order...')` | placeholder | Stabil. |
+| PT-TAMBAH | Kandidat order | `getByRole('button', { name: /^ORD/ })` | role+name dinamis | Contoh live berisi campuran FTL/FCL/LTL/LCL. |
+| PT-TAMBAH | Kandidat order FCL | `getByRole('button', { name: /FCL/ })` scoped ke daftar kandidat | role+name dinamis | Gunakan hanya bila butuh order FCL tersedia. |
+| PT-TAMBAH | Kandidat order LTL | `getByRole('button', { name: /LTL/ })` scoped ke daftar kandidat | role+name dinamis | Live 2026-09-14 tersedia. |
+| PT-TAMBAH | Kandidat order LCL | `getByRole('button', { name: /LCL/ })` scoped ke daftar kandidat | role+name dinamis | Live 2026-09-14 tersedia. |
+| PT-TAMBAH | Batal Tambah Penugasan | `getByRole('button', { name: 'Batal' })` | role+name | Memicu konfirmasi bila ada perubahan/pilihan. |
+| PT-TAMBAH | Simpan Tambah Penugasan | `getByRole('button', { name: 'Simpan' })` | role+name | Aksi tulis; jangan diklik saat harvest. |
+| PT-EDIT | Edit Penugasan direct URL - Kembali ke List | `getByRole('button', { name: 'Kembali ke List' })` | role+name | Pada URL direct edit yang dibuka dari FCL live. |
+| PT-EDIT | Edit Penugasan direct URL - Batal | `getByRole('button', { name: 'Batal' })` | role+name | Live 2026-09-14. |
+| PT-EDIT | Edit Penugasan direct URL - Simpan | `getByRole('button', { name: 'Simpan' })` | role+name | Aksi tulis; jangan diklik saat harvest. |
+
+## Rekomendasi data-testid untuk developer — Penugasan Tracking
+
+- `tracking-assignment-filter-panel` — root panel filter daftar penugasan.
+- `tracking-assignment-row` dan `tracking-assignment-row-action` — row dan action menu agar tidak bergantung index.
+- `tracking-assignment-filter-order-type`, `tracking-assignment-filter-route`, `tracking-assignment-filter-status`, `tracking-assignment-filter-stage`, `tracking-assignment-filter-vendor` — dropdown filter custom.
+- `tracking-assignment-detail-history-button` — tombol `Lihat Detail` pada Informasi Penugasan yang saat ini terlalu generik.
+- `tracking-assignment-history-panel` — panel inline Riwayat Penugasan.
+- `tracking-assignment-order-search` dan `tracking-assignment-order-option` — daftar kandidat pada Tambah Penugasan.
+- `tracking-assignment-edit-form` — root form/edit state, termasuk state blocked direct edit.
+
+## Ringkasan Harvest Penugasan Tracking 2026-09-14
+
+- Layar berhasil dipetakan live: **8**.
+- Layar skipped live: **0**.
+- Elemen mentah dari query workflow: **391**.
+- Selector Penugasan Tracking di tabel tambahan: **39**.
+- Selector stabil (`data-testid`, id stabil, role/name, placeholder): **33**.
+- Selector tidak stabil/perlu scoping khusus: **6**.
