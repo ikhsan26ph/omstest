@@ -1,0 +1,465 @@
+{
+  "summary": {
+    "total": 24,
+    "byCategory": {
+      "positive": 8,
+      "negative": 8,
+      "edge": 4,
+      "stress": 4
+    }
+  },
+  "source": {
+    "spec": "inputs/oms2324-dashboard/spec.txt",
+    "designs": [
+      "inputs/oms2324-dashboard/designs/128-admin-monitoring-tracking-data-kasus.png",
+      "inputs/oms2324-dashboard/designs/129-admin-dahsboard-distribusi.png",
+      "inputs/oms2324-dashboard/designs/130-admin-dahsboard-distribusi.png"
+    ],
+    "extras": [
+      "inputs/oms2324-dashboard/extras/peta-sebaran-order-indonesia.html"
+    ]
+  },
+  "scenarios": [
+    {
+      "id": "OMS2324-DASHBOARD-POS-001",
+      "title": "Admin melihat score card Monitoring",
+      "category": "positive",
+      "priority": "high",
+      "requirement": "REQ-001",
+      "screen": "monitoring",
+      "preconditions": ["Admin memiliki akses Dashboard Monitoring", "Tersedia order aktif yang sudah ditugaskan"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "expect", "target": "Total Armada", "value": "visible"},
+        {"action": "expect", "target": "Melewati SLA", "value": "visible"},
+        {"action": "expect", "target": "Total Armada value", "value": "8"},
+        {"action": "expect", "target": "Melewati SLA value", "value": "4"}
+      ],
+      "expected": ["Score card Total Armada dan Melewati SLA tampil dengan nilai sesuai data aktif"],
+      "testData": {"totalArmada": 8, "melewatiSla": 4},
+      "selectorHints": {"Total Armada": {"role": "text", "name": "Total Armada", "testid": "score-total-armada"}, "Melewati SLA": {"role": "text", "name": "Melewati SLA", "testid": "score-melewati-sla"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-001",
+      "title": "Order belum ditugaskan tidak dihitung pada score card Monitoring",
+      "category": "negative",
+      "priority": "high",
+      "requirement": "REQ-001",
+      "screen": "monitoring",
+      "preconditions": ["Ada order belum ditugaskan pada dataset"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "expect", "target": "Total Armada", "value": "tidak termasuk order belum ditugaskan"},
+        {"action": "expect", "target": "Melewati SLA", "value": "tidak termasuk order belum ditugaskan"}
+      ],
+      "expected": ["Order belum ditugaskan tidak masuk perhitungan score card"],
+      "testData": {"orderStatus": "Belum Ditugaskan"},
+      "selectorHints": {"Total Armada": {"role": "text", "name": "Total Armada", "testid": "score-total-armada"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-POS-002",
+      "title": "Admin melihat daftar armada berjalan per nopol",
+      "category": "positive",
+      "priority": "high",
+      "requirement": "REQ-002",
+      "screen": "monitoring",
+      "preconditions": ["Ada penugasan aktif untuk TRC46135584"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "expect", "target": "Daftar Armada Berjalan", "value": "visible"},
+        {"action": "expect", "target": "L 1234 KP", "value": "visible"},
+        {"action": "expect", "target": "ID Order: TRC46135584", "value": "visible"},
+        {"action": "expect", "target": "PT Andalan Trans Nusantara", "value": "visible"},
+        {"action": "expect", "target": "Detail", "value": "visible"}
+      ],
+      "expected": ["Card armada berjalan tampil per nopol dengan data utama dan aksi detail"],
+      "testData": {"nopol": "L 1234 KP", "idOrder": "TRC46135584", "vendor": "PT Andalan Trans Nusantara"},
+      "selectorHints": {"Daftar Armada Berjalan": {"role": "heading", "name": "Daftar Armada Berjalan", "testid": "section-armada-berjalan"}, "Detail": {"role": "link", "name": "Detail", "testid": "link-detail-armada"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-002",
+      "title": "Daftar armada berjalan tidak menampilkan order dibatalkan atau belum ditugaskan",
+      "category": "negative",
+      "priority": "high",
+      "requirement": "REQ-002",
+      "screen": "monitoring",
+      "preconditions": ["Dataset memiliki order dibatalkan dan belum ditugaskan"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "expect", "target": "Order dibatalkan", "value": "hidden"},
+        {"action": "expect", "target": "Order belum ditugaskan", "value": "hidden"}
+      ],
+      "expected": ["Daftar hanya berisi armada berjalan yang sudah ditugaskan"],
+      "testData": {"excludedStatuses": ["Dibatalkan", "Belum Ditugaskan"]},
+      "selectorHints": {"Card Armada": {"role": "region", "name": "Daftar Armada Berjalan", "testid": "card-armada"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-POS-003",
+      "title": "Admin memfilter armada dengan status Melewati SLA",
+      "category": "positive",
+      "priority": "high",
+      "requirement": "REQ-003",
+      "screen": "monitoring",
+      "preconditions": ["Ada armada melewati SLA"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "click", "target": "Melewati SLA", "value": ""},
+        {"action": "expect", "target": "Melewati SLA", "value": "badge visible"},
+        {"action": "expect", "target": "Card non-SLA", "value": "hidden"}
+      ],
+      "expected": ["Filter menampilkan hanya armada yang melewati SLA"],
+      "testData": {"filter": "Melewati SLA"},
+      "selectorHints": {"Melewati SLA": {"role": "button", "name": "Melewati SLA", "testid": "filter-melewati-sla"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-003",
+      "title": "Filter Belum Ada Pencatatan menolak order yang belum H-1 tanggal pemuatan",
+      "category": "negative",
+      "priority": "high",
+      "requirement": "REQ-003",
+      "screen": "monitoring",
+      "preconditions": ["Ada order belum selesai muat dengan tanggal pemuatan lebih dari H-1"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "click", "target": "Belum Ada Pencatatan", "value": ""},
+        {"action": "expect", "target": "Order belum H-1", "value": "hidden"},
+        {"action": "expect", "target": "Belum ada pencatatan", "value": "visible untuk order H-1"}
+      ],
+      "expected": ["Filter menerapkan aturan H-1 tanggal pemuatan"],
+      "testData": {"filter": "Belum Ada Pencatatan", "tanggalPemuatan": "lebih dari H-1"},
+      "selectorHints": {"Belum Ada Pencatatan": {"role": "button", "name": "Belum Ada Pencatatan", "testid": "filter-belum-ada-pencatatan"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-POS-004",
+      "title": "Admin mencari daftar armada berdasarkan nopol",
+      "category": "positive",
+      "priority": "medium",
+      "requirement": "REQ-004",
+      "screen": "monitoring",
+      "preconditions": ["Card L 8888 RO tersedia"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "fill", "target": "Cari nopol, sopir, atau ID order", "value": "L 8888 RO"},
+        {"action": "click", "target": "Cari", "value": ""},
+        {"action": "expect", "target": "L 8888 RO", "value": "visible"}
+      ],
+      "expected": ["Pencarian menemukan card berdasarkan nopol"],
+      "testData": {"keyword": "L 8888 RO"},
+      "selectorHints": {"Search": {"role": "textbox", "name": "Cari nopol, sopir, atau ID order", "testid": "search-armada-berjalan"}, "Cari": {"role": "button", "name": "Cari", "testid": "button-search-armada"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-004",
+      "title": "Pencarian yang tidak ditemukan menampilkan empty state",
+      "category": "negative",
+      "priority": "medium",
+      "requirement": "REQ-004",
+      "screen": "monitoring",
+      "preconditions": ["Keyword tidak cocok dengan data"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "fill", "target": "Cari nopol, sopir, atau ID order", "value": "ZZZ9999"},
+        {"action": "click", "target": "Cari", "value": ""},
+        {"action": "expect", "target": "Data armada tidak ditemukan", "value": "visible"}
+      ],
+      "expected": ["Sistem menampilkan empty state tanpa card"],
+      "testData": {"keyword": "ZZZ9999"},
+      "selectorHints": {"Empty State": {"role": "text", "name": "Data armada tidak ditemukan", "testid": "empty-armada-berjalan"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-POS-005",
+      "title": "Admin membuka detail penugasan dari card armada",
+      "category": "positive",
+      "priority": "high",
+      "requirement": "REQ-005",
+      "screen": "monitoring",
+      "preconditions": ["Admin memiliki akses detail penugasan"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "click", "target": "Detail pada card TRC46135584", "value": ""},
+        {"action": "expect", "target": "Detail Penugasan Tracking", "value": "visible"},
+        {"action": "expect", "target": "TRC46135584", "value": "visible"},
+        {"action": "expect", "target": "L 1234 KP", "value": "visible"}
+      ],
+      "expected": ["Detail membuka konteks ID order dan nopol yang sama"],
+      "testData": {"idOrder": "TRC46135584", "nopol": "L 1234 KP"},
+      "selectorHints": {"Detail": {"role": "link", "name": "Detail", "testid": "link-detail-armada"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-005",
+      "title": "User tanpa akses tidak dapat membuka detail penugasan",
+      "category": "negative",
+      "priority": "high",
+      "requirement": "REQ-005",
+      "screen": "monitoring",
+      "preconditions": ["User tidak memiliki akses detail penugasan"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "click", "target": "Detail pada card TRC46135584", "value": ""},
+        {"action": "expect", "target": "Anda tidak memiliki akses", "value": "visible"},
+        {"action": "expect", "target": "Monitoring", "value": "current page"}
+      ],
+      "expected": ["Sistem menolak akses detail dan user tetap di Monitoring"],
+      "testData": {"role": "User tanpa akses detail penugasan"},
+      "selectorHints": {"Unauthorized Message": {"role": "alert", "name": "Anda tidak memiliki akses", "testid": "alert-unauthorized"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-POS-006",
+      "title": "Shipper melihat Dashboard Distribusi & Muatan dengan default Bulanan",
+      "category": "positive",
+      "priority": "high",
+      "requirement": "REQ-006",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Shipper memiliki akses Dashboard Distribusi & Muatan"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "expect", "target": "Periode Permintaan Muat", "value": "visible"},
+        {"action": "expect", "target": "Bulanan", "value": "selected"},
+        {"action": "expect", "target": "Jangkauan Distribusi", "value": "visible"},
+        {"action": "expect", "target": "Utilitas Armada", "value": "visible"},
+        {"action": "expect", "target": "Export", "value": "visible"}
+      ],
+      "expected": ["Dashboard tampil dengan default Bulanan sesuai spec"],
+      "testData": {"defaultPeriod": "Bulanan"},
+      "selectorHints": {"Bulanan": {"role": "button", "name": "Bulanan", "testid": "period-bulanan"}, "Export": {"role": "button", "name": "Export", "testid": "button-export-dashboard"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-006",
+      "title": "Custom tanggal menolak tanggal akhir sebelum tanggal awal",
+      "category": "negative",
+      "priority": "high",
+      "requirement": "REQ-006",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Date range picker tersedia"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "click", "target": "Pilih Tanggal", "value": ""},
+        {"action": "fill", "target": "Tanggal Mulai", "value": "2026-09-14"},
+        {"action": "fill", "target": "Tanggal Akhir", "value": "2026-09-01"},
+        {"action": "expect", "target": "Tanggal akhir tidak boleh sebelum tanggal mulai", "value": "visible"}
+      ],
+      "expected": ["Range invalid ditolak dan data dashboard tidak berubah"],
+      "testData": {"tanggalMulai": "2026-09-14", "tanggalAkhir": "2026-09-01"},
+      "selectorHints": {"Pilih Tanggal": {"role": "button", "name": "Pilih Tanggal", "testid": "period-custom-date"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-POS-007",
+      "title": "Shipper melihat Jangkauan Distribusi dan peta choropleth",
+      "category": "positive",
+      "priority": "high",
+      "requirement": "REQ-007",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Data distribusi valid tersedia"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "expect", "target": "Kota Terjangkau", "value": "visible"},
+        {"action": "expect", "target": "Jumlah Pengirim Aktif", "value": "visible"},
+        {"action": "expect", "target": "Jumlah Penerima Aktif", "value": "visible"},
+        {"action": "expect", "target": "map-jangkauan-distribusi", "value": "visible"},
+        {"action": "expect", "target": "Jumlah Order", "value": "visible"},
+        {"action": "expect", "target": "Kota Tujuan (Penerima)", "value": "selected"}
+      ],
+      "expected": ["Score card dan peta choropleth tampil dengan default lokasi penerima"],
+      "testData": {"defaultLocationType": "Kota Tujuan (Penerima)"},
+      "selectorHints": {"Map": {"role": "region", "name": "Jangkauan Distribusi", "testid": "map-jangkauan-distribusi"}, "Dropdown": {"role": "combobox", "name": "Kota", "testid": "map-location-type"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-007",
+      "title": "Peta tidak menghitung order batal pada jangkauan distribusi",
+      "category": "negative",
+      "priority": "medium",
+      "requirement": "REQ-007",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Dataset memuat order batal untuk Jawa Barat"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "expect", "target": "Jawa Barat", "value": "tidak termasuk order batal"},
+        {"action": "expect", "target": "Gradasi Jawa Barat", "value": "tidak berubah oleh order batal"}
+      ],
+      "expected": ["Peta hanya menghitung order valid"],
+      "testData": {"provinsi": "Jawa Barat", "orderStatus": "Dibatalkan"},
+      "selectorHints": {"Jawa Barat": {"role": "text", "name": "Jawa Barat", "testid": "map-label-provinsi"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-POS-008",
+      "title": "Shipper melihat Utilitas Armada lengkap",
+      "category": "positive",
+      "priority": "high",
+      "requirement": "REQ-008",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Data utilitas armada tersedia"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "expect", "target": "Rata-rata Barang per Pengiriman", "value": "visible"},
+        {"action": "expect", "target": "Pengiriman < 50% Kapasitas", "value": "visible"},
+        {"action": "expect", "target": "Kelebihan Muatan", "value": "visible"},
+        {"action": "expect", "target": "Profil Barang Terkirim", "value": "visible"},
+        {"action": "expect", "target": "Tingkat Keterisian Armada", "value": "visible"}
+      ],
+      "expected": ["Semua elemen utilitas armada tampil"],
+      "testData": {"rataRataKoli": 145, "pengirimanKurang50": 42, "kelebihanMuatan": 9},
+      "selectorHints": {"Profil Barang": {"role": "region", "name": "Profil Barang Terkirim", "testid": "chart-profil-barang"}, "Keterisian": {"role": "region", "name": "Tingkat Keterisian Armada", "testid": "panel-keterisian-armada"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-NEG-008",
+      "title": "Kelebihan kapasitas ditandai sebagai kesalahan data",
+      "category": "negative",
+      "priority": "high",
+      "requirement": "REQ-008",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Data menghasilkan keterisian ruang di atas 100%"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "expect", "target": "Keterisian Ruang", "value": ">100%"},
+        {"action": "expect", "target": "Bar pembatas", "value": "merah"},
+        {"action": "expect", "target": "Melebihi kapasitas", "value": "visible"}
+      ],
+      "expected": ["Nilai di atas 100% ditandai merah sebagai indikasi kesalahan data"],
+      "testData": {"keterisianRuang": 120},
+      "selectorHints": {"Keterisian Ruang": {"role": "progressbar", "name": "Keterisian Ruang", "testid": "bar-keterisian-ruang"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-EDG-001",
+      "title": "Filter Semua Tahapan tetap menampilkan seluruh status aktif ketika jumlah tiap chip berbeda",
+      "category": "edge",
+      "priority": "medium",
+      "requirement": "REQ-003",
+      "screen": "monitoring",
+      "preconditions": ["Ada beberapa status armada aktif"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "click", "target": "Semua Tahapan", "value": ""},
+        {"action": "expect", "target": "Selesai Muat", "value": "visible"},
+        {"action": "expect", "target": "Selesai Bongkar", "value": "visible"},
+        {"action": "expect", "target": "Belum Ada Pencatatan", "value": "visible"}
+      ],
+      "expected": ["Semua status aktif tetap tampil"],
+      "testData": {"filter": "Semua Tahapan"},
+      "selectorHints": {"Semua Tahapan": {"role": "button", "name": "Semua Tahapan", "testid": "filter-semua-tahapan"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-EDG-002",
+      "title": "Mingguan memakai ISO week Senin sampai Minggu",
+      "category": "edge",
+      "priority": "medium",
+      "requirement": "REQ-006",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Tanggal berjalan berada dalam ISO week valid"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "click", "target": "Mingguan", "value": ""},
+        {"action": "expect", "target": "Periode filter", "value": "Senin sampai Minggu ISO week berjalan"}
+      ],
+      "expected": ["Filter Mingguan memakai ISO week dan Tanggal Permintaan Muat"],
+      "testData": {"period": "Mingguan"},
+      "selectorHints": {"Mingguan": {"role": "button", "name": "Mingguan", "testid": "period-mingguan"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-EDG-003",
+      "title": "Zoom peta menampilkan detail kota dan opsi Kota Asal",
+      "category": "edge",
+      "priority": "medium",
+      "requirement": "REQ-007",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Peta choropleth tampil"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "click", "target": "Perbesar", "value": ""},
+        {"action": "select", "target": "Kota", "value": "Kota Asal (Pengirim)"},
+        {"action": "expect", "target": "Label kota/kabupaten", "value": "visible"}
+      ],
+      "expected": ["Zoom peta membuka detail kota dan filter pengirim mengubah gradasi"],
+      "testData": {"locationType": "Kota Asal (Pengirim)"},
+      "selectorHints": {"Perbesar": {"role": "button", "name": "Perbesar", "testid": "map-zoom-in"}, "Kota": {"role": "combobox", "name": "Kota", "testid": "map-location-type"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-EDG-004",
+      "title": "Selisih keterisian ruang dan berat kurang dari 5 poin membuat kedua bar non-pembatas",
+      "category": "edge",
+      "priority": "medium",
+      "requirement": "REQ-008",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Data menghasilkan keterisian ruang 82% dan berat 79%"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "expect", "target": "Keterisian Ruang", "value": "82%"},
+        {"action": "expect", "target": "Keterisian Barang", "value": "79%"},
+        {"action": "expect", "target": "Keterangan pembatas", "value": "empty"}
+      ],
+      "expected": ["Selisih kurang dari 5 poin membuat kedua bar non-pembatas"],
+      "testData": {"keterisianRuang": 82, "keterisianBerat": 79},
+      "selectorHints": {"Keterisian Barang": {"role": "progressbar", "name": "Keterisian Barang", "testid": "bar-keterisian-berat"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-STR-001",
+      "title": "Refresh berulang tidak menduplikasi card armada",
+      "category": "stress",
+      "priority": "medium",
+      "requirement": "REQ-004",
+      "screen": "monitoring",
+      "preconditions": ["Daftar armada berjalan memiliki beberapa card"],
+      "steps": [
+        {"action": "navigate", "target": "Monitoring", "value": "/dashboard/monitoring"},
+        {"action": "click", "target": "Muat ulang", "value": "10 kali"},
+        {"action": "expect", "target": "Pembaruan terakhir", "value": "updated"},
+        {"action": "expect", "target": "Card duplikat", "value": "hidden"}
+      ],
+      "expected": ["Refresh berulang menjaga daftar unik per ID order/nopol"],
+      "testData": {"refreshCount": 10},
+      "selectorHints": {"Muat ulang": {"role": "button", "name": "Muat ulang", "testid": "button-refresh-armada"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-STR-002",
+      "title": "Export PDF tetap berhasil untuk dashboard dengan data besar",
+      "category": "stress",
+      "priority": "medium",
+      "requirement": "REQ-006",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Dashboard memuat 10000 order valid"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "click", "target": "Export", "value": ""},
+        {"action": "expect", "target": "PDF dashboard", "value": "generated"},
+        {"action": "expect", "target": "Distribusi & Muatan", "value": "visible"}
+      ],
+      "expected": ["Export selesai tanpa menghilangkan data dashboard"],
+      "testData": {"validOrderCount": 10000},
+      "selectorHints": {"Export": {"role": "button", "name": "Export", "testid": "button-export-dashboard"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-STR-003",
+      "title": "Peta tetap responsif saat zoom dan pan pada banyak label kota",
+      "category": "stress",
+      "priority": "medium",
+      "requirement": "REQ-007",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Peta memiliki banyak label kota"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "click", "target": "Perbesar", "value": "5 kali"},
+        {"action": "click", "target": "Area Jawa Timur", "value": "pan"},
+        {"action": "expect", "target": "Dropdown Kota Asal (Pengirim)", "value": "interactive"}
+      ],
+      "expected": ["Peta tetap responsif saat banyak label kota tampil"],
+      "testData": {"zoomCount": 5, "area": "Jawa Timur"},
+      "selectorHints": {"Map": {"role": "region", "name": "Jangkauan Distribusi", "testid": "map-jangkauan-distribusi"}}
+    },
+    {
+      "id": "OMS2324-DASHBOARD-STR-004",
+      "title": "Profil Barang Terkirim menggabungkan banyak jenis barang menjadi Lainnya",
+      "category": "stress",
+      "priority": "low",
+      "requirement": "REQ-008",
+      "screen": "distribusi-muatan",
+      "preconditions": ["Dataset memiliki 50 jenis barang terkirim"],
+      "steps": [
+        {"action": "navigate", "target": "Distribusi & Muatan", "value": "/dashboard/distribusi"},
+        {"action": "expect", "target": "Profil Barang Terkirim", "value": "visible"},
+        {"action": "expect", "target": "Jumlah bar", "value": "maksimal 10"},
+        {"action": "expect", "target": "Lainnya", "value": "visible"}
+      ],
+      "expected": ["Chart membatasi jumlah bar dan menggabungkan sisa jenis barang"],
+      "testData": {"jenisBarangCount": 50, "maxBars": 10},
+      "selectorHints": {"Profil Barang Terkirim": {"role": "region", "name": "Profil Barang Terkirim", "testid": "chart-profil-barang"}, "Lainnya": {"role": "text", "name": "Lainnya", "testid": "bar-lainnya"}}
+    }
+  ]
+}
