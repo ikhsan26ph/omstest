@@ -1,8 +1,8 @@
 # Coverage Review — OMS017 Penugasan Tracking
 
 Reviewer: QA Reviewer (AUTO MODE)
-Tanggal review: 2026-08-29
-Sumber: `oms017-penugasan-tracking.analysis.md` (80 REQ, 22 layar UI Inventory), `oms017-penugasan-tracking.feature` (195 skenario Gherkin), `oms017-penugasan-tracking.scenarios.json` (195 entri sidecar)
+Tanggal review: 2026-08-29 (addendum: 2026-09-18)
+Sumber: `oms017-penugasan-tracking.analysis.md` (83 REQ termasuk REQ-065a..c, 22 layar UI Inventory), `oms017-penugasan-tracking.feature` (196 skenario Gherkin), `oms017-penugasan-tracking.scenarios.json` (196 entri sidecar)
 
 ---
 
@@ -10,11 +10,11 @@ Sumber: `oms017-penugasan-tracking.analysis.md` (80 REQ, 22 layar UI Inventory),
 
 | Kategori | Jumlah | % dari total |
 |---|---|---|
-| Positive (TC-P-001..069) | 69 | 35.4% |
-| Negative (TC-N-001..060) | 60 | 30.8% |
-| Edge (TC-E-001..042) | 42 | 21.5% |
-| Stress (TC-S-001..024) | 24 | 12.3% |
-| **Total** | **195** | **100%** |
+| Positive (TC-P-001..069) | 69 | 35.2% |
+| Negative (TC-N-001..061) | 61 | 31.1% |
+| Edge (TC-E-001..042) | 42 | 21.4% |
+| Stress (TC-S-001..024) | 24 | 12.2% |
+| **Total** | **196** | **100%** |
 
 **Verdict keseluruhan: LULUS DENGAN CATATAN (Pass with Minor Findings).**
 
@@ -31,12 +31,12 @@ Sumber: `oms017-penugasan-tracking.analysis.md` (80 REQ, 22 layar UI Inventory),
 ## Validasi Sintaks (Gherkin + JSON + Konsistensi ID)
 
 ### Gherkin (`oms017-penugasan-tracking.feature`)
-- `Feature:` dan `Background:` terdefinisi dengan benar di awal file; seluruh 195 `Scenario:`/`Scenario Outline:` diawali keyword valid (`Given/When/Then/And/But`) tanpa step yatim (orphan step) yang ditemukan pada pemindaian penuh 1892 baris.
+- `Feature:` dan `Background:` terdefinisi dengan benar di awal file; seluruh 195 `Scenario:`/`Scenario Outline:` diawali keyword valid (`Given/When/Then/And/But`) tanpa step yatim (orphan step) yang ditemukan pada pemindaian penuh 1892 baris. (Addendum 2026-09-18: +1 `Scenario` — `TC-N-061` — menjadikan total 196; tidak diaudit ulang baris-per-baris.)
 - Tag konsisten mengikuti pola `@kategori @priority-* @REQ-* @screen-* @TC-*` pada seluruh sampel yang diperiksa. Kategori (`@positive/@negative/@edge/@stress`) selalu match dengan prefix `@TC-` (P/N/E/S) — tidak ditemukan mismatch.
 - Prioritas hanya menggunakan 3 nilai valid: `@priority-high`, `@priority-medium`, `@priority-low`. Tidak ada nilai liar.
 - **1 `Scenario Outline`** ditemukan: `TC-E-035` (matriks 4 metode pengiriman FCL/LCL) — memiliki blok `Examples:` dengan header kolom (`metode`, `tampil_armada_muat`, `tampil_sopir_bongkar`) dan 4 baris data, format pipe-table valid. Tidak ada Scenario Outline lain yang kehilangan Examples.
 - Komentar section (`# ====...`) digunakan konsisten sebagai pemisah area REQ, tidak mengganggu parsing Gherkin.
-- Penomoran TC berurutan tanpa lompatan/duplikat di setiap kategori: P-001..069, N-001..060, E-001..042, S-001..024 (diverifikasi lewat pembacaan penuh file).
+- Penomoran TC berurutan tanpa lompatan/duplikat di setiap kategori: P-001..069, N-001..060, E-001..042, S-001..024 (diverifikasi lewat pembacaan penuh file). (Addendum 2026-09-18: `TC-N-061` ditambahkan di akhir kategori negative, memperpanjang rentang menjadi N-001..061, masih tanpa lompatan/duplikat.)
 
 **Kesimpulan:** tidak ada isu sintaks Gherkin yang memblokir eksekusi.
 
@@ -191,7 +191,10 @@ Kategori: P=positive, N=negative, E=edge, S=stress. Status: **Full** = memiliki 
 | REQ-062 | Auto-minimize kota selesai | TC-P-053, TC-E-029, TC-E-030, TC-S-016 | P,E,S | Partial (tanpa N) |
 | REQ-063 | Ubah No. Kontainer/Segel saat Selesai Muat | TC-P-055, TC-N-041, TC-E-039 | P,N,E | Full |
 | REQ-064 | Penugasan Sopir Bongkar (CY-Door/Door-Door) | TC-P-056, TC-P-057, TC-P-060, TC-N-044, TC-N-045, TC-N-047, TC-E-033, TC-E-034, TC-E-035 | P,N,E | Full |
-| REQ-065 | Metode pengisian sopir bongkar | TC-P-056, TC-P-057 | P | Partial (tanpa N) |
+| REQ-065 | Metode pengisian sopir bongkar | TC-P-056, TC-P-057, TC-N-061 | P,N | Full |
+| REQ-065a | Penentuan Mode Penugasan (tetap sejak Tambah Penugasan) | TC-N-061 | N | Partial (tanpa P) |
+| REQ-065b | Metode pengisian saat Mode "Tugaskan Ke Pengurus" | TC-P-057 | P | Partial (tanpa N) |
+| REQ-065c | Metode pengisian saat Mode "Tugaskan Ke Sopir" | TC-N-061 | N | Partial (tanpa P) |
 | REQ-066 | Navigasi Batal sopir bongkar (kritikal) | TC-P-058, TC-N-046, TC-E-031, TC-E-032, TC-S-020 | P,N,E,S | Full |
 | REQ-067 | Pengecualian Door-CY/CY-CY (sopir bongkar) | TC-N-042, TC-N-043, TC-E-035 | N,E | Partial (tanpa P) — **gap, lihat rekomendasi** |
 | REQ-068 | Halaman Detail per ID Order | TC-P-059, TC-N-048, TC-N-050 | P,N | Full |
@@ -208,7 +211,7 @@ Kategori: P=positive, N=negative, E=edge, S=stress. Status: **Full** = memiliki 
 | REQ-079 | Editability Jadwal Kapal | TC-P-069, TC-N-055, TC-N-058, TC-E-040 | P,N,E | Full |
 | REQ-080 | Akses Riwayat Perubahan dari daftar | TC-P-063, TC-S-022 | P,S | Partial (tanpa N) |
 
-**Ringkasan status:** Full = 47/80 (58.75%), Partial = 33/80 (41.25%), None = 0/80 (0%).
+**Ringkasan status:** Full = 48/83 (57.83%), Partial = 35/83 (42.17%), None = 0/83 (0%). (Angka diperbarui pada addendum 2026-09-18 setelah penambahan REQ-065a..c dan penutupan gap negative REQ-065 — lihat bagian Addendum.)
 
 ---
 
@@ -220,3 +223,28 @@ Kategori: P=positive, N=negative, E=edge, S=stress. Status: **Full** = memiliki 
 4. **Tidak diperlukan penghapusan skenario** — dedup review tidak menemukan duplikat murni; 3 pasangan overlap yang ditemukan memberi nilai tambah traceability/boundary dan direkomendasikan tetap dipertahankan.
 5. **REQ-066 (aturan navigasi kritikal)** adalah contoh praktik baik: diuji di 4 kategori sekaligus sesuai penekanan berulang pada spec sumber — pola ini dapat dijadikan acuan untuk requirement kritikal lain di modul mendatang.
 6. Sebelum eksekusi, pastikan tim automation mengonfirmasi selector `data-testid` usulan untuk halaman **Isi Data Tracking** (tag `@screen-isi-data-tracking`) karena halaman ini tidak memiliki mockup sama sekali (D-17) — seluruh 61+ skenario yang menyentuh halaman ini bergantung pada selector asumsi yang perlu divalidasi terhadap implementasi aktual sebelum dijadikan automated test yang stabil.
+
+---
+
+## Addendum — 2026-09-18
+
+Aturan bisnis tambahan diterima dari user/BA terkait **Penugasan Sopir Bongkar FCL**, yang sebelumnya berstatus asumsi/perlu konfirmasi pada review 2026-08-29 (lihat D-12 dan catatan `perlu konfirmasi` pada layar 140 di `analysis.md`):
+
+1. Mode Penugasan (`Tugaskan Ke Pengurus` / `Tugaskan Ke Sopir`) ditentukan sekali saat **pertama kali Tambah Penugasan** dan tetap berlaku untuk penugasan tsb, termasuk pada Penugasan Sopir Bongkar → dituangkan sebagai **REQ-065a**.
+2. Mode `Tugaskan Ke Pengurus` → metode pengisian Armada/Sopir Bongkar bisa **Pilih Dari Master** dan **Isi Data Manual** → **REQ-065b**.
+3. Mode `Tugaskan Ke Sopir` → metode pengisian hanya **Pilih Dari Master** (Isi Data Manual dinonaktifkan) → **REQ-065c**.
+
+Dampak terhadap dokumen:
+- `analysis.md`: REQ-065a/b/c ditambahkan pada section I; D-12 diperbarui dari "nilai enum tidak diketahui" menjadi dikonfirmasi; catatan radio "Isi Data Manual" redup pada layar 140 diubah dari "perlu konfirmasi" menjadi "dikonfirmasi sesuai REQ-065c"; baris pemetaan layar 140 diperbarui.
+- `scenarios.json` & `.feature`: skenario baru **TC-N-061** (negative, `@REQ-065a @REQ-065c`) ditambahkan untuk menegaskan Isi Data Manual disabled saat Mode = Tugaskan Ke Sopir; **TC-P-057** diperbarui (precondition eksplisit Mode = Tugaskan Ke Pengurus, requirement `REQ-065b` ditambahkan, notes diperbarui) karena skenario ini hanya valid untuk mode tsb.
+- Coverage: gap negative pada **REQ-065** (sebelumnya "Partial (tanpa N)") **tertutup** menjadi **Full** berkat TC-N-061. REQ-065a/b/c baru masing-masing Partial (satu sisi) — konsisten dengan pola "thin-but-acceptable" pada requirement bertipe kondisional serupa (REQ-031/032) dan tidak dianggap gap mendesak.
+- Statistik pada bagian Ringkasan Eksekutif & RTM di atas telah disesuaikan (80→83 REQ, 195→196 skenario, 60→61 negative). Bagian lain dari review 2026-08-29 (Duplikasi, Penilaian Edge & Stress, Coverage Gap selain REQ-065) **tidak** diaudit ulang secara menyeluruh pada addendum ini dan tetap merepresentasikan kondisi 2026-08-29.
+
+## Addendum — 2026-09-19
+
+User/BA mengonfirmasi eksplisit bahwa REQ-065a/b/c (Mode Penugasan menentukan metode pengisian Armada/Sopir Bongkar) **berlaku sama untuk order LCL**, bukan cuma FCL — konsisten dengan cakupan section I `analysis.md` ("Isi Data Tracking — Ketentuan Khusus FCL / LCL") yang memang mencakup keduanya sejak awal.
+
+- `analysis.md`: Deskripsi REQ-065a/b/c ditambah frasa eksplisit "Berlaku untuk FCL maupun LCL"; D-12 mendapat catatan "Update 2 (2026-09-19)"; catatan perilaku layar 140 ditambah keterangan bahwa rule ini identik utk halaman Penugasan Sopir Bongkar LCL meski tidak ada mockup terpisah.
+- **Gap coverage yang diketahui, BELUM ditutup**: seluruh skenario tertulis untuk REQ-064 s.d. REQ-067 dan REQ-065a/b/c (`TC-P-056`, `TC-P-057`, `TC-N-042/043/044/045/047/061`, `TC-E-033/034/035`, `TC-S-020`) memakai precondition order **FCL saja** — TIDAK ADA satu pun skenario dengan precondition LCL untuk area Penugasan Sopir Bongkar. `TC-P-057`/`TC-N-061` sudah diberi catatan (`notes`) yang menyebutkan applicability LCL, tapi ini BUKAN pengganti skenario nyata — status REQ tetap dihitung berdasarkan bukti FCL saja.
+- Tidak ditambahkan skenario LCL baru pada addendum ini karena belum ada verifikasi langsung terhadap layar Penugasan Sopir Bongkar varian LCL (selector/field bisa saja sedikit berbeda, mis. label `Jenis Pengiriman`) — menambah skenario tanpa bukti berisiko mengarang perilaku. Rekomendasi: jalankan 1 order LCL (Metode Pengiriman Door to Door) melalui Tambah Penugasan → Penugasan Sopir Bongkar dengan kedua Mode Penugasan (kalau tersedia) sebelum menuliskan skenario LCL definitif.
+- Statistik Ringkasan Eksekutif & RTM **tidak berubah** pada addendum ini (tidak ada skenario ditambah/dihapus).

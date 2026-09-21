@@ -1,7 +1,7 @@
 # ============================================================================
 # OMS017 - Penugasan Tracking
 # Sumber : output/oms017-penugasan-tracking/oms017-penugasan-tracking.analysis.md
-#          (80 Requirements, 6 User Flows, 22 layar UI Inventory, A-01..A-15 / D-01..D-20)
+#          (83 Requirements termasuk REQ-065a..c, 6 User Flows, 22 layar UI Inventory, A-01..A-15 / D-01..D-20)
 # Catatan:
 #  - Assertion status memakai pola alternatif/regex karena penamaan status ganda
 #    (A-01 / D-02): "Belum Berangkat|Menunggu Proses", "Dalam Perjalanan|Selesai Muat",
@@ -611,9 +611,10 @@ Feature: OMS017 Penugasan Tracking
     And user mengklik tombol "Simpan"
     Then sistem menampilkan notifikasi data tersimpan
 
-  @positive @priority-high @REQ-064 @REQ-065 @screen-140 @TC-P-057
+  @positive @priority-high @REQ-064 @REQ-065 @REQ-065b @screen-140 @TC-P-057
   Scenario: Metode Door to Door dapat menugaskan sopir bongkar dengan metode Isi Data Manual
     Given penugasan FCL "ORD45672033" memiliki metode pengiriman "Door to Door"
+    And penugasan awal dibuat dengan Mode Penugasan "Tugaskan Ke Pengurus"
     And user berada di halaman "Penugasan Sopir Bongkar"
     When user memilih "Isi Data Manual" pada "Armada Bongkar"
     And user mengisi field "No. Polisi" dengan "B 7930 HD"
@@ -1299,6 +1300,16 @@ Feature: OMS017 Penugasan Tracking
     When user mengunggah file "bukti-korup.jpg" berukuran 0 byte
     Then sistem menolak file dan menampilkan alert
     And jumlah foto terunggah tetap 0
+
+  @negative @priority-high @REQ-065a @REQ-065c @screen-140 @TC-N-061
+  Scenario: Isi Data Manual dinonaktifkan pada sopir bongkar saat Mode Penugasan Tugaskan Ke Sopir
+    Given penugasan FCL "ORD45672033" memiliki metode pengiriman "Door to Door"
+    And penugasan awal dibuat dengan Mode Penugasan "Tugaskan Ke Sopir"
+    And user berada di halaman "Penugasan Sopir Bongkar"
+    Then field "Mode Penugasan" menampilkan "Tugaskan ke Sopir"
+    And opsi "Isi Data Manual" pada "Armada Bongkar" tidak dapat dipilih
+    And opsi "Isi Data Manual" pada "Sopir Bongkar" tidak dapat dipilih
+    And hanya opsi "Pilih Dari Master" yang dapat dipilih dan disimpan
 
   # ==========================================================================
   # EDGE - BOUNDARY, KOMBINASI LANGKA, KARAKTER SPESIAL

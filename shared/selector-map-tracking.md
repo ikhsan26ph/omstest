@@ -3,6 +3,11 @@
 > Dihasilkan oleh `/harvest-selectors oms022-public-tracking-improve`, 2026-09-02.
 > Modul ini **tidak punya `ui-inventory.md`**, jadi indeks layar diambil dari tabel UI-Txx di
 > `scenario/oms022-public-tracking-improve/oms022-public-tracking-improve.analysis.md` (baris 428-438).
+> Re-harvest berikutnya: 2026-09-06 (koreksi behavior), 2026-09-14 (harvest live penuh, section
+> "Update Harvest Public Tracking — 2026-09-14"), dan **2026-09-20 (harvest live penuh terbaru —
+> section "Update Harvest Public Tracking — 2026-09-20", PALING AKURAT, baca itu dulu)**. Section
+> di bawah ini (2026-09-02) dipertahankan sebagai riwayat; beberapa detail teks (mis. nama brand
+> "PT. OMESH") sudah **berubah** — lihat koreksi di section 2026-09-20.
 >
 > **Temuan penting sebelum pakai file ini:**
 > - Implementasi **tidak punya satupun `data-testid`, `data-state`, atau `data-history-type`**
@@ -97,13 +102,21 @@ Tidak ada satupun `data-testid` di implementasi saat ini. Usulan prioritas terti
 hampir semua skenario `scenarios.json`), pakai nilai yang sudah diusulkan dokumen:
 - `resi-input`, `resi-submit` — form utama.
 - `tracking-stepper`, `tracking-step-pickup`, `tracking-step-on-delivery`, `tracking-step-delivered`
-  (+ `data-state="reached|pending"`) — supaya assertion progres tidak bergantung teks warna.
+  (+ `data-state="completed|current|pending"` — **dikoreksi 2026-09-20**: implementasi live
+  ternyata sudah punya **3 state class** berbeda pada lingkaran step, bukan cuma 2 seperti usulan
+  awal — `bg-brand-500`=completed, `bg-brand-100`=current, `bg-gray-100`=pending. Usulan
+  `data-state` sebaiknya ikut 3 nilai ini, bukan `reached|pending` biner).
 - `history-list`, `history-item` (+ `data-history-type="muat|transit|bongkar"` — sebaiknya
   tambah nilai `transit` terpisah dari `sintetis`, karena riwayat nyata punya lebih banyak
   variasi event daripada 3 kategori yang diasumsikan doc).
 - Tambahan BARU yang perlu diusulkan (tidak ada di doc karena flow verifikasi tidak
   diantisipasi): `tracking-result-card`, `tracking-detail-button`, `otp-digit-0..3`,
   `otp-verify-button`, `otp-error-message`.
+- **Tambahan BARU 2026-09-20**: `otp-error-toast-close` (tombol `Close toast` sudah punya
+  aria-label sendiri jadi cukup stabil, tapi testid tetap membantu konsistensi lintas toast lain
+  di aplikasi); pertimbangkan juga testid pada brand/header link (`site-brand-link`) supaya
+  assertion navigasi tidak bergantung nama tenant yang ternyata bisa berubah (rebrand `PT. OMESH`
+  → `Prahu Hub - OMS` dikonfirmasi terjadi antara 2026-09-14 dan 2026-09-20).
 
 ## Update pasca-explore (2026-09-06, `/explore oms022-public-tracking-improve`)
 
@@ -180,6 +193,73 @@ Daftar lengkap (19 nomor): `explore/module-map.md` section oms022.
 - Selector Public Tracking di tabel tambahan: **25**.
 - Selector stabil (`role/name`, `aria-label`, `placeholder`, text assertion): **20**.
 - Selector tidak stabil/perlu scoping khusus: **5** (`input` setelah chip, root kartu hasil, tombol `Lihat Detail` multi-nomor, input OTP, stepper state).
+
+## Update Harvest Public Tracking — `oms022-public-tracking-improve` 2026-09-20
+
+- **Output**: harvest live langsung via Playwright MCP (browser_evaluate + browser_snapshot), tanpa file mentah terpisah.
+- **Route**: `/tracking` dan `/tracking/<no>`.
+- **Cakupan live**: state awal (UI-T01), validasi tombol (UI-T02), kartu ringkas hasil pencarian, modal verifikasi OTP (sukses & gagal), Detail Tracking (stepper + Riwayat) untuk order **Pickup** (riwayat kosong, UI-T08) dan order **Delivered** (riwayat penuh + stepper full), hasil tidak ditemukan (UI-T04), direct URL tanpa verifikasi → redirect (tab baru, context sama), deep link `?resi=` auto-search (single & multi-nomor RES+RES), No. Resi LTL (`RES90584378`) vs No. Perjalanan FTL (`TRC46182058`)/FCL (`TRC69283535`).
+- **Skipped live**: UI-T03 (loading, transien), UI-T09 (error sistem, butuh network mocking — di luar scope refresh selector murni kali ini), responsif mobile (tidak diulang, tidak ada indikasi perubahan sejak 2026-09-06).
+- **Data uji live yang DIKONFIRMASI ULANG MASIH VALID hari ini (2026-09-20)**: `TRC46182058` (FTL Multidrop, status admin Ditugaskan → publik `Pickup`, OTP `7901`, riwayat kosong — UI-T08 reproduce), `TRC69283535` (FCL, status admin Terkirim → publik `Delivered`, OTP `1881`, 6 entri riwayat, anomali urutan tanggal multi-leg masih ada), `RES90584378` (LTL, Ditugaskan → `Pickup`, OTP `6001`, riwayat kosong), `RES53860041` (LCL, muncul di hasil pencarian dengan status `Pickup`, OTP tidak dites ulang eksplisit hari ini — hanya dipakai untuk uji multi-resi deep link, No. Perjalanan-nya sendiri terbukti valid/ditemukan). Data negatif: `TRC00000000` (masih "Nomor perjalanan tidak ditemukan"), OTP salah `0000` pada `TRC46182058` (masih ditolak).
+
+### PERUBAHAN SIGNIFIKAN vs harvest 2026-09-02/2026-09-14 — rebrand tenant
+
+**Nama brand berubah dari `PT. OMESH` menjadi `Prahu Hub - OMS`** di seluruh halaman publik (header link, alt teks logo, `document.title` semua state). Dikonfirmasi via scan penuh DOM (`0` kemunculan teks "OMESH" tersisa) dan cek logo (`<img alt="Prahu Hub - OMS" src=".../uploads/site/2026/09/....png">` — file logo baru diunggah September 2026, konsisten rebrand tenant, bukan bug rendering). **Dampak ke selector/assertion lama yang HARUS diupdate**:
+- `page.getByRole('link', { name: 'PT. OMESH' })` (baris UI-T01 di section 2026-09-14) → **ganti jadi** `page.getByRole('link', { name: 'Prahu Hub - OMS' })`.
+- `page.title()` yang meng-assert `"Detail Tracking | PT. OMESH"` (section 2026-09-02, baris "Judul halaman detail") → **ganti jadi** `"Detail Tracking | Prahu Hub - OMS"`; halaman awal berjudul `"Lacak Pengiriman | Prahu Hub - OMS"` (bukan sekadar generik, sudah diverifikasi konsisten di 3 state: awal, hasil pencarian, detail).
+- Tidak ada perubahan lain pada struktur/behavior yang ditemukan — murni penggantian teks brand di seluruh halaman (site settings tenant), bukan perubahan UI/komponen.
+
+### Konfirmasi ulang (tidak berubah dari 2026-09-14, masih akurat)
+
+- Form pencarian: input tanpa `id`/`name`/`aria-label`/`data-testid` (hanya placeholder, hilang setelah jadi chip); tombol `Lacak Pengiriman` disabled saat kosong, enabled begitu ≥1 karakter diketik (sebelum sempat di-tokenize jadi chip — dikonfirmasi eksplisit hari ini, bukan cuma via chip).
+- Section "Cara Lacak Pengiriman" (3 langkah: Masukkan Nomor Perjalanan / Verifikasi Nomor Telepon / Lihat Status Kiriman) **masih ada**, tampil di SEMUA state (awal, hasil ditemukan, hasil tidak ditemukan) — bukan elemen terlarang UI-T10.
+- Kartu ringkas hasil pencarian: badge status singkat `Pickup`/`On Delivery`/`Delivered`; tombol `Lihat Detail` per kartu, tanpa role/testid unik pada root card (masih harus scope by text nomor).
+- Modal verifikasi OTP: judul `Masukkan 4 Digit Terakhir Nomor Telepon Penerima`, subjudul `No. Perjalanan: <no>` (dipakai juga untuk resi `RES...`, label tetap "No. Perjalanan"), 4 input digit tanpa atribut stabil apa pun (masih murni posisional `getByRole('textbox').nth(i)` di dalam modal), tombol `Verifikasi` disabled sampai 4 digit terisi, tombol `Tutup` (aria-label) untuk menutup manual.
+- Verifikasi **berhasil** dengan klik biasa (`browser_click` / `locator.click()`) — **tidak perlu** `dispatchEvent('click')` pada sesi harvest ini (kontras catatan `shared/decisions.md` 2026-08-23 soal wizard order; kemungkinan gotcha itu spesifik CDP state, bukan berlaku universal ke `/tracking`). Executor test tetap boleh pertahankan `dispatchEvent('click')` sebagai fallback aman bila `click()` biasa gagal di run tertentu.
+- Verifikasi **gagal** (OTP salah): toast `Data yang diinputkan salah` muncul via region "Notifications", dengan tombol **`Close toast`** (aria-label, BARU dicatat — belum ada di harvest sebelumnya) untuk menutup toast manual; modal tetap **auto-close** setelah submit salah (retry = klik `Lihat Detail` lagi), konsisten temuan 2026-09-06.
+- Direct URL `/tracking/<no>` tanpa sesi verifikasi (diuji di **tab baru**, browser context sama) → selalu redirect ke `/tracking?resi=<no>` (kartu ringkas). Dikonfirmasi verifikasi **tidak** persisten lintas tab meski context/cookies sama (state komponen in-memory, bukan storage) — walau respons awal `browser_tabs`/`browser_navigate` sempat menampilkan judul tab lama sesaat sebelum redirect client-side selesai (transient, jangan disalahartikan "tidak redirect" — selalu verifikasi ulang pakai `browser_snapshot`/final URL setelah redirect selesai, bukan title di response navigasi).
+- Deep link `?resi=<no>` auto-search on-load tetap berfungsi, termasuk multi-nomor via koma ter-encode (`?resi=A%2CB`) — dikonfirmasi dengan 2 No. Resi LTL/LCL sekaligus, keduanya langsung tampil sebagai 2 kartu tanpa klik tombol apa pun.
+- Stepper: label teks `Pick Up`/`On Delivery`/`Delivered` tanpa role/testid semantik. State visual by class Tailwind pada lingkaran (bukan pada label teks) — dikonfirmasi 2 kondisi kontras hari ini: order `Pickup` (hanya tahap pertama tercapai) → lingkaran `Pick Up` = `bg-brand-100 text-brand-500` ("current/baru tercapai"), `On Delivery`/`Delivered` = `bg-gray-100 text-gray-400` ("pending"); order `Delivered` (semua tahap tercapai) → **ketiga** lingkaran `bg-brand-500 text-white` ("completed"). Jadi ada **3 state class berbeda** (`bg-brand-500`=completed, `bg-brand-100`=current, `bg-gray-100`=pending), bukan cuma 2 seperti dugaan awal — konsisten dgn temuan Batch 8 2026-09-02, dikonfirmasi ulang dgn bukti sisi lain (order Pickup). Badge status ringkasan (`Delivered` dll di header detail) juga class-based: `bg-success-50 text-success-600` untuk status positif — belum dicek varian lain (`Pickup`/`On Delivery`).
+- Riwayat Pengiriman: heading `Riwayat Pengiriman`, list/listitem beneran (role list ada, beda dari stepper), tiap item 2 paragraf (teks + timestamp `DD/MM/YYYY HH:mm`). Urutan tampil **terbaru dulu** (descending), bukan ascending — dikonfirmasi ulang pada `TRC69283535` (entri 02/09 di atas, 31/08 di bawah); assertion urutan harus pakai perbandingan posisi relatif + arah descending, bukan asumsi ascending.
+- UI-T08 riwayat kosong: teks persis `Belum ada riwayat pengiriman untuk nomor perjalanan ini.` — reproduce di `TRC46182058` dan `RES90584378` (LTL, membuktikan behavior sama utk resi LTL/LCL).
+- No. Resi LTL (`RES90584378`) struktur Detail Tracking **identik** dgn No. Perjalanan FTL/FCL: label tetap "No. Perjalanan", badge jenis menampilkan `LTL` (bukan disembunyikan/diganti istilah lain).
+
+### Tabel Selector terbaru (2026-09-20) — gunakan ini sebagai acuan utama, supersede baris bertanda "PT. OMESH" di section 2026-09-02/2026-09-14
+
+| SCR | Elemen (nama sesuai analysis.md) | Selector terbaik | Sumber | Catatan |
+|---|---|---|---|---|
+| UI-T01 | Brand/link publik (header) | `page.getByRole('link', { name: 'Prahu Hub - OMS' })` | role+name | **GANTI dari `'PT. OMESH'`** — rebrand tenant 2026-09 (lihat section koreksi di atas). |
+| UI-T01 | Input nomor perjalanan | `page.getByPlaceholder('Masukkan nomor perjalanan...')` | placeholder | Masih tanpa id/name/aria/testid; placeholder hilang setelah chip aktif. |
+| UI-T01 | Tombol Lacak Pengiriman | `page.getByRole('button', { name: 'Lacak Pengiriman' })` | role+name | Disabled saat kosong, enabled setelah ≥1 karakter (sebelum tokenize). `click()` biasa cukup, tak wajib `dispatchEvent`. |
+| UI-T01 | Hero heading | `page.getByRole('heading', { name: 'Lacak Pengiriman Anda dengan Mudah', level: 1 })` | role+name | Stabil, tak berubah. |
+| UI-T01 | Section "Cara Lacak Pengiriman" | `page.getByRole('heading', { name: 'Cara Lacak Pengiriman', level: 2 })` | role+name | Masih ada di semua state; JANGAN dihitung UI-T10. |
+| UI-T02 | Validasi tombol disabled/enabled | `expect(page.getByRole('button', { name: 'Lacak Pengiriman' })).toBeDisabled()` / `.toBeEnabled()` | role+name state | Tidak ada pesan error teks; assert lewat state tombol saja. |
+| UI-T04 | Pesan tidak ditemukan | `page.getByText('Nomor perjalanan tidak ditemukan')` | text | Reproduce dgn `TRC00000000` hari ini. |
+| UI-T04 | Subtext tidak ditemukan | `page.getByText('Pastikan nomor perjalanan yang Anda masukkan sudah benar.')` | text | — |
+| UI-T05 | Chip nomor + hapus | `page.getByRole('button', { name: /^Hapus / })` | aria-label (regex) | Multi-chip: gunakan `{ name: 'Hapus <no>' }` persis untuk scope 1 chip. |
+| UI-T05 | Kartu hasil (badge status) | `page.getByText('<no-perjalanan>').locator('..')` lalu cari teks `Pickup`/`On Delivery`/`Delivered` di dalamnya | text-scoped | Root card tetap tanpa role/testid unik. |
+| UI-T05 | Tombol Lihat Detail | `page.getByRole('button', { name: 'Lihat Detail' })` scoped ke listitem kartu (`getByRole('listitem').filter({ hasText: '<no>' })`) | role+name (tidak unik lintas kartu) | Wajib scope saat multi-nomor. |
+| UI-OTP | Modal — judul | `page.getByRole('heading', { name: 'Masukkan 4 Digit Terakhir Nomor Telepon Penerima', level: 2 })` | role+name | Root modal masih tanpa `role="dialog"`. |
+| UI-OTP | Modal — subjudul nomor | `page.getByText('No. Perjalanan: <no>')` | text dinamis | Berlaku juga utk resi `RES...`. |
+| UI-OTP | Input digit OTP (4x) | `page.getByRole('textbox').nth(i)` scoped ke area modal (elemen textbox terakhir di halaman saat modal terbuka) | posisional, TIDAK STABIL | Tidak ada perubahan; masih perlu `data-testid="otp-digit-0..3"`. |
+| UI-OTP | Tombol Verifikasi | `page.getByRole('button', { name: 'Verifikasi' })` | role+name | Disabled sampai 4 digit terisi. |
+| UI-OTP | Tombol Tutup modal | `page.getByRole('button', { name: 'Tutup' })` | aria-label | — |
+| UI-OTP | Toast OTP salah | `page.getByText('Data yang diinputkan salah')` | text | Region `Notifications`; modal auto-close, retry via `Lihat Detail` lagi. |
+| UI-OTP | Tombol tutup toast | `page.getByRole('button', { name: 'Close toast' })` | aria-label | **BARU dicatat 2026-09-20** — belum ada di harvest sebelumnya. |
+| UI-T06/T07/T08 | Tombol/heading "Detail Tracking" (header detail) | `page.getByRole('button', { name: 'Detail Tracking' })` | role+name | Tetap berupa `<button>`, bukan heading. |
+| UI-T06 Stepper | Label tahap | `page.getByText('Pick Up', { exact: true })` / `'On Delivery'` / `'Delivered'` | text | Assertion minimal (keberadaan teks) cukup; untuk presisi reached/current/pending pakai class lingkaran induk (lihat catatan class 3-state di atas), TIDAK STABIL utk redesign. |
+| UI-T07 | Heading Riwayat Pengiriman | `page.getByRole('heading', { name: 'Riwayat Pengiriman', level: 2 })` | role+name | — |
+| UI-T07 | List riwayat & item | `page.getByRole('list')` (scope ke bagian setelah heading Riwayat) → `.getByRole('listitem')` | role | Role list/listitem asli ada (beda dgn stepper). Urutan tampil **descending** (terbaru dulu). |
+| UI-T08 | Riwayat kosong | `page.getByText('Belum ada riwayat pengiriman untuk nomor perjalanan ini.')` | text | Reproduce di FTL (`TRC46182058`) & LTL (`RES90584378`). |
+| UI-DEEPLINK-QUERY | Deep link `?resi=` auto-search (single/multi) | `page.goto('/tracking?resi=A%2CB')` lalu assert 2x `getByRole('button', {name:'Lihat Detail'})` | route+role | Bekerja utk kombinasi TRC dan RES sekaligus. |
+| UI-DIRECT-URL | Direct URL tanpa verifikasi | `page.goto('/tracking/<no>')` → assert final URL `/tracking?resi=<no>` (BUKAN judul tab sesaat) | route assertion | Selalu redirect, walau tab baru pada context sama; verifikasi tidak bisa di-bypass. |
+
+### Ringkasan Harvest Public Tracking 2026-09-20
+
+- Layar/state berhasil dipetakan/diverifikasi live: **9** (UI-T01, UI-T02, kartu ringkas, modal OTP sukses, modal OTP gagal, Detail Tracking status Pickup/riwayat kosong, Detail Tracking status Delivered/riwayat penuh, UI-T04, direct-URL redirect, deep-link multi-resi LTL/LCL — beberapa digabung krn 1 state saling tumpang tindih).
+- Layar di-SKIP: **2** (UI-T03 loading — transien; UI-T09 error sistem — butuh network mocking, di luar scope refresh kali ini, sudah tercakup temuan lama 2026-09-06/FND-OMS022-02).
+- Selector pada tabel 2026-09-20: **21** baris (17 stabil via role/name/aria/text/placeholder, 3 tidak stabil — input OTP posisional, root kartu hasil, label stepper tanpa state semantik eksplisit, 1 route-assertion).
+- Perbedaan signifikan vs baseline lama: **1 breaking text change** (brand `PT. OMESH` → `Prahu Hub - OMS`, memengaruhi 2 selector/assertion lama yang harus diupdate manual di scenario/test manapun yang masih memakai teks lama), **1 selector baru** (`Close toast`), sisanya konfirmasi ulang tanpa perubahan struktur/behavior.
 
 ## Tambahan Penugasan Tracking Admin — Harvest `oms017-penugasan-tracking` 2026-09-14
 

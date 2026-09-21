@@ -57,15 +57,13 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
       | FCL   | Pelabuhan Asal    | Jenis Kontainer|
 
   @positive @priority-high @REQ-001 @screen-step1
-  Scenario: OMS014-POS-004: Dropdown Tipe Pengiriman memuat tepat empat opsi
+  Scenario: OMS014-POS-004: Tipe Pengiriman ditampilkan sebagai teks read-only, bukan dropdown, mengikuti jumlah baris Data Pengirim & Data Penerima
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
-    And user memilih kartu jenis order "FTL"
-    When user mengklik dropdown "Tipe Pengiriman"
-    Then sistem menampilkan "Normal"
-    And sistem menampilkan "Multipickup"
-    And sistem menampilkan "Multidrop"
-    And sistem menampilkan "Multipoint"
-    And jumlah opsi pada dropdown "Tipe Pengiriman" adalah "4"
+    When user memilih kartu jenis order "FTL"
+    Then sistem tidak menampilkan dropdown "Tipe Pengiriman"
+    And sistem menampilkan teks "Tipe Pengiriman: Normal"
+    When user mengklik tombol "Tambah Lokasi Muat" pada section "Data Pengirim"
+    Then sistem menampilkan teks "Tipe Pengiriman: Multipickup"
 
   @positive @priority-medium @REQ-001 @screen-step1 @fcl
   Scenario: OMS014-POS-005: FCL menampilkan empat opsi Metode Pengiriman
@@ -80,7 +78,6 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
   Scenario: OMS014-POS-006: Memilih Drop Point Asal melakukan auto-fill wilayah yang bersifat read-only
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
     And user memilih kartu jenis order "FTL"
-    And user memilih "Normal" pada dropdown "Tipe Pengiriman"
     When user memilih "Gudang MSK Region 2" pada dropdown "Drop Point Asal"
     Then field "Provinsi Asal" terisi otomatis dan bersifat read-only
     And field "Kota/Kab. Asal" terisi otomatis dan bersifat read-only
@@ -127,7 +124,7 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
     When user memilih kartu jenis order "<jenis>"
     And user melengkapi seluruh field wajib Step 1 untuk jenis "<jenis>"
-    And user memilih "<tipe>" pada dropdown "Tipe Pengiriman"
+    And user menyesuaikan jumlah baris Data Pengirim & Data Penerima agar Tipe Pengiriman otomatis menjadi "<tipe>"
     And user melengkapi seluruh alamat wajib untuk tipe "<tipe>"
     And user mengklik tombol "Selanjutnya"
     Then user diarahkan ke halaman "Buat Order - Step 2 Data Barang"
@@ -397,23 +394,22 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     Then nilai field "Waktu Perjalanan" adalah "8"
 
   @positive @priority-medium @REQ-030 @screen-step3 @screen-modal-alamat @ftl @multipickup
-  Scenario: OMS014-POS-036: Step 3 menyediakan modal Detail Multipickup berisi seluruh alamat pickup
+  Scenario: OMS014-POS-036: Step 3 menyediakan modal Data Pengirim berisi seluruh alamat muat dalam format numbered list
     Given user berada di halaman "Buat Order - Step 3 Vendor dan Harga" untuk order "FTL" tipe "Multipickup"
     Then sistem menampilkan "Multipickup"
     When user mengklik tombol "Lihat Detail"
-    Then sistem menampilkan "Detail Multipickup"
-    And sistem menampilkan "Pick Up 1 - Kota Surabaya"
-    And sistem menampilkan "Jl. Jambi No.35, Darmo, Wonokromo, Kota Surabaya, Jawa Timur 60241"
+    Then sistem menampilkan dialog "Data Pengirim"
+    And sistem menampilkan item bernomor "1." berisi nama Drop Point, alamat lengkap, dan baris "PIC:"
+    And sistem menampilkan item bernomor "2." berisi nama Drop Point, alamat lengkap, dan baris "PIC:"
     When user mengklik tombol "Tutup"
-    Then sistem tidak menampilkan "Detail Multipickup"
+    Then sistem tidak menampilkan dialog "Data Pengirim"
 
   @positive @priority-medium @REQ-031 @screen-step3 @screen-modal-alamat @fcl @multidrop
-  Scenario: OMS014-POS-037: Step 3 menyediakan modal Detail Multidrop berisi nama drop point dan alamat lengkap
+  Scenario: OMS014-POS-037: Step 3 menyediakan modal Data Penerima berisi seluruh alamat bongkar dalam format numbered list
     Given user berada di halaman "Buat Order - Step 3 Vendor dan Harga" untuk order "FCL" tipe "Multidrop"
     When user mengklik tombol "Lihat Detail"
-    Then sistem menampilkan "Detail Multidrop"
-    And sistem menampilkan "Drop Off 2 - Kab. Lampung Tengah"
-    And sistem menampilkan "Jl. Proklamator Raya, Seputih Jaya, Kec. Gn. Sugih, Kabupaten Lampung Tengah, Lampung 34161"
+    Then sistem menampilkan dialog "Data Penerima"
+    And sistem menampilkan item bernomor "2." berisi nama Drop Point, alamat lengkap, dan baris "PIC:"
 
   @positive @priority-high @REQ-025 @screen-step4 @ftl
   Scenario: OMS014-POS-038: Step 4 Review menampilkan seluruh section secara lengkap
@@ -797,10 +793,10 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     And kombinasi "Pick Up 2 - Drop Off 2" tidak memiliki baris barang
 
   @positive @priority-medium @REQ-009 @REQ-030 @screen-step1 @screen-step2 @ftl @multipickup
-  Scenario: OMS014-POS-068: Tambah Baris Input menghasilkan sub-section alamat baru dalam kondisi kosong
-    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipickup" dengan "2" alamat pickup
-    When user mengklik tombol "Tambah Baris Input" pada section "Data Pengirim"
-    And user melengkapi seluruh field wajib pada "Pick Up 3"
+  Scenario: OMS014-POS-068: Tambah Lokasi Muat menghasilkan sub-section alamat baru dalam kondisi kosong
+    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipickup" dengan "2" alamat muat
+    When user mengklik tombol "Tambah Lokasi Muat" pada section "Data Pengirim"
+    And user melengkapi seluruh field wajib pada "Muat 3"
     And user mengklik tombol "Selanjutnya"
     Then jumlah sub-section alamat pada "Armada 1" adalah "3"
     And "Pick Up 3" pada "Armada 1" tidak memiliki baris barang
@@ -838,11 +834,11 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
   Scenario: OMS014-POS-072: Info alert urutan pengiriman ditampilkan pada section Data Penerima tipe Multidrop
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
     And user memilih kartu jenis order "FTL"
-    When user memilih "Multidrop" pada dropdown "Tipe Pengiriman"
+    When user mengklik tombol "Tambah Lokasi Bongkar" pada section "Data Penerima"
     Then sistem menampilkan "Pastikan urutan pengiriman sudah sesuai saat membuat shipment"
-    And sistem menampilkan "Tambah Baris Input"
-    And sistem menampilkan "Drop Off 1"
-    And sistem menampilkan "Drop Off 2"
+    And sistem menampilkan "Tambah Lokasi Bongkar"
+    And sistem menampilkan "Bongkar 1"
+    And sistem menampilkan "Bongkar 2"
 
   @positive @priority-low @REQ-022 @screen-daftar-order
   Scenario: OMS014-POS-073: Riwayat Perubahan order dapat dibuka dari menu aksi baris
@@ -853,27 +849,28 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     Then sistem menampilkan "Riwayat Perubahan"
 
   @positive @priority-medium @REQ-029 @screen-step1 @screen-detail-order @normal
-  Scenario: OMS014-POS-074: Tipe Normal menampilkan satu blok Data Pengirim dan Data Penerima tanpa Tambah Baris Input
+  Scenario: OMS014-POS-074: Tipe Normal menampilkan satu blok Data Pengirim dan Data Penerima tanpa label bernomor, namun tombol Tambah Lokasi tetap tampil
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
     And user memilih kartu jenis order "FTL"
-    When user memilih "Normal" pada dropdown "Tipe Pengiriman"
     Then jumlah blok "Data Pengirim" adalah "1"
     And jumlah blok "Data Penerima" adalah "1"
-    And sistem tidak menampilkan "Tambah Baris Input"
+    And sistem tidak menampilkan "Muat 1"
+    And sistem tidak menampilkan "Bongkar 1"
+    And sistem menampilkan "Tambah Lokasi Muat"
+    And sistem menampilkan "Tambah Lokasi Bongkar"
 
   # ==========================================================================================
   # KATEGORI: NEGATIVE
   # ==========================================================================================
 
   @negative @priority-high @REQ-012 @REQ-017 @screen-step1
-  Scenario: OMS014-NEG-001: Tombol Selanjutnya Step 1 disabled selama Tipe Pengiriman belum dipilih
+  Scenario: OMS014-NEG-001: Tombol Selanjutnya Step 1 tetap disabled sampai seluruh field wajib armada dan Data Pengirim/Data Penerima terisi
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
     When user memilih kartu jenis order "FTL"
     And user memilih "Tronton Box" pada dropdown "Jenis Armada"
     And user mengisi field "Jumlah Armada" dengan "2"
     Then tombol "Selanjutnya" dalam keadaan disabled
-    When user memilih "Normal" pada dropdown "Tipe Pengiriman"
-    And user melengkapi seluruh field wajib alamat
+    When user melengkapi seluruh field wajib alamat
     Then tombol "Selanjutnya" dalam keadaan enabled
 
   @negative @priority-high @REQ-017 @screen-step1 @ftl
@@ -881,7 +878,6 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
     And user memilih kartu jenis order "FTL"
     And user mengisi field "Jumlah Armada" dengan "2"
-    And user memilih "Normal" pada dropdown "Tipe Pengiriman"
     When user mengklik tombol "Selanjutnya"
     Then sistem menampilkan "harus diisi"
     And user tetap berada di halaman "Buat Order - Step 1 Data Pengiriman"
@@ -892,7 +888,6 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     And user memilih kartu jenis order "FCL"
     And user memilih "20 Feet Dry" pada dropdown "Jenis Kontainer"
     And user mengisi field "Jumlah Kontainer" dengan "2"
-    And user memilih "Normal" pada dropdown "Tipe Pengiriman"
     When user mengklik tombol "Selanjutnya"
     Then sistem menampilkan "harus diisi"
     And user tetap berada di halaman "Buat Order - Step 1 Data Pengiriman"
@@ -1158,11 +1153,12 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     And sistem menampilkan "Belum ada barang. Klik"
 
   @negative @priority-medium @REQ-030 @screen-step1 @multipickup
-  Scenario: OMS014-NEG-033: Menghapus alamat pickup sampai tersisa kurang dari dua ditolak
-    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipickup" dengan "2" alamat pickup
-    When user mengklik tombol "Hapus" pada "Pick Up 2"
-    Then jumlah blok "Pick Up" adalah "2"
-    And tombol "Hapus" pada "Pick Up 2" dalam keadaan disabled
+  Scenario: OMS014-NEG-033: Menghapus alamat Muat hingga tersisa satu menyembunyikan tombol hapus, bukan menonaktifkannya
+    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipickup" dengan "2" alamat muat
+    When user mengklik tombol "Hapus" pada "Muat 2"
+    Then jumlah blok "Muat" adalah "1"
+    And sistem tidak menampilkan tombol "Hapus" pada blok "Muat" yang tersisa
+    And sistem menampilkan teks "Tipe Pengiriman: Normal"
 
   @negative @priority-medium @REQ-023 @screen-step2
   Scenario: OMS014-NEG-034: Card Data Unit pada Step 2 tidak dapat diedit
@@ -1242,21 +1238,23 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     And elemen "load-visualization-canvas" memiliki jumlah "0"
 
   @negative @priority-medium @REQ-031 @screen-step1 @multidrop
-  Scenario: OMS014-NEG-043: Menghapus alamat dropoff sampai tersisa kurang dari dua ditolak
-    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multidrop" dengan "2" alamat dropoff
-    When user mengklik tombol "Hapus" pada "Drop Off 2"
-    Then jumlah blok "Drop Off" adalah "2"
-    And tombol "Hapus" pada "Drop Off 2" dalam keadaan disabled
+  Scenario: OMS014-NEG-043: Menghapus alamat Bongkar hingga tersisa satu menyembunyikan tombol hapus, bukan menonaktifkannya
+    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multidrop" dengan "2" alamat bongkar
+    When user mengklik tombol "Hapus" pada "Bongkar 2"
+    Then jumlah blok "Bongkar" adalah "1"
+    And sistem tidak menampilkan tombol "Hapus" pada blok "Bongkar" yang tersisa
+    And sistem menampilkan teks "Tipe Pengiriman: Normal"
 
   @negative @priority-medium @REQ-032 @screen-step1 @multipoint
-  Scenario: OMS014-NEG-044: Multipoint - menghapus alamat pickup maupun dropoff di bawah minimum ditolak
-    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FCL" tipe "Multipoint" dengan "2" alamat pickup dan "2" alamat dropoff
-    When user mengklik tombol "Hapus" pada "Pick Up 2"
-    Then jumlah blok "Pick Up" adalah "2"
-    And tombol "Hapus" pada "Pick Up 2" dalam keadaan disabled
-    When user mengklik tombol "Hapus" pada "Drop Off 2"
-    Then jumlah blok "Drop Off" adalah "2"
-    And tombol "Hapus" pada "Drop Off 2" dalam keadaan disabled
+  Scenario: OMS014-NEG-044: Multipoint - menghapus alamat Muat maupun Bongkar hingga tersisa satu menyembunyikan tombol hapus di kedua sisi
+    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FCL" tipe "Multipoint" dengan "2" alamat muat dan "2" alamat bongkar
+    When user mengklik tombol "Hapus" pada "Muat 2"
+    Then jumlah blok "Muat" adalah "1"
+    And sistem tidak menampilkan tombol "Hapus" pada blok "Muat" yang tersisa
+    When user mengklik tombol "Hapus" pada "Bongkar 2"
+    Then jumlah blok "Bongkar" adalah "1"
+    And sistem tidak menampilkan tombol "Hapus" pada blok "Bongkar" yang tersisa
+    And sistem menampilkan teks "Tipe Pengiriman: Normal"
 
   # Direkategorisasi dari OMS014-EDG-004 (review rec #5 - konvensi: nilai 0 pada field wajib = negative, selaras NEG-009)
   @negative @priority-medium @REQ-014 @screen-step2
@@ -1440,10 +1438,10 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     And nilai field "Jumlah" pada baris "SKU-BKU-001" di "Armada 2" tetap "50"
 
   @edge @priority-medium @REQ-009 @REQ-030 @screen-step1 @screen-step2 @multipickup
-  Scenario: OMS014-EDG-020: Menghapus alamat Pick Up di tengah menyesuaikan sub-section Step 2 tanpa memindahkan barang
-    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipickup" dengan "3" alamat pickup
+  Scenario: OMS014-EDG-020: Menghapus alamat Muat di tengah menyesuaikan sub-section Pick Up di Step 2 tanpa memindahkan barang
+    Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipickup" dengan "3" alamat muat
     And barang sudah diisi pada "Pick Up 1" dan "Pick Up 3"
-    When user mengklik tombol "Hapus" pada "Pick Up 2"
+    When user mengklik tombol "Hapus" pada "Muat 2"
     And user mengklik tombol "Selanjutnya"
     Then jumlah sub-section alamat pada "Armada 1" adalah "2"
     And barang pada sub-section pertama tetap sesuai input "Pick Up 1"
@@ -1553,11 +1551,10 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     And judul sub-section tetap terbaca
 
   @edge @priority-low @REQ-024 @screen-step1 @screen-modal-draf
-  Scenario: OMS014-EDG-033: Simpan ke Draf tersedia tepat setelah Tipe Pengiriman dipilih pada Step 1
+  Scenario: OMS014-EDG-033: Simpan ke Draf tampil unconditional sejak render pertama Step 1, tidak bergantung jenis order dipilih
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman"
-    And user memilih kartu jenis order "FTL"
-    Then sistem tidak menampilkan "Simpan ke Draf"
-    When user memilih "Normal" pada dropdown "Tipe Pengiriman"
+    Then sistem menampilkan "Simpan ke Draf"
+    When user memilih kartu jenis order "LCL"
     Then sistem menampilkan "Simpan ke Draf"
     When user mengklik tombol "Simpan ke Draf"
     Then sistem menampilkan "Anda yakin ingin menyimpan data dalam draf?"
@@ -1572,10 +1569,10 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
     And tidak terbentuk order baru pada "Daftar Order"
 
   @edge @priority-low @REQ-009 @REQ-030 @screen-step1 @screen-step2 @multipickup
-  Scenario: OMS014-EDG-035: Dua alamat Pick Up dengan Drop Point Asal yang sama tetap menghasilkan dua sub-section terpisah
+  Scenario: OMS014-EDG-035: Dua alamat Muat dengan Drop Point Asal yang sama tetap menghasilkan dua sub-section Pick Up terpisah di Step 2
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipickup"
-    When user memilih "Gudang MSK Region 2" pada dropdown "Drop Point Asal" untuk "Pick Up 1"
-    And user memilih "Gudang MSK Region 2" pada dropdown "Drop Point Asal" untuk "Pick Up 2"
+    When user memilih "Gudang MSK Region 2" pada dropdown "Drop Point Asal" untuk "Muat 1"
+    And user memilih "Gudang MSK Region 2" pada dropdown "Drop Point Asal" untuk "Muat 2"
     And user mengklik tombol "Selanjutnya"
     Then jumlah sub-section alamat pada "Armada 1" adalah "2"
     And barang yang diisi pada "Pick Up 1" tidak muncul pada "Pick Up 2"
@@ -1629,7 +1626,7 @@ Feature: OMS-014 Pembuatan Order FTL & FCL dengan add-on Auto Stuffing dinonakti
   @stress @priority-medium @REQ-009 @REQ-011 @REQ-032 @screen-step2 @screen-step1 @ftl @multipoint
   Scenario: OMS014-STR-002: Multipoint lima pickup kali lima dropoff pada tiga armada menghasilkan tujuh puluh lima sub-section
     Given user berada di halaman "Buat Order - Step 1 Data Pengiriman" untuk order "FTL" tipe "Multipoint"
-    When user menambahkan "5" alamat pickup dan "5" alamat dropoff
+    When user menambahkan alamat hingga tersedia "5" alamat muat via "Tambah Lokasi Muat" dan "5" alamat bongkar via "Tambah Lokasi Bongkar"
     And user mengisi field "Jumlah Armada" dengan "3"
     And user mengklik tombol "Selanjutnya"
     Then jumlah sub-section kombinasi pada "Armada 1" adalah "25"

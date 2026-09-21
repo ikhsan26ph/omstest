@@ -62,7 +62,7 @@ Feature: Dashboard OMS2324
     Given user berada di halaman "Monitoring"
     When user mengisi field "Cari nopol, sopir, atau ID order" dengan "ZZZ9999"
     And user mengklik tombol "Cari"
-    Then sistem menampilkan "Data armada tidak ditemukan"
+    Then sistem menampilkan "Tidak ada armada yang cocok dengan filter."
     And sistem tidak menampilkan card armada berjalan
 
   @positive @priority-high @REQ-005 @screen-monitoring

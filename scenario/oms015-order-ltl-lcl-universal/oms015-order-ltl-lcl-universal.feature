@@ -17,8 +17,11 @@
 #                     floating button, Armada n, Simulasi Muatan) TIDAK PERNAH menjadi
 #                     ekspektasi positif; hanya menjadi assertion negatif atau diabaikan.
 #   ASM-002         — asuransi per-barang (checkbox per baris) + kontrol Asuransikan Semua.
-#   ASM-004         — Jumlah Armada / Jumlah Kontainer: assert "tidak dapat diubah",
-#                     bukan "tidak ada".
+#   ASM-004         — [DIPERBARUI 2026-09-21] LCL: Jumlah Kontainer tetap di-assert
+#                     "tidak dapat diubah", bukan "tidak ada" (tidak berubah). LTL:
+#                     Jumlah Armada / Jenis Armada sekarang di-assert "tidak dirender"
+#                     (count=0) — field ini TIDAK ADA sama sekali sejak revisi
+#                     2026-09-21, bukan lagi "disabled/terkunci 1".
 #   ASM-013         — matcher status toleran: Isi Data Pengiriman|Isi Data Dasar,
 #                     Selesai|Terkirim.
 #   ASM-017/018     — label kanonik "Lihat No. Resi", tersedia sejak Menunggu Penugasan.
@@ -46,9 +49,10 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     And user berada di halaman "Daftar Order"
     When user mengklik tombol "Buat Order"
     And user memilih kartu jenis order "LTL Less Than Truck Load"
-    And user memilih dropdown "Kota Asal" dengan "Kota Surabaya"
-    And user memilih dropdown "Kota Tujuan" dengan "Kota Malang"
-    And user memilih dropdown "Drop Point Asal" dengan "Gudang MSK Region 2"
+    Then sistem tidak menampilkan field "Kota Asal"
+    And sistem tidak menampilkan field "Kota Tujuan"
+    And sistem tidak menampilkan field "Jumlah Armada"
+    When user memilih dropdown "Drop Point Asal" dengan "Gudang MSK Region 2"
     And user memilih dropdown "Pengirim" dengan "PT Mentari Sumber Kertas"
     And user mengisi field "PIC Pengirim" dengan "Budianto Suwarno"
     And user mengisi field "No. WhatsApp PIC Pengirim" dengan "081234567898"
@@ -190,7 +194,7 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     And terdapat order LTL hasil Batch Order berstatus "Menunggu Penugasan"
     When user membuka halaman "Detail Order" untuk order tersebut
     Then sistem menampilkan "Tipe Pengiriman : Normal"
-    And sistem menampilkan jumlah unit muatan "1"
+    And sistem tidak menampilkan field "Jumlah Armada" pada "Detail Order"
     And sistem menampilkan section "No. Resi"
     And sistem menampilkan tabel Data Barang dalam satu grup tunggal
 
@@ -222,10 +226,10 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
   Scenario: OMS015-POS-012 Step 1 menampilkan tiga section berurutan
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    Then sistem menampilkan "Jenis Pengiriman dan Rute"
+    Then sistem menampilkan "Jenis Pengiriman"
     And sistem menampilkan "Data Pengirim"
     And sistem menampilkan "Data Penerima"
-    And sistem menampilkan urutan section "Jenis Pengiriman dan Rute, Data Pengirim, Data Penerima"
+    And sistem menampilkan urutan section "Jenis Pengiriman, Data Pengirim, Data Penerima"
 
   @positive @priority-high @REQ-007 @UI-102 @screen-buat-order-step1-lcl
   Scenario: OMS015-POS-013 LCL menampilkan Pelabuhan Asal dan Pelabuhan Tujuan dari Master Pelabuhan
@@ -249,38 +253,36 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     And user mengklik tombol "Selanjutnya"
     Then user diarahkan ke halaman "Buat Order — Step 2 Data Barang"
 
-  @positive @priority-high @REQ-008 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-POS-015 LTL menampilkan Kota Asal dan Kota Tujuan dari Master Kota
+  @positive @priority-high @REQ-059 @UI-097 @screen-buat-order-step1-ltl
+  Scenario: OMS015-POS-015 LTL tidak menampilkan Kota Asal maupun Kota Tujuan — section rute kosong total
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    Then sistem menampilkan field "Kota Asal" dengan placeholder "Pilih Kota Asal"
-    And sistem menampilkan field "Kota Tujuan" dengan placeholder "Pilih Kota Tujuan"
-    And sistem menampilkan field "Jumlah Armada" dalam kondisi tidak dapat diubah bernilai "1"
-    When user mengklik dropdown "Kota Asal"
-    Then sistem menampilkan opsi yang seluruhnya berasal dari "Master Kota"
+    Then sistem tidak menampilkan field "Kota Asal"
+    And sistem tidak menampilkan field "Kota Tujuan"
+    And sistem tidak menampilkan field "Pelabuhan Asal"
+    And sistem tidak menampilkan field "Pelabuhan Tujuan"
+    And sistem tidak menampilkan field "Jumlah Armada"
 
-  @positive @priority-high @REQ-009 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-POS-016 Mengubah Kota Asal tidak memfilter Drop Point Asal
+  @positive @priority-high @REQ-059 @UI-097 @screen-buat-order-step1-ltl
+  Scenario: OMS015-POS-016 Drop Point Asal tetap dapat dipilih bebas dari seluruh Master Droppoint tanpa Kota Asal
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
+    Then sistem tidak menampilkan field "Kota Asal"
     When user mengklik dropdown "Drop Point Asal"
-    And user mencatat jumlah opsi "Drop Point Asal"
-    And user memilih dropdown "Kota Asal" dengan "Kota Surabaya"
-    And user mengklik dropdown "Drop Point Asal"
-    Then sistem menampilkan jumlah opsi "Drop Point Asal" yang sama seperti sebelumnya
+    Then sistem menampilkan seluruh opsi Master Droppoint
     And sistem menampilkan opsi "Gudang Jaya Retail Malang"
 
-  @positive @priority-high @REQ-009 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-POS-017 Mengubah Kota Tujuan tidak memfilter Drop Point Tujuan
+  @positive @priority-high @REQ-059 @UI-097 @screen-buat-order-step1-ltl
+  Scenario: OMS015-POS-017 Drop Point Tujuan tetap dapat dipilih bebas dari seluruh Master Droppoint tanpa Kota Tujuan
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
+    Then sistem tidak menampilkan field "Kota Tujuan"
     When user memilih dropdown "Drop Point Tujuan" dengan "Gudang Jaya Retail Malang"
-    And user memilih dropdown "Kota Tujuan" dengan "Kota Padangsidempuan"
     Then sistem menampilkan nilai "Gudang Jaya Retail Malang" pada field "Drop Point Tujuan"
     When user mengklik dropdown "Drop Point Tujuan"
     Then sistem menampilkan seluruh opsi Master Droppoint tanpa filter kota
 
-  @positive @priority-high @REQ-009 @UI-102 @screen-buat-order-step1-lcl
+  @positive @priority-high @REQ-060 @UI-102 @screen-buat-order-step1-lcl
   Scenario: OMS015-POS-018 Pilihan Pelabuhan LCL tidak dibatasi kota drop point
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LCL)"
@@ -692,9 +694,9 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     And user berada di halaman "Buat Order — Step 2 Data Barang" dengan Step 1 sudah terisi
     When user mengklik tombol "Sebelumnya"
     Then user diarahkan ke halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    And sistem menampilkan nilai "Kota Surabaya" pada field "Kota Asal"
     And sistem menampilkan nilai "Budianto Suwarno" pada field "PIC Pengirim"
     And sistem menampilkan nilai "Gudang MSK Region 2" pada field "Drop Point Asal"
+    And sistem tidak menampilkan field "Jumlah Armada"
 
   @positive @priority-medium @REQ-028 @REQ-039 @UI-D03 @screen-pop-up-konfirmasi
   Scenario: OMS015-POS-057 Simpan ke Draf dari Step 2 menghasilkan status Isi Data Muatan
@@ -1373,7 +1375,7 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     Given user belum terautentikasi
     When user membuka URL "/order/create"
     Then user diarahkan ke halaman "Login"
-    And sistem tidak menampilkan "Jenis Pengiriman dan Rute"
+    And sistem tidak menampilkan "Jenis Pengiriman"
 
   @negative @priority-medium @REQ-002 @UI-097 @screen-buat-order-step1-ltl
   Scenario: OMS015-NEG-002 Melompat ke Step 3 melalui stepper tanpa mengisi Step 1 ditahan
@@ -1443,20 +1445,19 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     Then sistem menampilkan field "Jumlah Kontainer" dalam kondisi tidak dapat diubah bernilai "1"
     And sistem tidak menampilkan nilai "5" pada field "Jumlah Kontainer"
 
-  @negative @priority-high @REQ-008 @UI-097 @screen-buat-order-step1-ltl
+  @negative @priority-high @REQ-059 @UI-097 @screen-buat-order-step1-ltl
   Scenario: OMS015-NEG-010 Pelabuhan Asal dan Pelabuhan Tujuan tidak dirender saat LTL terpilih
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
     Then sistem tidak menampilkan field "Pelabuhan Asal"
     And sistem tidak menampilkan field "Pelabuhan Tujuan"
 
-  @negative @priority-high @REQ-008 @REQ-024 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-NEG-011 Jumlah Armada tidak dapat diubah user
+  @negative @priority-high @REQ-059 @REQ-024 @UI-097 @screen-buat-order-step1-ltl
+  Scenario: OMS015-NEG-011 Jumlah Armada dan Jenis Armada tidak dirender untuk LTL
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    When user mencoba mengisi field "Jumlah Armada" dengan "3"
-    Then sistem menampilkan field "Jumlah Armada" dalam kondisi tidak dapat diubah bernilai "1"
-    And sistem tidak menampilkan nilai "3" pada field "Jumlah Armada"
+    Then sistem tidak menampilkan field "Jumlah Armada"
+    And sistem tidak menampilkan field "Jenis Armada"
 
   @negative @priority-high @REQ-010 @UI-097 @screen-buat-order-step1-ltl
   Scenario: OMS015-NEG-012 Tombol Tambah Baris Input tidak dirender pada kedua section
@@ -1496,20 +1497,18 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)" dengan seluruh field kosong
     When user mengklik tombol "Selanjutnya"
     Then user tetap berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    And sistem menampilkan "Kota Asal harus diisi"
-    And sistem menampilkan "Kota Tujuan harus diisi"
     And sistem menampilkan "Drop Point Asal harus diisi"
     And sistem menampilkan "PIC Pengirim harus diisi"
     And sistem menampilkan "PIC Penerima harus diisi"
 
   @negative @priority-high @REQ-012 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-NEG-017 Selanjutnya dengan Kota Asal kosong ditahan
+  Scenario: OMS015-NEG-017 Selanjutnya dengan Drop Point Asal kosong ditahan
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    When user melengkapi seluruh field wajib Step 1 kecuali "Kota Asal"
+    When user melengkapi seluruh field wajib Step 1 kecuali "Drop Point Asal"
     And user mengklik tombol "Selanjutnya"
     Then user tetap berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    And sistem menampilkan "Kota Asal harus diisi"
+    And sistem menampilkan "Drop Point Asal harus diisi"
     And sistem tidak menampilkan "PIC Pengirim harus diisi"
 
   @negative @priority-medium @REQ-012 @UI-097 @screen-buat-order-step1-ltl
@@ -2228,13 +2227,14 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
   # BAGIAN 3 — SKENARIO EDGE (EDG-001 .. EDG-071)
   # ==========================================================================
 
-  @edge @priority-high @REQ-001 @REQ-007 @REQ-008 @UI-097 @UI-102 @screen-buat-order-step1-ltl
+  @edge @priority-high @REQ-001 @REQ-007 @REQ-059 @UI-097 @UI-102 @screen-buat-order-step1-ltl
   Scenario: OMS015-EDG-001 Mengganti jenis order dari LTL ke LCL mengganti field rute
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    When user memilih dropdown "Kota Asal" dengan "Kota Surabaya"
-    And user memilih kartu jenis order "LCL Less Than Container Load"
-    Then sistem tidak menampilkan field "Kota Asal"
+    Then sistem tidak menampilkan field "Jumlah Armada"
+    When user memilih kartu jenis order "LCL Less Than Container Load"
+    Then sistem tidak menampilkan field "Jumlah Armada"
+    And sistem tidak menampilkan field "Kota Asal"
     And sistem tidak menampilkan field "Kota Tujuan"
     And sistem menampilkan field "Pelabuhan Asal"
     And sistem menampilkan field "Pelabuhan Tujuan"
@@ -2262,23 +2262,23 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     Then sistem menampilkan "1 order berhasil dibuat"
     And sistem menampilkan badge jenis order "LTL" pada 1 baris order hasil batch
 
-  @edge @priority-high @REQ-009 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-EDG-004 Kota Asal berbeda kota dengan Drop Point Asal tetap dapat disimpan
+  @edge @priority-high @REQ-059 @UI-097 @screen-buat-order-step1-ltl
+  Scenario: OMS015-EDG-004 Drop Point Asal tetap dapat disimpan tanpa field Kota Asal
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    When user memilih dropdown "Kota Asal" dengan "Kota Jakarta Selatan"
-    And user memilih dropdown "Drop Point Asal" dengan "Gudang MSK Region 2"
+    Then sistem tidak menampilkan field "Kota Asal"
+    When user memilih dropdown "Drop Point Asal" dengan "Gudang MSK Region 2"
     And user melengkapi seluruh field wajib Step 1 lainnya
     And user mengklik tombol "Selanjutnya"
     Then user diarahkan ke halaman "Buat Order — Step 2 Data Barang"
     And sistem tidak menampilkan pesan error kombinasi kota dan drop point
 
-  @edge @priority-medium @REQ-009 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-EDG-005 Kota Asal sama dengan Kota Tujuan tetap dapat disimpan
+  @edge @priority-medium @REQ-059 @UI-097 @screen-buat-order-step1-ltl
+  Scenario: OMS015-EDG-005 Drop Point Tujuan tetap dapat disimpan tanpa field Kota Tujuan
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    When user memilih dropdown "Kota Asal" dengan "Kota Surabaya"
-    And user memilih dropdown "Kota Tujuan" dengan "Kota Surabaya"
+    Then sistem tidak menampilkan field "Kota Tujuan"
+    When user memilih dropdown "Drop Point Tujuan" dengan "Gudang Jaya Retail Malang"
     And user melengkapi seluruh field wajib Step 1 lainnya
     And user mengklik tombol "Selanjutnya"
     Then user diarahkan ke halaman "Buat Order — Step 2 Data Barang"
@@ -2725,7 +2725,7 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
   Scenario: OMS015-EDG-050 Simpan ke Draf pada Step 1 dengan sebagian field wajib kosong
     Given user login sebagai "Staff Operasional (Shipper)"
     And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
-    When user memilih dropdown "Kota Asal" dengan "Kota Surabaya"
+    When user memilih dropdown "Drop Point Asal" dengan "Gudang MSK Region 2"
     And user mengklik tombol "Simpan ke Draf"
     And user mengklik tombol "Ya, Simpan" pada pop up konfirmasi
     Then user diarahkan ke halaman "Daftar Order"
@@ -2781,11 +2781,11 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
     And sistem tidak menampilkan menu "Edit"
 
   @edge @priority-medium @REQ-043 @REQ-024 @UI-D07 @screen-edit-order
-  Scenario: OMS015-EDG-056 Jumlah Armada dan Jumlah Kontainer tetap 1 pada Edit Order LTL dan LCL
+  Scenario: OMS015-EDG-056 Jumlah Armada tidak ada pada Edit Order LTL; Jumlah Kontainer tetap 1 pada Edit Order LCL
     Given user login sebagai "Staff Operasional (Shipper)"
     And terdapat order LTL "ORD-LTL-0001" dan order LCL "ORD-LCL-0001" berstatus "Menunggu Penugasan"
     When user berada di halaman "Edit Order" untuk order "ORD-LTL-0001"
-    Then sistem menampilkan field "Jumlah Armada" dalam kondisi tidak dapat diubah bernilai "1"
+    Then sistem tidak menampilkan field "Jumlah Armada"
     When user berada di halaman "Edit Order" untuk order "ORD-LCL-0001"
     Then sistem menampilkan field "Jumlah Kontainer" dalam kondisi tidak dapat diubah bernilai "1"
 
@@ -3234,18 +3234,18 @@ Feature: OMS-015 Order LTL & LCL — pembuatan, pengeditan, dan pembatalan order
   # ==========================================================================
   # BAGIAN 5 — SKENARIO NEGATIF TAMBAHAN (NEG-091 .. NEG-094)
   # Melengkapi aturan "tiap requirement minimal 1 positive + 1 negative"
-  # untuk REQ-009, REQ-017, REQ-036, dan REQ-057.
+  # untuk REQ-060, REQ-017, REQ-036, dan REQ-057.
   # ==========================================================================
 
-  @negative @priority-high @REQ-009 @UI-097 @screen-buat-order-step1-ltl
-  Scenario: OMS015-NEG-091 Memilih Kota Asal tidak mengosongkan Drop Point Asal yang sudah dipilih
+  @negative @priority-high @REQ-060 @UI-102 @screen-buat-order-step1-lcl
+  Scenario: OMS015-NEG-091 Memilih Pelabuhan Asal tidak mengosongkan Drop Point Asal yang sudah dipilih
     Given user login sebagai "Staff Operasional (Shipper)"
-    And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LTL)"
+    And user berada di halaman "Buat Order — Step 1 Data Pengiriman (LCL)"
     When user memilih dropdown "Drop Point Asal" dengan "Gudang MSK Region 2"
-    And user memilih dropdown "Kota Asal" dengan "Kota Padangsidempuan"
+    And user memilih dropdown "Pelabuhan Asal" dengan "Panjang (PNJ)"
     Then sistem menampilkan nilai "Gudang MSK Region 2" pada field "Drop Point Asal"
     And sistem tidak mengosongkan field "Drop Point Asal"
-    And sistem tidak menampilkan pesan error kombinasi kota dan drop point
+    And sistem tidak menampilkan pesan error kombinasi pelabuhan dan drop point
     And sistem tidak menampilkan nilai terhapus pada field "Alamat Asal"
 
   @negative @priority-medium @REQ-017 @UI-D01 @screen-modal-pilih-barang

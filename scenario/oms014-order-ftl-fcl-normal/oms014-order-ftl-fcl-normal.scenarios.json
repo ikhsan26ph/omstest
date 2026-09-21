@@ -61,7 +61,7 @@
   "commonSelectorHints": {
     "orderTypeFtl": "getByRole('radio', { name: 'FTL Full Truck Load' })",
     "orderTypeFcl": "getByRole('radio', { name: 'FCL Full Container Load' })",
-    "tipePengiriman": "getByLabel('Tipe Pengiriman')",
+    "tipePengiriman": "getByText(/Tipe Pengiriman:/) — READ-ONLY teks auto-derive, BUKAN dropdown (koreksi ground truth 2026-09-19; getByLabel('Tipe Pengiriman') tidak lagi berlaku)",
     "selanjutnya": "getByRole('button', { name: 'Selanjutnya' })",
     "sebelumnya": "getByRole('button', { name: 'Sebelumnya' })",
     "simpanKeDraf": "getByRole('button', { name: 'Simpan ke Draf' })",
@@ -70,7 +70,9 @@
     "unitCard": "getByTestId('unit-card-<n>')",
     "recalcFab": "getByRole('button', { name: /Hitung Ulang (Armada|Kontainer)/ })",
     "visualisasiFab": "getByRole('button', { name: 'Visualisasi Terbaru' })",
-    "visualisasiMuatan": "getByRole('button', { name: 'Visualisasi Muatan' })"
+    "visualisasiMuatan": "getByRole('button', { name: 'Visualisasi Muatan' })",
+    "tambahLokasiMuat": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })",
+    "tambahLokasiBongkar": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Lokasi Bongkar' })"
   },
   "scenarios": [
     {
@@ -294,7 +296,7 @@
     },
     {
       "id": "OMS014-POS-004",
-      "title": "Dropdown Tipe Pengiriman memuat tepat empat opsi",
+      "title": "Tipe Pengiriman ditampilkan sebagai teks read-only, bukan dropdown, mengikuti jumlah baris Data Pengirim & Data Penerima",
       "category": "positive",
       "priority": "P1",
       "requirements": [
@@ -317,37 +319,37 @@
         },
         {
           "step": 2,
-          "action": "click",
+          "action": "assert",
           "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')"
+          "selectorHint": "getByLabel('Tipe Pengiriman')",
+          "expected": "toHaveCount(0)"
         },
         {
           "step": 3,
           "action": "assert",
-          "target": "Opsi Normal",
-          "selectorHint": "getByRole('option', { name: 'Normal' })",
+          "target": "Teks info Tipe Pengiriman Normal",
+          "selectorHint": "getByText(/Tipe Pengiriman:\\s*Normal/)",
           "expected": "toBeVisible()"
         },
         {
           "step": 4,
-          "action": "assert",
-          "target": "Opsi Multipickup/Multidrop/Multipoint",
-          "selectorHint": "getByRole('option')",
-          "expected": "toContainText(['Multipickup','Multidrop','Multipoint'])"
+          "action": "click",
+          "target": "Tombol Tambah Lokasi Muat pada Data Pengirim",
+          "selectorHint": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })"
         },
         {
           "step": 5,
           "action": "assert",
-          "target": "Jumlah opsi dropdown",
-          "selectorHint": "getByRole('option')",
-          "expected": "toHaveCount(4)"
+          "target": "Teks info Tipe Pengiriman Multipickup",
+          "selectorHint": "getByText(/Tipe Pengiriman:\\s*Multipickup/)",
+          "expected": "toBeVisible()"
         }
       ],
-      "expectedResult": "Dropdown Tipe Pengiriman berisi tepat 4 opsi: Normal, Multipickup, Multidrop, Multipoint",
+      "expectedResult": "Tidak ada dropdown Tipe Pengiriman; sistem menampilkan teks read-only 'Tipe Pengiriman: <nilai>' yang auto-update real-time mengikuti jumlah baris Data Pengirim & Data Penerima (ground truth verifikasi live 2026-09-19)",
       "selectorHints": {
-        "tipePengiriman": "getByLabel('Tipe Pengiriman')",
-        "opsiNormal": "getByRole('option', { name: 'Normal' })",
-        "opsiMultipoint": "getByRole('option', { name: 'Multipoint' })"
+        "tipePengirimanText": "getByText(/Tipe Pengiriman:/)",
+        "tipePengirimanDropdown": "getByLabel('Tipe Pengiriman')",
+        "tambahLokasiMuat": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })"
       }
     },
     {
@@ -423,46 +425,39 @@
       "orderType": "FTL",
       "shippingType": "normal",
       "preconditions": [
-        "Jenis order FTL dan Tipe Pengiriman Normal sudah dipilih"
+        "Jenis order FTL sudah dipilih (Tipe Pengiriman otomatis Normal, 1 baris Data Pengirim/Penerima)"
       ],
       "steps": [
         {
           "step": 1,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "Normal"
-        },
-        {
-          "step": 2,
           "action": "select",
           "target": "Dropdown Drop Point Asal",
           "selectorHint": "getByLabel('Drop Point Asal')",
           "value": "Gudang MSK Region 2"
         },
         {
-          "step": 3,
+          "step": 2,
           "action": "assert",
           "target": "Field Provinsi Asal read-only",
           "selectorHint": "getByLabel('Provinsi Asal')",
           "expected": "toHaveAttribute('readonly', '')"
         },
         {
-          "step": 4,
+          "step": 3,
           "action": "assert",
           "target": "Field Kota/Kab. Asal terisi",
           "selectorHint": "getByLabel('Kota/Kab. Asal')",
           "expected": "not.toHaveValue('')"
         },
         {
-          "step": 5,
+          "step": 4,
           "action": "assert",
           "target": "Field Kode Pos 5 digit",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel('Kode Pos')",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel('Kode Pos')",
           "expected": "toHaveValue(/^\\d{5}$/)"
         },
         {
-          "step": 6,
+          "step": 5,
           "action": "assert",
           "target": "Field Alamat Asal terisi",
           "selectorHint": "getByLabel('Alamat Asal')",
@@ -477,7 +472,7 @@
         "dropPointAsal": "getByLabel('Drop Point Asal')",
         "provinsiAsal": "getByLabel('Provinsi Asal')",
         "kotaAsal": "getByLabel('Kota/Kab. Asal')",
-        "kodePos": "getByTestId('pickup-block-1').getByLabel('Kode Pos')",
+        "kodePos": "getByTestId('muat-block-1').getByLabel('Kode Pos')",
         "alamatAsal": "getByLabel('Alamat Asal')"
       }
     },
@@ -736,10 +731,9 @@
         },
         {
           "step": 4,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "<tipe>"
+          "action": "click",
+          "target": "Tambah Lokasi Muat/Tambah Lokasi Bongkar sesuai <tipe> (Normal: 0 klik: Multipickup: 1x Tambah Lokasi Muat; Multidrop: 1x Tambah Lokasi Bongkar; Multipoint: 1x masing-masing)",
+          "selectorHint": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' }) / getByTestId('data-penerima').getByRole('button', { name: 'Tambah Lokasi Bongkar' })"
         },
         {
           "step": 5,
@@ -903,12 +897,12 @@
       "selectorHints": {
         "orderTypeFtl": "getByRole('radio', { name: 'FTL Full Truck Load' })",
         "orderTypeFcl": "getByRole('radio', { name: 'FCL Full Container Load' })",
-        "tipePengiriman": "getByLabel('Tipe Pengiriman')",
         "selanjutnya": "getByRole('button', { name: 'Selanjutnya' })",
         "simpan": "getByRole('button', { name: 'Simpan', exact: true })",
         "pilihBarangUnit1": "getByTestId('unit-card-1').getByRole('button', { name: 'Pilih Barang' })",
         "recalcFab": "getByRole('button', { name: /Hitung Ulang (Armada|Kontainer)/ })",
-        "visualisasiMuatan": "getByRole('button', { name: 'Visualisasi Muatan' })"
+        "visualisasiMuatan": "getByRole('button', { name: 'Visualisasi Muatan' })",
+        "tipePengirimanText": "getByText(/Tipe Pengiriman:\\s*<tipe>/)"
       }
     },
     {
@@ -2377,7 +2371,7 @@
     },
     {
       "id": "OMS014-POS-036",
-      "title": "Step 3 menyediakan modal Detail Multipickup berisi seluruh alamat pickup",
+      "title": "Step 3 menyediakan modal Data Pengirim berisi seluruh alamat muat dalam format numbered list",
       "category": "positive",
       "priority": "P2",
       "requirements": [
@@ -2409,41 +2403,55 @@
         {
           "step": 3,
           "action": "assert",
-          "target": "Dialog Detail Multipickup",
-          "selectorHint": "getByRole('dialog', { name: 'Detail Multipickup' })",
+          "target": "Dialog Data Pengirim (dulu 'Detail Multipickup', FAKTA TERKONFIRMASI 2026-09-19)",
+          "selectorHint": "getByRole('dialog', { name: 'Data Pengirim' })",
           "expected": "toBeVisible()"
         },
         {
           "step": 4,
           "action": "assert",
-          "target": "Item alamat Pick Up 1",
+          "target": "Item bernomor 1 (nama Drop Point + alamat lengkap + baris PIC)",
           "selectorHint": "getByRole('dialog').getByTestId('address-item').nth(0)",
-          "expected": "toContainText('Jl. Jambi No.35, Darmo, Wonokromo, Kota Surabaya, Jawa Timur 60241')"
+          "expected": "toContainText('1.')"
         },
         {
           "step": 5,
+          "action": "assert",
+          "target": "Item bernomor 1 memuat baris PIC",
+          "selectorHint": "getByRole('dialog').getByTestId('address-item').nth(0)",
+          "expected": "toContainText('PIC:')"
+        },
+        {
+          "step": 6,
+          "action": "assert",
+          "target": "Item bernomor 2 (Muat kedua) memuat baris PIC",
+          "selectorHint": "getByRole('dialog').getByTestId('address-item').nth(1)",
+          "expected": "toContainText('PIC:')"
+        },
+        {
+          "step": 7,
           "action": "click",
           "target": "Tombol Tutup",
           "selectorHint": "getByRole('dialog').getByRole('button', { name: 'Tutup' })"
         },
         {
-          "step": 6,
+          "step": 8,
           "action": "assert",
-          "target": "Dialog Detail Multipickup",
-          "selectorHint": "getByRole('dialog', { name: 'Detail Multipickup' })",
+          "target": "Dialog Data Pengirim tertutup",
+          "selectorHint": "getByRole('dialog', { name: 'Data Pengirim' })",
           "expected": "toHaveCount(0)"
         }
       ],
-      "expectedResult": "Modal Detail Multipickup menampilkan seluruh alamat pickup dan dapat ditutup",
+      "expectedResult": "Modal berjudul 'Data Pengirim' (FAKTA TERKONFIRMASI live 2026-09-19, bukan lagi 'Detail Multipickup') menampilkan seluruh alamat Muat dalam format numbered list (nama Drop Point bold, nama Pengirim, alamat lengkap 2x, baris 'PIC: <nama> (<no WA>)') dan dapat ditutup. Diverifikasi via order test 2 Muat (IK - BPN Platinum, IK - BPN Market); screenshot: artifacts/screenshots/modal-detail-multipickup.png",
       "selectorHints": {
         "lihatDetail": "getByRole('link', { name: 'Lihat Detail' })",
-        "dialogMultipickup": "getByRole('dialog', { name: 'Detail Multipickup' })",
+        "dialogDataPengirim": "getByRole('dialog', { name: 'Data Pengirim' })",
         "addressItem": "getByRole('dialog').getByTestId('address-item')"
       }
     },
     {
       "id": "OMS014-POS-037",
-      "title": "Step 3 menyediakan modal Detail Multidrop berisi nama drop point dan alamat lengkap",
+      "title": "Step 3 menyediakan modal Data Penerima berisi seluruh alamat bongkar dalam format numbered list",
       "category": "positive",
       "priority": "P2",
       "requirements": [
@@ -2468,21 +2476,28 @@
         {
           "step": 2,
           "action": "assert",
-          "target": "Dialog Detail Multidrop",
-          "selectorHint": "getByRole('dialog', { name: 'Detail Multidrop' })",
+          "target": "Dialog Data Penerima (dulu 'Detail Multidrop' - inferensi simetri dgn Data Pengirim, BELUM diuji langsung utk Multidrop)",
+          "selectorHint": "getByRole('dialog', { name: 'Data Penerima' })",
           "expected": "toBeVisible()"
         },
         {
           "step": 3,
           "action": "assert",
-          "target": "Item alamat Drop Off 2",
+          "target": "Item bernomor 2 (Bongkar kedua) memuat nama Drop Point + alamat lengkap",
           "selectorHint": "getByRole('dialog').getByTestId('address-item').nth(1)",
-          "expected": "toContainText('Jl. Proklamator Raya, Seputih Jaya, Kec. Gn. Sugih, Kabupaten Lampung Tengah, Lampung 34161')"
+          "expected": "toContainText('2.')"
+        },
+        {
+          "step": 4,
+          "action": "assert",
+          "target": "Item bernomor 2 memuat baris PIC",
+          "selectorHint": "getByRole('dialog').getByTestId('address-item').nth(1)",
+          "expected": "toContainText('PIC:')"
         }
       ],
-      "expectedResult": "Modal Detail Multidrop menampilkan setiap Drop Off beserta nama drop point dan alamat lengkap",
+      "expectedResult": "Modal diasumsikan berjudul 'Data Penerima' (inferensi simetri dgn modal Multipickup yang terkonfirmasi 'Data Pengirim' — BELUM diuji langsung untuk kasus Multidrop) menampilkan setiap Bongkar dalam format numbered list yang sama seperti Multipickup, bukan lagi 'Drop Off n - <Kota>'",
       "selectorHints": {
-        "dialogMultidrop": "getByRole('dialog', { name: 'Detail Multidrop' })",
+        "dialogDataPenerima": "getByRole('dialog', { name: 'Data Penerima' })",
         "addressItem": "getByRole('dialog').getByTestId('address-item')"
       }
     },
@@ -4494,7 +4509,7 @@
     },
     {
       "id": "OMS014-POS-068",
-      "title": "Tambah Baris Input menghasilkan sub-section alamat baru dalam kondisi kosong",
+      "title": "Tambah Lokasi Muat menghasilkan sub-section alamat baru dalam kondisi kosong",
       "category": "positive",
       "priority": "P2",
       "requirements": [
@@ -4508,20 +4523,20 @@
       "orderType": "FTL",
       "shippingType": "multipickup",
       "preconditions": [
-        "Order FTL Multipickup dengan 2 alamat pickup terisi"
+        "Order FTL Multipickup dengan 2 alamat muat terisi"
       ],
       "steps": [
         {
           "step": 1,
           "action": "click",
-          "target": "Tombol Tambah Baris Input Data Pengirim",
-          "selectorHint": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Baris Input' })"
+          "target": "Tombol Tambah Lokasi Muat Data Pengirim",
+          "selectorHint": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })"
         },
         {
           "step": 2,
           "action": "fill",
-          "target": "Field wajib pada Pick Up 3",
-          "selectorHint": "getByTestId('pickup-block-3').getByLabel('PIC Pengirim')",
+          "target": "Field wajib pada Muat 3",
+          "selectorHint": "getByTestId('muat-block-3').getByLabel('PIC Pengirim')",
           "value": "Citra Dewi"
         },
         {
@@ -4540,15 +4555,15 @@
         {
           "step": 5,
           "action": "assert",
-          "target": "Baris barang Pick Up 3",
+          "target": "Baris barang Pick Up 3 (Data Barang, terminologi tidak berubah)",
           "selectorHint": "getByTestId('addr-section-pickup-3').getByRole('row', { name: /SKU-/ })",
           "expected": "toHaveCount(0)"
         }
       ],
       "expectedResult": "Sub-section alamat baru muncul dalam kondisi kosong",
       "selectorHints": {
-        "tambahBarisInput": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Baris Input' })",
-        "pickupBlock3": "getByTestId('pickup-block-3')"
+        "tambahLokasiMuat": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })",
+        "muatBlock3": "getByTestId('muat-block-3')"
       }
     },
     {
@@ -4732,10 +4747,9 @@
       "steps": [
         {
           "step": 1,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "Multidrop"
+          "action": "click",
+          "target": "Tombol Tambah Lokasi Bongkar Data Penerima",
+          "selectorHint": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Lokasi Bongkar' })"
         },
         {
           "step": 2,
@@ -4747,22 +4761,22 @@
         {
           "step": 3,
           "action": "assert",
-          "target": "Tombol Tambah Baris Input Data Penerima",
-          "selectorHint": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Baris Input' })",
-          "expected": "toBeVisible()"
+          "target": "Blok Bongkar berulang",
+          "selectorHint": "getByTestId(/^bongkar-block-\\d+$/)",
+          "expected": "toHaveCount(2)"
         },
         {
           "step": 4,
           "action": "assert",
-          "target": "Blok Drop Off berulang",
-          "selectorHint": "getByTestId(/^dropoff-block-\\d+$/)",
-          "expected": "toHaveCount(2)"
+          "target": "Label Bongkar 1 dan Bongkar 2",
+          "selectorHint": "getByText(/^Bongkar 1/)",
+          "expected": "toBeVisible()"
         }
       ],
       "expectedResult": "Section Data Penerima berulang dengan info alert urutan pengiriman",
       "selectorHints": {
         "infoAlert": "getByRole('status').filter({ hasText: 'Pastikan urutan pengiriman' })",
-        "tambahBarisPenerima": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Baris Input' })"
+        "tambahLokasiBongkar": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Lokasi Bongkar' })"
       }
     },
     {
@@ -4809,7 +4823,7 @@
     },
     {
       "id": "OMS014-POS-074",
-      "title": "Tipe Normal menampilkan satu blok Data Pengirim dan Data Penerima tanpa Tambah Baris Input",
+      "title": "Tipe Normal menampilkan satu blok Data Pengirim dan Data Penerima tanpa label bernomor, namun tombol Tambah Lokasi tetap tampil",
       "category": "positive",
       "priority": "P2",
       "requirements": [
@@ -4826,43 +4840,57 @@
       "steps": [
         {
           "step": 1,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "Normal"
+          "action": "click",
+          "target": "Kartu jenis order FTL",
+          "selectorHint": "getByRole('radio', { name: 'FTL Full Truck Load' })"
         },
         {
           "step": 2,
           "action": "assert",
           "target": "Blok Data Pengirim",
-          "selectorHint": "getByTestId(/^pickup-block-\\d+$/)",
+          "selectorHint": "getByTestId(/^muat-block-\\d+$/)",
           "expected": "toHaveCount(1)"
         },
         {
           "step": 3,
           "action": "assert",
           "target": "Blok Data Penerima",
-          "selectorHint": "getByTestId(/^dropoff-block-\\d+$/)",
+          "selectorHint": "getByTestId(/^bongkar-block-\\d+$/)",
           "expected": "toHaveCount(1)"
         },
         {
           "step": 4,
           "action": "assert",
-          "target": "Tombol Tambah Baris Input",
-          "selectorHint": "getByRole('button', { name: 'Tambah Baris Input' })",
+          "target": "Label bernomor Muat 1 tidak dirender (hanya 1 baris)",
+          "selectorHint": "getByText('Muat 1')",
           "expected": "toHaveCount(0)"
+        },
+        {
+          "step": 5,
+          "action": "assert",
+          "target": "Tombol Tambah Lokasi Muat tetap tampil",
+          "selectorHint": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })",
+          "expected": "toBeVisible()"
+        },
+        {
+          "step": 6,
+          "action": "assert",
+          "target": "Tombol Tambah Lokasi Bongkar tetap tampil",
+          "selectorHint": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Lokasi Bongkar' })",
+          "expected": "toBeVisible()"
         }
       ],
-      "expectedResult": "Tipe Normal hanya memiliki satu alamat asal dan satu alamat tujuan",
+      "expectedResult": "Tipe Normal (1 baris di kedua sisi) tidak menampilkan label bernomor, tetapi tombol Tambah Lokasi Muat/Bongkar SELALU tampil terlepas dari jumlah baris (koreksi ground truth 2026-09-19 - bukan 'tanpa tombol tambah' seperti dokumen lama)",
       "selectorHints": {
-        "pickupBlock": "getByTestId(/^pickup-block-\\d+$/)",
-        "dropoffBlock": "getByTestId(/^dropoff-block-\\d+$/)",
-        "tambahBarisInput": "getByRole('button', { name: 'Tambah Baris Input' })"
+        "muatBlock": "getByTestId(/^muat-block-\\d+$/)",
+        "bongkarBlock": "getByTestId(/^bongkar-block-\\d+$/)",
+        "tambahLokasiMuat": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })",
+        "tambahLokasiBongkar": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Lokasi Bongkar' })"
       }
     },
     {
       "id": "OMS014-NEG-001",
-      "title": "Tombol Selanjutnya Step 1 disabled selama Tipe Pengiriman belum dipilih",
+      "title": "Tombol Selanjutnya Step 1 tetap disabled sampai seluruh field wajib armada dan Data Pengirim/Data Penerima terisi",
       "category": "negative",
       "priority": "P1",
       "requirements": [
@@ -4907,10 +4935,10 @@
         },
         {
           "step": 5,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "Normal"
+          "action": "fill",
+          "target": "Seluruh field wajib Data Pengirim & Data Penerima",
+          "selectorHint": "getByLabel('PIC Pengirim')",
+          "value": "Andika Pratama"
         },
         {
           "step": 6,
@@ -4920,10 +4948,9 @@
           "expected": "toBeEnabled()"
         }
       ],
-      "expectedResult": "Selanjutnya disabled sampai seluruh field wajib Step 1 terisi (AC-012.4)",
+      "expectedResult": "Selanjutnya disabled sampai seluruh field wajib Step 1 terisi (AC-012.4) - TIDAK ada gating oleh 'Tipe Pengiriman' karena field tsb tidak lagi berupa input user (ground truth 2026-09-19)",
       "selectorHints": {
-        "selanjutnya": "getByRole('button', { name: 'Selanjutnya' })",
-        "tipePengiriman": "getByLabel('Tipe Pengiriman')"
+        "selanjutnya": "getByRole('button', { name: 'Selanjutnya' })"
       }
     },
     {
@@ -4952,26 +4979,19 @@
         },
         {
           "step": 2,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "Normal"
-        },
-        {
-          "step": 3,
           "action": "click",
           "target": "Tombol Selanjutnya",
           "selectorHint": "getByRole('button', { name: 'Selanjutnya' })"
         },
         {
-          "step": 4,
+          "step": 3,
           "action": "assert",
           "target": "Pesan validasi inline",
           "selectorHint": "getByText(/harus diisi/i)",
           "expected": "toBeVisible()"
         },
         {
-          "step": 5,
+          "step": 4,
           "action": "assert",
           "target": "Halaman tetap Step 1",
           "selectorHint": "getByTestId('step-1')",
@@ -5017,19 +5037,12 @@
         },
         {
           "step": 3,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "Normal"
-        },
-        {
-          "step": 4,
           "action": "click",
           "target": "Tombol Selanjutnya",
           "selectorHint": "getByRole('button', { name: 'Selanjutnya' })"
         },
         {
-          "step": 5,
+          "step": 4,
           "action": "assert",
           "target": "Pesan validasi inline",
           "selectorHint": "getByText(/harus diisi/i)",
@@ -5156,7 +5169,7 @@
           "step": 1,
           "action": "fill",
           "target": "Field No. WhatsApp PIC",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
           "value": "08ab-123!xyz"
         },
         {
@@ -5169,7 +5182,7 @@
           "step": 3,
           "action": "assert",
           "target": "Nilai field WhatsApp",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
           "expected": "toHaveValue(/^\\d*$/)"
         },
         {
@@ -5185,7 +5198,7 @@
       },
       "expectedResult": "Field hanya menerima digit (ASM-004), navigasi tertahan",
       "selectorHints": {
-        "waPic": "getByTestId('pickup-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)"
+        "waPic": "getByTestId('muat-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)"
       }
     },
     {
@@ -5209,7 +5222,7 @@
           "step": 1,
           "action": "fill",
           "target": "Field No. WhatsApp PIC",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
           "value": "0812345"
         },
         {
@@ -5231,7 +5244,7 @@
       },
       "expectedResult": "Nomor WhatsApp minimal 10 digit (ASM-004)",
       "selectorHints": {
-        "waPic": "getByTestId('pickup-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)"
+        "waPic": "getByTestId('muat-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)"
       }
     },
     {
@@ -6465,7 +6478,7 @@
     },
     {
       "id": "OMS014-NEG-033",
-      "title": "Menghapus alamat pickup sampai tersisa kurang dari dua ditolak",
+      "title": "Menghapus alamat Muat hingga tersisa satu menyembunyikan tombol hapus, bukan menonaktifkannya",
       "category": "negative",
       "priority": "P2",
       "requirements": [
@@ -6477,33 +6490,47 @@
       "orderType": "FTL",
       "shippingType": "multipickup",
       "preconditions": [
-        "Order FTL Multipickup dengan tepat 2 alamat pickup (ASM-015)"
+        "Order FTL Multipickup dengan tepat 2 alamat Muat (Muat 1, Muat 2)"
       ],
       "steps": [
         {
           "step": 1,
           "action": "click",
-          "target": "Tombol Hapus pada Pick Up 2",
-          "selectorHint": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })"
+          "target": "Tombol Hapus pada Muat 2",
+          "selectorHint": "getByTestId('muat-block-2').getByRole('button', { name: 'Hapus' })"
         },
         {
           "step": 2,
           "action": "assert",
-          "target": "Jumlah blok Pick Up",
-          "selectorHint": "getByTestId(/^pickup-block-\\d+$/)",
-          "expected": "toHaveCount(2)"
+          "target": "Jumlah blok Muat",
+          "selectorHint": "getByTestId(/^muat-block-\\d+$/)",
+          "expected": "toHaveCount(1)"
         },
         {
           "step": 3,
           "action": "assert",
-          "target": "Tombol Hapus Pick Up 2",
-          "selectorHint": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })",
-          "expected": "toBeDisabled()"
+          "target": "Label bernomor Muat 1 tidak lagi tampil",
+          "selectorHint": "getByText('Muat 1')",
+          "expected": "toHaveCount(0)"
+        },
+        {
+          "step": 4,
+          "action": "assert",
+          "target": "Tombol Hapus pada blok Muat tersisa",
+          "selectorHint": "getByTestId(/^muat-block-\\d+$/).getByRole('button', { name: 'Hapus' })",
+          "expected": "toHaveCount(0)"
+        },
+        {
+          "step": 5,
+          "action": "assert",
+          "target": "Tipe Pengiriman auto-revert ke Normal",
+          "selectorHint": "getByText(/Tipe Pengiriman:\\s*Normal/)",
+          "expected": "toBeVisible()"
         }
       ],
-      "expectedResult": "Minimal 2 alamat pickup dipertahankan (AC-030.2)",
+      "expectedResult": "Minimal 1 alamat Muat dipertahankan; begitu tersisa 1 baris, ikon hapus otomatis TIDAK DIRENDER (bukan disabled) dan tidak ada mekanisme tolak eksplisit; Tipe Pengiriman auto-revert ke Normal (revisi ground truth 2026-09-19, menggantikan asumsi minimum=2 pada dokumen lama)",
       "selectorHints": {
-        "hapusPickup2": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })"
+        "hapusMuat2": "getByTestId('muat-block-2').getByRole('button', { name: 'Hapus' })"
       }
     },
     {
@@ -6974,7 +7001,7 @@
     },
     {
       "id": "OMS014-NEG-043",
-      "title": "Menghapus alamat dropoff sampai tersisa kurang dari dua ditolak",
+      "title": "Menghapus alamat Bongkar hingga tersisa satu menyembunyikan tombol hapus, bukan menonaktifkannya",
       "category": "negative",
       "priority": "P2",
       "requirements": [
@@ -6986,38 +7013,52 @@
       "orderType": "FTL",
       "shippingType": "multidrop",
       "preconditions": [
-        "Order FTL Multidrop dengan tepat 2 alamat dropoff (ASM-015)"
+        "Order FTL Multidrop dengan tepat 2 alamat Bongkar (Bongkar 1, Bongkar 2)"
       ],
       "steps": [
         {
           "step": 1,
           "action": "click",
-          "target": "Tombol Hapus pada Drop Off 2",
-          "selectorHint": "getByTestId('dropoff-block-2').getByRole('button', { name: 'Hapus' })"
+          "target": "Tombol Hapus pada Bongkar 2",
+          "selectorHint": "getByTestId('bongkar-block-2').getByRole('button', { name: 'Hapus' })"
         },
         {
           "step": 2,
           "action": "assert",
-          "target": "Jumlah blok Drop Off",
-          "selectorHint": "getByTestId(/^dropoff-block-\\d+$/)",
-          "expected": "toHaveCount(2)"
+          "target": "Jumlah blok Bongkar",
+          "selectorHint": "getByTestId(/^bongkar-block-\\d+$/)",
+          "expected": "toHaveCount(1)"
         },
         {
           "step": 3,
           "action": "assert",
-          "target": "Tombol Hapus Drop Off 2",
-          "selectorHint": "getByTestId('dropoff-block-2').getByRole('button', { name: 'Hapus' })",
-          "expected": "toBeDisabled()"
+          "target": "Label bernomor Bongkar 1 tidak lagi tampil",
+          "selectorHint": "getByText('Bongkar 1')",
+          "expected": "toHaveCount(0)"
+        },
+        {
+          "step": 4,
+          "action": "assert",
+          "target": "Tombol Hapus pada blok Bongkar tersisa",
+          "selectorHint": "getByTestId(/^bongkar-block-\\d+$/).getByRole('button', { name: 'Hapus' })",
+          "expected": "toHaveCount(0)"
+        },
+        {
+          "step": 5,
+          "action": "assert",
+          "target": "Tipe Pengiriman auto-revert ke Normal",
+          "selectorHint": "getByText(/Tipe Pengiriman:\\s*Normal/)",
+          "expected": "toBeVisible()"
         }
       ],
-      "expectedResult": "Minimal 2 alamat dropoff dipertahankan (ASM-015, padanan NEG-033 untuk Multidrop - review rec #2)",
+      "expectedResult": "Minimal 1 alamat Bongkar dipertahankan; ikon hapus otomatis tidak dirender saat tersisa 1 baris; Tipe Pengiriman auto-revert ke Normal (padanan NEG-033, revisi ground truth 2026-09-19)",
       "selectorHints": {
-        "hapusDropoff2": "getByTestId('dropoff-block-2').getByRole('button', { name: 'Hapus' })"
+        "hapusBongkar2": "getByTestId('bongkar-block-2').getByRole('button', { name: 'Hapus' })"
       }
     },
     {
       "id": "OMS014-NEG-044",
-      "title": "Multipoint - menghapus alamat pickup maupun dropoff di bawah minimum ditolak",
+      "title": "Multipoint - menghapus alamat Muat maupun Bongkar hingga tersisa satu menyembunyikan tombol hapus di kedua sisi",
       "category": "negative",
       "priority": "P2",
       "requirements": [
@@ -7029,54 +7070,61 @@
       "orderType": "FCL",
       "shippingType": "multipoint",
       "preconditions": [
-        "Order FCL Multipoint dengan tepat 2 alamat pickup dan 2 alamat dropoff (ASM-015)"
+        "Order FCL Multipoint dengan tepat 2 alamat Muat dan 2 alamat Bongkar"
       ],
       "steps": [
         {
           "step": 1,
           "action": "click",
-          "target": "Tombol Hapus pada Pick Up 2",
-          "selectorHint": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })"
+          "target": "Tombol Hapus pada Muat 2",
+          "selectorHint": "getByTestId('muat-block-2').getByRole('button', { name: 'Hapus' })"
         },
         {
           "step": 2,
           "action": "assert",
-          "target": "Jumlah blok Pick Up",
-          "selectorHint": "getByTestId(/^pickup-block-\\d+$/)",
-          "expected": "toHaveCount(2)"
+          "target": "Jumlah blok Muat",
+          "selectorHint": "getByTestId(/^muat-block-\\d+$/)",
+          "expected": "toHaveCount(1)"
         },
         {
           "step": 3,
           "action": "assert",
-          "target": "Tombol Hapus Pick Up 2",
-          "selectorHint": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })",
-          "expected": "toBeDisabled()"
+          "target": "Tombol Hapus pada blok Muat tersisa",
+          "selectorHint": "getByTestId(/^muat-block-\\d+$/).getByRole('button', { name: 'Hapus' })",
+          "expected": "toHaveCount(0)"
         },
         {
           "step": 4,
           "action": "click",
-          "target": "Tombol Hapus pada Drop Off 2",
-          "selectorHint": "getByTestId('dropoff-block-2').getByRole('button', { name: 'Hapus' })"
+          "target": "Tombol Hapus pada Bongkar 2",
+          "selectorHint": "getByTestId('bongkar-block-2').getByRole('button', { name: 'Hapus' })"
         },
         {
           "step": 5,
           "action": "assert",
-          "target": "Jumlah blok Drop Off",
-          "selectorHint": "getByTestId(/^dropoff-block-\\d+$/)",
-          "expected": "toHaveCount(2)"
+          "target": "Jumlah blok Bongkar",
+          "selectorHint": "getByTestId(/^bongkar-block-\\d+$/)",
+          "expected": "toHaveCount(1)"
         },
         {
           "step": 6,
           "action": "assert",
-          "target": "Tombol Hapus Drop Off 2",
-          "selectorHint": "getByTestId('dropoff-block-2').getByRole('button', { name: 'Hapus' })",
-          "expected": "toBeDisabled()"
+          "target": "Tombol Hapus pada blok Bongkar tersisa",
+          "selectorHint": "getByTestId(/^bongkar-block-\\d+$/).getByRole('button', { name: 'Hapus' })",
+          "expected": "toHaveCount(0)"
+        },
+        {
+          "step": 7,
+          "action": "assert",
+          "target": "Tipe Pengiriman auto-revert ke Normal",
+          "selectorHint": "getByText(/Tipe Pengiriman:\\s*Normal/)",
+          "expected": "toBeVisible()"
         }
       ],
-      "expectedResult": "Kedua sisi alamat Multipoint mempertahankan minimal 2 alamat (ASM-015, padanan NEG-033 - review rec #2)",
+      "expectedResult": "Kedua sisi alamat Multipoint mempertahankan minimal 1 alamat; ikon hapus otomatis tidak dirender saat tersisa 1 baris di sisi manapun (revisi ground truth 2026-09-19)",
       "selectorHints": {
-        "hapusPickup2": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })",
-        "hapusDropoff2": "getByTestId('dropoff-block-2').getByRole('button', { name: 'Hapus' })"
+        "hapusMuat2": "getByTestId('muat-block-2').getByRole('button', { name: 'Hapus' })",
+        "hapusBongkar2": "getByTestId('bongkar-block-2').getByRole('button', { name: 'Hapus' })"
       }
     },
     {
@@ -7511,7 +7559,7 @@
           "step": 1,
           "action": "fill",
           "target": "Field Catatan pengirim",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel('Catatan')",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel('Catatan')",
           "value": "Muat pagi ✅ — pintu gudang #3 & ramp <B>"
         },
         {
@@ -7533,7 +7581,7 @@
       },
       "expectedResult": "Karakter spesial dan emoji tersimpan utuh",
       "selectorHints": {
-        "catatanPengirim": "getByTestId('pickup-block-1').getByLabel('Catatan')"
+        "catatanPengirim": "getByTestId('muat-block-1').getByLabel('Catatan')"
       }
     },
     {
@@ -7603,7 +7651,7 @@
           "step": 1,
           "action": "fill",
           "target": "Field No. WhatsApp PIC",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)",
           "value": "<nilai>"
         },
         {
@@ -7646,7 +7694,7 @@
       },
       "expectedResult": "Hanya panjang 10-15 digit yang diterima",
       "selectorHints": {
-        "waPic": "getByTestId('pickup-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)"
+        "waPic": "getByTestId('muat-block-1').getByLabel(/No(mor)?\\.? ?WhatsApp PIC/)"
       }
     },
     {
@@ -8090,7 +8138,7 @@
     },
     {
       "id": "OMS014-EDG-020",
-      "title": "Menghapus alamat Pick Up di tengah menyesuaikan sub-section Step 2 tanpa memindahkan barang",
+      "title": "Menghapus alamat Muat di tengah menyesuaikan sub-section Pick Up di Step 2 tanpa memindahkan barang",
       "category": "edge",
       "priority": "P2",
       "requirements": [
@@ -8104,14 +8152,14 @@
       "orderType": "FTL",
       "shippingType": "multipickup",
       "preconditions": [
-        "Order FTL Multipickup dengan 3 alamat pickup, barang terisi pada Pick Up 1 dan Pick Up 3"
+        "Order FTL Multipickup dengan 3 alamat Muat (Data Pengirim); barang Step 2 terisi pada sub-section Pick Up 1 dan Pick Up 3"
       ],
       "steps": [
         {
           "step": 1,
           "action": "click",
-          "target": "Tombol Hapus pada Pick Up 2",
-          "selectorHint": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })"
+          "target": "Tombol Hapus pada Muat 2",
+          "selectorHint": "getByTestId('muat-block-2').getByRole('button', { name: 'Hapus' })"
         },
         {
           "step": 2,
@@ -8136,7 +8184,7 @@
       ],
       "expectedResult": "Sub-section menyesuaikan tanpa memindahkan barang antar alamat",
       "selectorHints": {
-        "hapusPickup2": "getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })"
+        "hapusMuat2": "getByTestId('muat-block-2').getByRole('button', { name: 'Hapus' })"
       }
     },
     {
@@ -8747,7 +8795,7 @@
     },
     {
       "id": "OMS014-EDG-033",
-      "title": "Simpan ke Draf tersedia tepat setelah Tipe Pengiriman dipilih pada Step 1",
+      "title": "Simpan ke Draf tampil unconditional sejak render pertama Step 1, tidak bergantung jenis order dipilih",
       "category": "edge",
       "priority": "P3",
       "requirements": [
@@ -8760,27 +8808,26 @@
       "orderType": "FTL",
       "shippingType": "normal",
       "preconditions": [
-        "Jenis order FTL dipilih, Tipe Pengiriman masih kosong (ASM-028)"
+        "Wizard Buat Order baru dibuka pada Step 1, belum ada interaksi apa pun"
       ],
       "steps": [
         {
           "step": 1,
           "action": "assert",
-          "target": "Tombol Simpan ke Draf",
+          "target": "Tombol Simpan ke Draf tampil sejak render pertama (FAKTA TERKONFIRMASI 2026-09-19)",
           "selectorHint": "getByRole('button', { name: 'Simpan ke Draf' })",
-          "expected": "toHaveCount(0)"
+          "expected": "toBeVisible()"
         },
         {
           "step": 2,
-          "action": "select",
-          "target": "Dropdown Tipe Pengiriman",
-          "selectorHint": "getByLabel('Tipe Pengiriman')",
-          "value": "Normal"
+          "action": "click",
+          "target": "Kartu jenis order LCL",
+          "selectorHint": "getByRole('radio', { name: 'LCL Less Than Container Load' })"
         },
         {
           "step": 3,
           "action": "assert",
-          "target": "Tombol Simpan ke Draf",
+          "target": "Tombol Simpan ke Draf tetap tampil setelah ganti jenis order",
           "selectorHint": "getByRole('button', { name: 'Simpan ke Draf' })",
           "expected": "toBeVisible()"
         },
@@ -8798,7 +8845,7 @@
           "expected": "toBeVisible()"
         }
       ],
-      "expectedResult": "Simpan ke Draf dirender setelah struktur form Step 1 lengkap",
+      "expectedResult": "Simpan ke Draf unconditionally visible sejak render pertama Step 1 - TIDAK bergantung kartu Jenis Order dipilih atau tidak, TIDAK bergantung field terisi atau tidak (FAKTA TERKONFIRMASI live 2026-09-19 via document.querySelectorAll('button') tepat setelah page.goto('/order/buat') tanpa interaksi apa pun, dan setelah ganti ke kartu LCL - menggantikan ASM-028 versi assumption)",
       "selectorHints": {
         "simpanKeDraf": "getByRole('button', { name: 'Simpan ke Draf' })"
       }
@@ -8862,7 +8909,7 @@
     },
     {
       "id": "OMS014-EDG-035",
-      "title": "Dua alamat Pick Up dengan Drop Point Asal yang sama tetap menghasilkan dua sub-section terpisah",
+      "title": "Dua alamat Muat dengan Drop Point Asal yang sama tetap menghasilkan dua sub-section Pick Up terpisah di Step 2",
       "category": "edge",
       "priority": "P3",
       "requirements": [
@@ -8882,15 +8929,15 @@
         {
           "step": 1,
           "action": "select",
-          "target": "Drop Point Asal Pick Up 1",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel('Drop Point Asal')",
+          "target": "Drop Point Asal Muat 1",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel('Drop Point Asal')",
           "value": "Gudang MSK Region 2"
         },
         {
           "step": 2,
           "action": "select",
-          "target": "Drop Point Asal Pick Up 2",
-          "selectorHint": "getByTestId('pickup-block-2').getByLabel('Drop Point Asal')",
+          "target": "Drop Point Asal Muat 2",
+          "selectorHint": "getByTestId('muat-block-2').getByLabel('Drop Point Asal')",
           "value": "Gudang MSK Region 2"
         },
         {
@@ -8916,8 +8963,8 @@
       ],
       "expectedResult": "Sub-section tidak digabung meski alamatnya identik",
       "selectorHints": {
-        "dropPointPickup1": "getByTestId('pickup-block-1').getByLabel('Drop Point Asal')",
-        "dropPointPickup2": "getByTestId('pickup-block-2').getByLabel('Drop Point Asal')"
+        "dropPointMuat1": "getByTestId('muat-block-1').getByLabel('Drop Point Asal')",
+        "dropPointMuat2": "getByTestId('muat-block-2').getByLabel('Drop Point Asal')"
       }
     },
     {
@@ -9184,14 +9231,14 @@
         {
           "step": 1,
           "action": "click",
-          "target": "Tambah Baris Input pengirim sampai 5 pickup",
-          "selectorHint": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Baris Input' })"
+          "target": "Tambah Lokasi Muat sampai tersedia 5 alamat Muat",
+          "selectorHint": "getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })"
         },
         {
           "step": 2,
           "action": "click",
-          "target": "Tambah Baris Input penerima sampai 5 dropoff",
-          "selectorHint": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Baris Input' })"
+          "target": "Tambah Lokasi Bongkar sampai tersedia 5 alamat Bongkar",
+          "selectorHint": "getByTestId('data-penerima').getByRole('button', { name: 'Tambah Lokasi Bongkar' })"
         },
         {
           "step": 3,
@@ -9443,7 +9490,7 @@
           "step": 1,
           "action": "fill",
           "target": "Field Catatan",
-          "selectorHint": "getByTestId('pickup-block-1').getByLabel('Catatan')",
+          "selectorHint": "getByTestId('muat-block-1').getByLabel('Catatan')",
           "value": "<5000 karakter>"
         },
         {
@@ -9472,7 +9519,7 @@
       },
       "expectedResult": "Payload teks panjang ditangani tanpa error",
       "selectorHints": {
-        "catatan": "getByTestId('pickup-block-1').getByLabel('Catatan')"
+        "catatan": "getByTestId('muat-block-1').getByLabel('Catatan')"
       }
     },
     {

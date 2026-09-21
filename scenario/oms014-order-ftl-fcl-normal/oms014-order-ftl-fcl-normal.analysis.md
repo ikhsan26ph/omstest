@@ -44,7 +44,7 @@ Sistem dibangun dengan Auto Stuffing aktif sebagai perilaku default. Sebuah **to
 
 - **REQ-001**
   - AC-001.1: Pada Step 1, kartu jenis order `FTL` dan `FCL` dapat dipilih dan mengarah ke form Step 1 yang sesuai (FTL → Jenis/Jumlah Armada; FCL → Pelabuhan Asal/Tujuan, Jenis/Jumlah Kontainer, Metode Pengiriman).
-  - AC-001.2: Dropdown `Tipe Pengiriman` memuat tepat empat opsi: `Normal`, `Multipickup`, `Multidrop`, `Multipoint`.
+  - AC-001.2: **[REVISI 2026-09-19]** Tidak ada dropdown/selector `Tipe Pengiriman` pada wizard Buat Order. Field `Tipe Pengiriman` tampil sebagai **teks read-only** (`Tipe Pengiriman: <Normal|Multipickup|Multidrop|Multipoint> — mengikuti jumlah baris Data Pengirim & Data Penerima`) yang auto-update real-time begitu user menambah/menghapus baris pada Data Pengirim/Data Penerima — tidak pernah diketik/dipilih user (ground truth verifikasi live 2026-09-19, menggantikan desain lama).
   - AC-001.3: Setiap kombinasi (2 jenis order × 4 tipe pengiriman = 8 kombinasi) dapat diselesaikan sampai Step 4 dan disimpan tanpa keterlibatan Auto Stuffing.
 - **REQ-002**
   - AC-002.1: Pada instalasi baru tanpa perubahan konfigurasi, nilai toggle Auto Stuffing = `aktif/ON`.
@@ -94,7 +94,7 @@ Sistem dibangun dengan Auto Stuffing aktif sebagai perilaku default. Sebuah **to
   - AC-009.1: Pada Multipickup, barang yang diisi di `Pick Up 1` tidak otomatis tersalin/terbagi ke `Pick Up 2..N`.
   - AC-009.2: Pada Multidrop, barang yang diisi di `Drop Off 1` tidak otomatis tersalin/terbagi ke `Drop Off 2..N`.
   - AC-009.3: Pada Multipoint, barang yang diisi di kombinasi `Pick Up 1 – Drop Off 1` tidak otomatis tersalin/terbagi ke kombinasi lain.
-  - AC-009.4: Menambah alamat baru (`Tambah Baris Input`) di Step 1 menghasilkan section alamat baru di Step 2 dalam kondisi kosong.
+  - AC-009.4: Menambah alamat baru (`Tambah Lokasi Muat` pada Data Pengirim, atau `Tambah Lokasi Bongkar` pada Data Penerima — **[REVISI 2026-09-19]** nama tombol baru, dulu `Tambah Baris Input`) di Step 1 menghasilkan section alamat baru di Step 2 dalam kondisi kosong.
 - **REQ-010**
   - AC-010.1: Setiap Armada/Kontainer memiliki tombol `Pilih Barang` sendiri yang membuka modal Master Barang.
   - AC-010.2: Field `Jumlah` per baris barang dapat diisi manual oleh user dan nilainya tersimpan persis seperti yang diinput.
@@ -248,32 +248,32 @@ Sistem dibangun dengan Auto Stuffing aktif sebagai perilaku default. Sebuah **to
 
 | ID | Requirement | Sumber | Prioritas |
 |---|---|---|---|
-| **REQ-029** | **Tipe Normal** — satu alamat asal dan satu alamat tujuan; Step 2 menampilkan satu blok barang per armada/kontainer. | L1, L6 | high |
-| **REQ-030** | **Tipe Multipickup** — beberapa alamat asal (Pick Up 1..N) dan satu alamat tujuan; Step 2 menampilkan sub-section per Pick Up di dalam setiap armada/kontainer. | L1, L6 | high |
-| **REQ-031** | **Tipe Multidrop** — satu alamat asal dan beberapa alamat tujuan (Drop Off 1..N); Step 2 menampilkan sub-section per Drop Off di dalam setiap armada/kontainer. | L1, L6 | high |
-| **REQ-032** | **Tipe Multipoint** — beberapa alamat asal dan beberapa alamat tujuan; Step 2 menampilkan sub-section per **kombinasi** Pick Up × Drop Off di dalam setiap armada/kontainer. | L1, L6 | high |
+| **REQ-029** | **Tipe Normal** — satu alamat asal dan satu alamat tujuan (tanpa label bernomor `Muat`/`Bongkar` karena hanya 1 baris); Step 2 menampilkan satu blok barang per armada/kontainer. | L1, L6 | high |
+| **REQ-030** | **Tipe Multipickup** — beberapa alamat asal (`Muat 1..N`, ditambahkan via `Tambah Lokasi Muat`) dan satu alamat tujuan; Step 2 (Data Barang) menampilkan sub-section per `Pick Up` di dalam setiap armada/kontainer. | L1, L6 | high |
+| **REQ-031** | **Tipe Multidrop** — satu alamat asal dan beberapa alamat tujuan (`Bongkar 1..N`, ditambahkan via `Tambah Lokasi Bongkar`); Step 2 (Data Barang) menampilkan sub-section per `Drop Off` di dalam setiap armada/kontainer. | L1, L6 | high |
+| **REQ-032** | **Tipe Multipoint** — beberapa alamat asal (`Muat 1..N`) dan beberapa alamat tujuan (`Bongkar 1..N`); Step 2 (Data Barang) menampilkan sub-section per **kombinasi** `Pick Up × Drop Off` di dalam setiap armada/kontainer. | L1, L6 | high |
 
 **Acceptance Criteria**
 
 - **REQ-029**
-  - AC-029.1: Step 1 menampilkan tepat satu blok `Data Pengirim` dan satu blok `Data Penerima` (tanpa tombol `Tambah Baris Input`).
+  - AC-029.1: **[REVISI 2026-09-19]** Step 1 menampilkan tepat satu blok `Data Pengirim` dan satu blok `Data Penerima`, masing-masing **tanpa label bernomor** (karena hanya 1 baris — label `Muat 1`/`Bongkar 1` baru muncul saat ≥2 baris). Tombol `Tambah Lokasi Muat`/`Tambah Lokasi Bongkar` **tetap tampil** di bawah masing-masing section (SELALU ada, bukan "tanpa tombol Tambah Baris Input" seperti klaim dokumen lama — lihat ground truth poin 6).
   - AC-029.2: Step 2 menampilkan `Armada n` / `Kontainer n` dengan langsung satu `Nomor DO` + satu tabel barang.
   - AC-029.3: Detail Order menampilkan `Tipe Pengiriman : Normal`.
 - **REQ-030**
-  - AC-030.1: Step 1 menampilkan blok `Data Pengirim` berulang (`Pick Up 1`, `Pick Up 2`, …) dengan tombol `Tambah Baris Input`, dan satu blok `Data Penerima`.
-  - AC-030.2: Setiap alamat pickup dapat dihapus kecuali menyisakan minimal 2 alamat pickup.
-  - AC-030.3: Step 2 menampilkan sub-section `Pick Up 1..N` di dalam **setiap** armada/kontainer, masing-masing dengan `Nomor DO` + tabel barang terpisah.
+  - AC-030.1: **[REVISI 2026-09-19]** Step 1 menampilkan blok `Data Pengirim` berulang (`Muat 1`, `Muat 2`, …) dengan tombol `Tambah Lokasi Muat`, dan satu blok `Data Penerima` (tanpa label bernomor, dulu istilahnya `Pick Up n` + `Tambah Baris Input`).
+  - AC-030.2: **[REVISI 2026-09-19]** Setiap alamat Muat dapat dihapus hingga menyisakan **minimal 1** alamat (dulu diasumsikan minimal 2). Begitu tersisa 1 baris, ikon hapus otomatis **tidak dirender** (bukan `disabled`) — tidak ada mekanisme tolak eksplisit.
+  - AC-030.3: Step 2 menampilkan sub-section `Pick Up 1..N` di dalam **setiap** armada/kontainer, masing-masing dengan `Nomor DO` + tabel barang terpisah. *(Tidak berubah — terminologi "Pick Up" pada Data Barang/Step 2 TETAP, lihat ground truth poin 8.)*
   - AC-030.4: Barang antar Pick Up tidak saling terisi otomatis (lihat REQ-009).
-  - AC-030.5: Step 3 menyediakan link/aksi untuk melihat rincian alamat multipickup (mis. `Lihat Detail` → modal `Detail Multipickup`).
+  - AC-030.5: **[REVISI 2026-09-19, FAKTA TERKONFIRMASI live]** Step 3 menyediakan link/aksi untuk melihat rincian alamat multipickup (`Lihat Detail` → modal berjudul **`Data Pengirim`**, BUKAN lagi "Detail Multipickup"). Isi modal berformat numbered list (`1.`, `2.`, dst — bukan lagi "Pick Up n - <alamat>"), tiap card berisi nama Drop Point (bold), nama Pengirim/perusahaan, alamat lengkap (tampil 2×), dan baris `PIC: <nama> (<no WA>)`. Diverifikasi live via order test 2 Muat (IK - BPN Platinum, IK - BPN Market).
 - **REQ-031**
-  - AC-031.1: Step 1 menampilkan satu blok `Data Pengirim` dan blok `Data Penerima` berulang (`Drop Off 1`, `Drop Off 2`, …) dengan tombol `Tambah Baris Input`.
+  - AC-031.1: **[REVISI 2026-09-19]** Step 1 menampilkan satu blok `Data Pengirim` (tanpa label bernomor) dan blok `Data Penerima` berulang (`Bongkar 1`, `Bongkar 2`, …) dengan tombol `Tambah Lokasi Bongkar` (dulu `Drop Off n` + `Tambah Baris Input`).
   - AC-031.2: Info alert `Pastikan urutan pengiriman sudah sesuai saat membuat shipment` ditampilkan pada section Data Penerima.
-  - AC-031.3: Step 2 menampilkan sub-section `Drop Off 1..N` di dalam **setiap** armada/kontainer, masing-masing dengan `Nomor DO` + tabel barang terpisah.
-  - AC-031.4: Step 3 menyediakan modal `Detail Multidrop` yang menampilkan setiap Drop Off beserta nama drop point dan alamat lengkapnya.
+  - AC-031.3: Step 2 menampilkan sub-section `Drop Off 1..N` di dalam **setiap** armada/kontainer, masing-masing dengan `Nomor DO` + tabel barang terpisah. *(Tidak berubah — Data Barang/Step 2.)*
+  - AC-031.4: **[REVISI 2026-09-19]** Step 3 menyediakan modal untuk rincian alamat multidrop, berjudul **`Data Penerima`** (BUKAN lagi "Detail Multidrop") — **inferensi simetri** dengan modal Multipickup yang sudah terkonfirmasi berjudul `Data Pengirim` (belum diuji langsung untuk kasus Multidrop, tapi konsisten dengan pola Data Pengirim/Data Penerima yang selalu simetris di semua layar lain). Isi modal diasumsikan mengikuti format numbered list yang sama seperti modal Multipickup (card bernomor `1.`/`2.`/dst berisi nama Drop Point, nama Penerima/perusahaan, alamat lengkap, `PIC: <nama> (<no WA>)`), bukan lagi "Drop Off n - <Kota>".
   - AC-031.5: Daftar Order menampilkan kota tujuan/warehouse tujuan sesuai konvensi multidrop (tidak error/blank).
 - **REQ-032**
-  - AC-032.1: Step 1 menampilkan blok `Data Pengirim` berulang **dan** blok `Data Penerima` berulang, keduanya dengan `Tambah Baris Input`.
-  - AC-032.2: Step 2 menampilkan sub-section berjudul kombinasi `Pick Up i - <alamat>` + `Drop Off j - <alamat>` untuk setiap pasangan, di dalam setiap armada/kontainer.
+  - AC-032.1: **[REVISI 2026-09-19]** Step 1 menampilkan blok `Data Pengirim` berulang (`Muat 1..N`, dengan tombol `Tambah Lokasi Muat`) **dan** blok `Data Penerima` berulang (`Bongkar 1..N`, dengan tombol `Tambah Lokasi Bongkar`).
+  - AC-032.2: Step 2 menampilkan sub-section berjudul kombinasi `Pick Up i - <alamat>` + `Drop Off j - <alamat>` untuk setiap pasangan, di dalam setiap armada/kontainer. *(Tidak berubah — Data Barang/Step 2.)*
   - AC-032.3: Jumlah sub-section per unit = `jumlah Pick Up × jumlah Drop Off`.
   - AC-032.4: Menambah satu alamat baru di Step 1 menambah sub-section kombinasi baru di Step 2 dalam kondisi kosong.
   - AC-032.5: Setiap kombinasi memiliki `Nomor DO` dan tabel barang independen; tidak ada penyalinan otomatis antar kombinasi.
@@ -312,7 +312,7 @@ Sistem dibangun dengan Auto Stuffing aktif sebagai perilaku default. Sebuah **to
 | `Pelabuhan Tujuan` | Ya (*) | Dropdown | Harus dipilih dari master pelabuhan; sebaiknya ≠ Pelabuhan Asal. | FCL |
 | `Jenis Kontainer` | Ya (*) | Dropdown (mis. `20 DRY`, `40 DRY`) | Harus dipilih dari master; menentukan kapasitas per kontainer. | FCL |
 | `Jumlah Kontainer` | Ya (*) | Integer | Minimal `1`; hanya angka bulat positif. | FCL |
-| `Tipe Pengiriman` | Ya (*) | Dropdown | Nilai valid: `Normal`, `Multipickup`, `Multidrop`, `Multipoint`. Menentukan struktur alamat & struktur Step 2. | Semua |
+| `Tipe Pengiriman` | — (bukan input; tidak ada dropdown) | **[REVISI 2026-09-19]** Read-only, auto-derive dari jumlah baris Data Pengirim & Data Penerima | Nilai: `Normal`, `Multipickup`, `Multidrop`, `Multipoint`. Ditampilkan sbg teks info yang auto-update real-time; menentukan struktur alamat & struktur Step 2, tapi TIDAK PERNAH dipilih/diketik user. | Semua |
 | `Metode Pengiriman` | Ya (*) | Radio card | Nilai valid: `Door to Door`, `Door to CY`, `CY to CY`, `CY to Door`. | FCL |
 
 ### V2. Step 1 — Data Pengirim / Data Penerima
@@ -331,7 +331,10 @@ Sistem dibangun dengan Auto Stuffing aktif sebagai perilaku default. Sebuah **to
 | `No. WhatsApp PIC` (penerima) | Ya (*) | Numerik | Format contoh `081234567898`. |
 | `Provinsi Tujuan`, `Kota/Kab. Tujuan`, `Kecamatan Tujuan`, `Desa/Kelurahan Tujuan`, `Kode Pos`, `Alamat Tujuan` | — | Read-only (auto-fill) | Terisi otomatis dari Drop Point Tujuan. |
 | `Catatan` (penerima) | Tidak | Textarea | Opsional. |
-| `Tambah Baris Input` | — | Aksi | Muncul pada sisi pengirim (Multipickup/Multipoint) dan/atau sisi penerima (Multidrop/Multipoint). Minimal 2 alamat pada sisi yang di-multi-kan. |
+| Label baris bernomor (`Muat n` / `Bongkar n`) | — | Heading otomatis | **[REVISI 2026-09-19]** Muncul HANYA saat ≥2 baris pada sisi terkait (`Muat 1`/`Muat 2`/… di Data Pengirim, `Bongkar 1`/`Bongkar 2`/… di Data Penerima); saat 1 baris, tidak ada label bernomor sama sekali. Baris ≥2 juga memiliki ikon hapus (trash merah) di sebelah labelnya. Dulu bernama `Pengirim n`/`Penerima n` (versi lama, salah — tidak pernah dipakai di UI live). |
+| `Tambah Lokasi Muat` | — | Aksi (link + icon), di bawah section `Data Pengirim` | **[REVISI 2026-09-19]** SELALU tampil, terlepas dari jumlah baris (termasuk saat Normal/1 baris) — bukan hanya saat Multipickup/Multipoint seperti klaim dokumen lama. Menambah baris baru (`Muat 2`, `Muat 3`, …). Dulu bernama `Tambah Baris Input`. |
+| `Tambah Lokasi Bongkar` | — | Aksi (link + icon), di bawah section `Data Penerima` | **[REVISI 2026-09-19]** Analog dengan `Tambah Lokasi Muat`, SELALU tampil, menambah baris `Bongkar 2`, `Bongkar 3`, … Dulu bernama `Tambah Baris Input`. |
+| Hapus baris (trash icon) | — | Aksi | **[REVISI 2026-09-19]** Minimal **1** baris tersisa (bukan minimal 2 seperti dokumen lama). Tidak ada mekanisme "tolak hapus di bawah minimum" — begitu tersisa 1 baris, ikon hapus otomatis tidak dirender lagi (tidak mungkin turun ke 0). |
 
 ### V3. Step 2 — Data Barang
 
@@ -432,48 +435,49 @@ Sistem dibangun dengan Auto Stuffing aktif sebagai perilaku default. Sebuah **to
 
 ### F1. Flow Utama — Tipe Pengiriman **Normal** (FTL & FCL)
 
+> **[REVISI 2026-09-19]** Flow ini disesuaikan dengan spesifikasi baru: TIDAK ADA langkah "memilih Tipe Pengiriman" — field tsb auto-derive dari jumlah baris Data Pengirim/Data Penerima. Perubahan HANYA menyangkut struktur Step 1 (Tipe Pengiriman, label baris Data Pengirim/Penerima); perilaku Auto Stuffing (Step 2 dst.) tidak disentuh.
+
 **Step 1 — Data Pengiriman**
 1. User membuka `Beranda` → `Daftar Order` → klik `Buat Order`.
-2. Sistem menampilkan wizard dengan stepper `01 Data Pengiriman` aktif.
+2. Sistem menampilkan wizard dengan stepper `01 Data Pengiriman` aktif, section atas berjudul **`Jenis Pengiriman`** (bukan "Jenis Pengiriman dan Rute" — judul itu hanya dipakai di Detail/Step4 Review/Edit Order) dengan 4 kartu radio `FTL`/`FCL`/`LTL`/`LCL`.
 3. User memilih jenis order: `FTL` (atau `FCL`).
 4. **FTL:** isi `Jenis Armada`, `Jumlah Armada`.
    **FCL:** isi `Pelabuhan Asal`, `Pelabuhan Tujuan`, `Jenis Kontainer`, `Jumlah Kontainer`, `Metode Pengiriman`.
-5. User memilih `Tipe Pengiriman` = **`Normal`**.
-6. Sistem menampilkan section `Data Pengirim` (tunggal) dan `Data Penerima` (tunggal).
-7. User memilih `Drop Point Asal` → sistem auto-fill Provinsi/Kota/Kecamatan/Desa/Kode Pos/Alamat Asal (read-only).
-8. User mengisi `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC`, dan `Catatan` (opsional).
-9. User memilih `Drop Point Tujuan` → sistem auto-fill data wilayah tujuan; user mengisi `Penerima`, `PIC Penerima`, `No. WhatsApp PIC`, `Catatan` (opsional).
-10. User klik `Selanjutnya`.
+5. Sistem **langsung** menampilkan section `Data Pengirim` (1 baris default, tanpa label bernomor) dan `Data Penerima` (1 baris default, tanpa label bernomor) — **tidak ada** pemilihan `Tipe Pengiriman` secara manual. Sistem menampilkan teks info read-only `Tipe Pengiriman: Normal — mengikuti jumlah baris Data Pengirim & Data Penerima`, auto-update real-time.
+6. User memilih `Drop Point Asal` → sistem auto-fill Provinsi/Kota/Kecamatan/Desa/Kode Pos/Alamat Asal (read-only).
+7. User mengisi `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC`, dan `Catatan` (opsional).
+8. User memilih `Drop Point Tujuan` → sistem auto-fill data wilayah tujuan; user mengisi `Penerima`, `PIC Penerima`, `No. WhatsApp PIC`, `Catatan` (opsional).
+9. User klik `Selanjutnya`.
 
 **Step 2 — Data Barang** *(Auto Stuffing OFF)*
-11. Sistem menampilkan card **`Data Unit`** read-only berisi `Jenis Armada` + `Jumlah Armada` (atau kontainer) — **tanpa** tombol hitung ulang (REQ-023).
-12. **Sistem TIDAK menampilkan** floating button `Hitung Ulang Armada/Kontainer` maupun `Visualisasi Terbaru` (REQ-006, REQ-007).
-13. Sistem merender blok `Armada 1..N` (atau `Kontainer 1..N`), **semuanya kosong** — tidak ada pre-fill hasil distribusi otomatis (REQ-008).
-14. Untuk **setiap** unit, user:
+10. Sistem menampilkan card **`Data Unit`** read-only berisi `Jenis Armada` + `Jumlah Armada` (atau kontainer) — **tanpa** tombol hitung ulang (REQ-023).
+11. **Sistem TIDAK menampilkan** floating button `Hitung Ulang Armada/Kontainer` maupun `Visualisasi Terbaru` (REQ-006, REQ-007).
+12. Sistem merender blok `Armada 1..N` (atau `Kontainer 1..N`), **semuanya kosong** — tidak ada pre-fill hasil distribusi otomatis (REQ-008).
+13. Untuk **setiap** unit, user:
     a. (Opsional) centang `Tambahkan Asuransi` → kolom `Nilai Barang` muncul.
     b. (Opsional) isi `Nomor DO` (beberapa nomor dipisah koma → menjadi chip).
     c. Klik `Pilih Barang` → modal Master Barang terbuka.
     d. Cari via `Cari kode/nama barang`, centang SKU yang diinginkan, klik `Simpan`.
     e. Isi `Jumlah` **manual** per baris barang (REQ-010).
     f. Isi `Nilai Barang` per baris bila asuransi aktif.
-15. Sistem menghitung `Total Kubikasi` dan `Total Berat` per unit dan menampilkan alert kapasitas bila terlampaui — **informatif, tidak memblokir** (REQ-016).
-16. User klik `Selanjutnya`.
+14. Sistem menghitung `Total Kubikasi` dan `Total Berat` per unit dan menampilkan alert kapasitas bila terlampaui — **informatif, tidak memblokir** (REQ-016).
+15. User klik `Selanjutnya`.
 
 **Step 3 — Vendor dan Harga**
-17. Sistem menampilkan ringkasan rute (`Drop Point Asal`, `Drop Point Tujuan`, `Jenis Armada`) dan tabel rekap per unit (`Total Berat`, `Total Kubikasi`, `Total Nilai Barang`) hasil input manual Step 2 (REQ-028).
-18. User memilih `Vendor`, mengisi `Tanggal Permintaan Muat`, `Waktu Perjalanan`, dan `Harga`.
-19. (Opsional) User centang `Gunakan komponen harga` → isi `PPN`, `PPh` (+ `Asuransi` bila relevan); sistem menghitung `Total Harga`.
-20. User klik `Selanjutnya`.
+16. Sistem menampilkan ringkasan rute (`Drop Point Asal`, `Drop Point Tujuan`, `Jenis Armada`) dan tabel rekap per unit (`Total Berat`, `Total Kubikasi`, `Total Nilai Barang`) hasil input manual Step 2 (REQ-028).
+17. User memilih `Vendor`, mengisi `Tanggal Permintaan Muat`, `Waktu Perjalanan`, dan `Harga`.
+18. (Opsional) User centang `Gunakan komponen harga` → isi `PPN`, `PPh` (+ `Asuransi` bila relevan); sistem menghitung `Total Harga`.
+19. User klik `Selanjutnya`.
 
 **Step 4 — Review**
-21. Sistem menampilkan seluruh section: `Jenis Pengiriman dan Rute`, `Data Pengirim`, `Data Penerima`, `Data Barang`, `Vendor dan Harga`.
-22. **Section `Data Barang` TIDAK menampilkan** tombol `Visualisasi Muatan`, progress `Berat/Ruang Terpakai`, maupun kanvas 3D (REQ-025).
-23. Data barang ditampilkan **apa adanya** per armada/kontainer sesuai input manual (REQ-026).
-24. User klik `Simpan` → order tersimpan, sistem mengarahkan ke `Daftar Order` dan order muncul dengan status awal.
+20. Sistem menampilkan seluruh section: `Jenis Pengiriman dan Rute` (judul penuh — beda dari wizard Step 1), `Data Pengirim`, `Data Penerima`, `Data Barang`, `Vendor dan Harga`.
+21. **Section `Data Barang` TIDAK menampilkan** tombol `Visualisasi Muatan`, progress `Berat/Ruang Terpakai`, maupun kanvas 3D (REQ-025).
+22. Data barang ditampilkan **apa adanya** per armada/kontainer sesuai input manual (REQ-026).
+23. User klik `Simpan` → order tersimpan, sistem mengarahkan ke `Daftar Order` dan order muncul dengan status awal.
 
 **Pasca-simpan**
-25. User membuka `Detail Order` → seluruh data tampil lengkap **tanpa** tombol/elemen `Visualisasi Muatan` dan indikator keterisian (REQ-027).
-26. `No. Perjalanan` dapat dilihat melalui modal `Data No. Perjalanan` (REQ-018).
+24. User membuka `Detail Order` → seluruh data tampil lengkap **tanpa** tombol/elemen `Visualisasi Muatan` dan indikator keterisian (REQ-027).
+25. `No. Perjalanan` dapat dilihat melalui modal `Data No. Perjalanan` (REQ-018).
 
 ---
 
@@ -481,13 +485,13 @@ Sistem dibangun dengan Auto Stuffing aktif sebagai perilaku default. Sebuah **to
 
 Perbedaan terhadap F1:
 
-- **Step 1 (langkah 5–9):** setelah memilih `Tipe Pengiriman` = `Multipickup`, section `Data Pengirim` menjadi **berulang** (`Pick Up 1`, `Pick Up 2`, …) dengan tombol `Tambah Baris Input`. Section `Data Penerima` tetap tunggal. User mengisi seluruh field wajib untuk **setiap** Pick Up.
-- **Step 2 (langkah 13–14):** di dalam **setiap** `Armada n` / `Kontainer n`, sistem merender sub-section `Pick Up 1..N` — masing-masing dengan judul beralamat lengkap, `Nomor DO` sendiri, dan tabel barang sendiri.
+- **Step 1 (langkah 5–8):** **[REVISI 2026-09-19]** user klik `Tambah Lokasi Muat` di bawah section `Data Pengirim` → baris baru ditambahkan; begitu jumlah baris menjadi 2, label otomatis berubah menjadi `Muat 1`/`Muat 2` (masing-masing dengan ikon hapus), dan teks info `Tipe Pengiriman` otomatis berubah menjadi `Multipickup`. Section `Data Penerima` tetap 1 baris (tanpa label bernomor). User mengisi seluruh field wajib untuk **setiap** `Muat`.
+- **Step 2 (langkah 10–13):** di dalam **setiap** `Armada n` / `Kontainer n`, sistem merender sub-section `Pick Up 1..N` — masing-masing dengan judul beralamat lengkap, `Nomor DO` sendiri, dan tabel barang sendiri. *(Terminologi "Pick Up" pada Data Barang/Step 2 TIDAK berubah — lihat ground truth poin 8; hanya label baris Data Pengirim di Step 1 yang berubah jadi "Muat".)*
   Checkbox `Tambahkan Asuransi` tetap berada di **level unit** (berlaku untuk seluruh barang pada unit tersebut).
   User mengisi barang **manual per kombinasi (unit × Pick Up)** — **tidak ada** pembagian otomatis antar alamat (REQ-009, REQ-011).
-  Jumlah sub-section per unit = `jumlah Pick Up`.
-- **Step 3:** ringkasan rute menampilkan multipickup dengan link `Lihat Detail` → modal `Detail Multipickup` berisi daftar alamat pickup.
-- **Step 4 & Detail Order:** `Data Barang` dikelompokkan `Unit` → `Pick Up`, ditampilkan apa adanya, tanpa elemen Auto Stuffing.
+  Jumlah sub-section per unit = `jumlah Muat` (baris Data Pengirim).
+- **Step 3:** ringkasan rute menampilkan multipickup dengan link `Lihat Detail` → modal berjudul **`Data Pengirim`** *(REVISI 2026-09-19, FAKTA TERKONFIRMASI live — dulu "Detail Multipickup")*, berisi daftar alamat dalam format numbered list (`1.`, `2.`, dst: nama Drop Point, nama Pengirim, alamat lengkap, `PIC: <nama> (<no WA>)`) — bukan lagi format "Pick Up n - <alamat>".
+- **Step 4 & Detail Order:** `Data Pengirim` menampilkan blok `Muat 1..N`; `Data Barang` dikelompokkan `Unit` → `Pick Up`, ditampilkan apa adanya, tanpa elemen Auto Stuffing.
 
 ---
 
@@ -495,11 +499,11 @@ Perbedaan terhadap F1:
 
 Perbedaan terhadap F1:
 
-- **Step 1:** setelah memilih `Tipe Pengiriman` = `Multidrop`, section `Data Pengirim` tetap tunggal; section `Data Penerima` menjadi **berulang** (`Drop Off 1`, `Drop Off 2`, …) dengan tombol `Tambah Baris Input` dan info alert `Pastikan urutan pengiriman sudah sesuai saat membuat shipment`. User mengisi field wajib untuk **setiap** Drop Off.
-- **Step 2:** di dalam **setiap** unit, sistem merender sub-section `Drop Off 1..N` — masing-masing dengan judul beralamat lengkap, `Nomor DO` sendiri, dan tabel barang sendiri. User mengisi barang **manual per kombinasi (unit × Drop Off)**.
-  Jumlah sub-section per unit = `jumlah Drop Off`.
-- **Step 3:** ringkasan rute menampilkan `Drop Point Tujuan : Multidrop` dengan link `Lihat Detail` → modal `Detail Multidrop` (menampilkan `Drop Off n - <Kota>`, nama drop point, dan alamat lengkap).
-- **Step 4 & Detail Order:** `Data Penerima` menampilkan blok `Drop Off 1..N`; `Data Barang` dikelompokkan `Unit` → `Drop Off`, tanpa elemen Auto Stuffing.
+- **Step 1:** **[REVISI 2026-09-19]** section `Data Pengirim` tetap 1 baris (tanpa label bernomor); user klik `Tambah Lokasi Bongkar` di bawah section `Data Penerima` → baris baru ditambahkan, label otomatis menjadi `Bongkar 1`/`Bongkar 2` (dengan ikon hapus), info alert `Pastikan urutan pengiriman sudah sesuai saat membuat shipment` tampil, dan teks info `Tipe Pengiriman` otomatis berubah menjadi `Multidrop`. User mengisi field wajib untuk **setiap** `Bongkar`.
+- **Step 2:** di dalam **setiap** unit, sistem merender sub-section `Drop Off 1..N` — masing-masing dengan judul beralamat lengkap, `Nomor DO` sendiri, dan tabel barang sendiri. *(Terminologi "Drop Off" pada Data Barang/Step 2 TIDAK berubah.)* User mengisi barang **manual per kombinasi (unit × Drop Off)**.
+  Jumlah sub-section per unit = `jumlah Bongkar` (baris Data Penerima).
+- **Step 3:** ringkasan rute menampilkan `Drop Point Tujuan : Multidrop` dengan link `Lihat Detail` → modal berjudul **`Data Penerima`** *(REVISI 2026-09-19, inferensi simetri dengan modal Multipickup yang terkonfirmasi — dulu "Detail Multidrop", belum diuji langsung untuk Multidrop)*, diasumsikan berisi numbered list dengan format sama seperti Multipickup, bukan lagi "Drop Off n - <Kota>".
+- **Step 4 & Detail Order:** `Data Penerima` menampilkan blok `Bongkar 1..N`; `Data Barang` dikelompokkan `Unit` → `Drop Off`, tanpa elemen Auto Stuffing.
 
 ---
 
@@ -507,12 +511,12 @@ Perbedaan terhadap F1:
 
 Perbedaan terhadap F1:
 
-- **Step 1:** setelah memilih `Tipe Pengiriman` = `Multipoint`, **kedua** section (`Data Pengirim` dan `Data Penerima`) menjadi berulang, masing-masing dengan `Tambah Baris Input`. User mengisi field wajib untuk setiap Pick Up dan setiap Drop Off.
-- **Step 2:** di dalam **setiap** unit, sistem merender sub-section untuk **setiap kombinasi** `Pick Up i – Drop Off j`, dengan header dua kolom (kiri: alamat Pick Up, kanan: alamat Drop Off). Setiap kombinasi memiliki `Nomor DO` dan tabel barang independen.
-  Jumlah sub-section per unit = `jumlah Pick Up × jumlah Drop Off` (mis. 2 pickup × 2 dropoff = 4 sub-section per unit).
+- **Step 1:** **[REVISI 2026-09-19]** user klik `Tambah Lokasi Muat` (Data Pengirim) **dan** `Tambah Lokasi Bongkar` (Data Penerima) — **kedua** section menjadi berulang (`Muat 1..N`, `Bongkar 1..N`), teks info `Tipe Pengiriman` otomatis berubah menjadi `Multipoint`. User mengisi field wajib untuk setiap `Muat` dan setiap `Bongkar`.
+- **Step 2:** di dalam **setiap** unit, sistem merender sub-section untuk **setiap kombinasi** `Pick Up i – Drop Off j` (terminologi Data Barang/Step 2 TIDAK berubah), dengan header dua kolom (kiri: alamat Pick Up, kanan: alamat Drop Off). Setiap kombinasi memiliki `Nomor DO` dan tabel barang independen.
+  Jumlah sub-section per unit = `jumlah Muat × jumlah Bongkar` (mis. 2 muat × 2 bongkar = 4 sub-section per unit).
   User mengisi barang **manual per kombinasi (unit × Pick Up × Drop Off)** — inti dari REQ-011.
 - **Step 3:** ringkasan rute menampilkan multipoint dengan link `Lihat Detail`.
-- **Step 4 & Detail Order:** `Data Barang` dikelompokkan `Unit` → `Kombinasi Alamat`, tanpa elemen Auto Stuffing.
+- **Step 4 & Detail Order:** `Data Pengirim` menampilkan blok `Muat 1..N`; `Data Penerima` menampilkan blok `Bongkar 1..N`; `Data Barang` dikelompokkan `Unit` → `Kombinasi Alamat`, tanpa elemen Auto Stuffing.
 
 ---
 
@@ -661,7 +665,9 @@ Selector item: `getByRole('menuitem', { name: 'Lanjutkan Pengisian' })`.
 **Sumber FTL:** `018.png` (jenis order dipilih, `Tipe Pengiriman` kosong), `019.png` (Normal, empty), `037.png` (Multipickup), `044.png` (Multidrop), `051.png` (Multipoint)
 **Sumber FCL:** `059.png` (`Tipe Pengiriman` kosong), `060.png` (Normal), `072.png` (Multipickup), `080.png` (Multidrop), `088.png` (Multipoint)
 
-#### Section `Jenis Pengiriman dan Rute`
+> **[REVISI 2026-09-19 — ground truth live, lihat catatan di kepala dokumen]** Desain 84 PNG di atas merepresentasikan wizard **VERSI LAMA** (dropdown Tipe Pengiriman, label Pick Up/Drop Off pada Data Pengirim/Penerima, tombol Tambah Baris Input kondisional). UI live saat ini SUDAH BERUBAH: tidak ada dropdown Tipe Pengiriman, label baris jadi Muat/Bongkar, tombol Tambah Lokasi Muat/Bongkar SELALU tampil. Tabel di bawah direvisi mengikuti ground truth live; kolom "Selector" tetap berupa usulan (testid belum diverifikasi ke source FE).
+
+#### Section `Jenis Pengiriman` *(dulu berjudul "Jenis Pengiriman dan Rute" — judul itu sekarang HANYA dipakai di Detail Order/Step 4 Review/Edit Order, bukan di wizard Buat Order)*
 
 | Elemen | Tipe | Label / Nilai | Wajib | Selector |
 |---|---|---|---|---|
@@ -672,48 +678,50 @@ Selector item: `getByRole('menuitem', { name: 'Lanjutkan Pengisian' })`.
 | `Pelabuhan Tujuan` (FCL) | Dropdown | contoh `Panjang (PNJ)` | \* | `getByLabel('Pelabuhan Tujuan')` |
 | `Jenis Kontainer` (FCL) | Dropdown | contoh `20 DRY`, `20 Feet Dry`, `20ft Dry Box` | \* | `getByLabel('Jenis Kontainer')` |
 | `Jumlah Kontainer` (FCL) | Number input | contoh `1`, `2` | \* | `getByLabel('Jumlah Kontainer')` |
-| `Tipe Pengiriman` ✅ | Dropdown | ph `Pilih Tipe Pengiriman`; opsi `Normal`, `Multipickup`, `Multidrop`, `Multipoint` | \* | `getByLabel('Tipe Pengiriman')` |
+| `Tipe Pengiriman` ✅ | **[REVISI]** Teks info read-only (BUKAN dropdown) | `Tipe Pengiriman: <Normal\|Multipickup\|Multidrop\|Multipoint> — mengikuti jumlah baris Data Pengirim & Data Penerima`; auto-update real-time, tidak pernah diketik/dipilih user | — | `getByText(/Tipe Pengiriman:/)` |
 | `Metode Pengiriman` (FCL) | Radio card ×4 | `Door to Door` — *Kontainer diambil dari lokasi pengirim dan diantar hingga lokasi penerima.*<br>`Door to CY` — *Kontainer diambil dari lokasi pengirim dan dikirim hingga Container Yard (CY).*<br>`CY to CY` — *Kontainer diambil dari Container Yard (CY) asal dan dikirim ke Container Yard (CY) tujuan.*<br>`CY to Door` — *Kontainer diambil dari Container Yard (CY) dan diantar hingga lokasi penerima.* | \* | `getByRole('radio', { name: 'Door to Door' })` |
 
-#### Section `Data Pengirim` (dan blok berulang `Pick Up n`)
+#### Section `Data Pengirim` (dan blok berulang `Muat n`) *(dulu "Pick Up n" — direname per TAMBAHAN 10/09)*
 
 | Elemen | Tipe | Label | Wajib | Placeholder / Helper | Selector |
 |---|---|---|---|---|---|
-| Judul blok | Heading | `Data Pengirim`; sub-blok `Pick Up 1`, `Pick Up 2`, `Pick Up 3` | — | — | `getByRole('heading', { name: 'Data Pengirim' })`; `getByTestId('pickup-block-1')` |
+| Judul blok | Heading | `Data Pengirim`; sub-blok **`Muat 1`, `Muat 2`, `Muat 3`** — HANYA muncul saat ≥2 baris; saat 1 baris tidak ada label bernomor sama sekali | — | — | `getByRole('heading', { name: 'Data Pengirim' })`; `getByTestId('muat-block-1')` *(testid usulan, belum diverifikasi)* |
 | Info alert | Alert (biru, ikon i) | `Pastikan urutan pengiriman sudah sesuai saat membuat shipment` | — | — | `getByRole('status').filter({ hasText: 'Pastikan urutan pengiriman' })` |
 | `Drop Point Asal` | Dropdown | `Drop Point Asal` | \* | ph `Pilih  Drop Point Asal` | `getByLabel('Drop Point Asal')` |
 | `Pengirim` | Dropdown | `Pengirim` | \* | ph `Pilih Pengirim` | `getByLabel('Pengirim')` |
 | `PIC Pengirim` | Text | `PIC Pengirim` | \* | ph `Masukkan PIC Pengirim`; helper `Nama PIC Pengirim` | `getByLabel('PIC Pengirim')` |
-| `No. WhatsApp PIC` | Text (numerik) | `No. WhatsApp PIC` | \* | ph `Masukkan No. WhatsApp PIC`; helper `Contoh: 081234567898` | `getByTestId('pickup-block-1').getByLabel('No. WhatsApp PIC')` |
+| `No. WhatsApp PIC` | Text (numerik) | `No. WhatsApp PIC` | \* | ph `Masukkan No. WhatsApp PIC`; helper `Contoh: 081234567898` | `getByTestId('muat-block-1').getByLabel('No. WhatsApp PIC')` |
 | `Provinsi Asal` (ro) | Text | `Provinsi Asal` | — | ph `Provinsi Asal` | `getByLabel('Provinsi Asal')` |
 | `Kota/Kab. Asal` (ro) | Text | `Kota/Kab. Asal` | — | ph `Kota/Kab. Asal` | `getByLabel('Kota/Kab. Asal')` |
 | `Kecamatan Asal` (ro) | Text | `Kecamatan Asal` | — | ph `Kecamatan Asal` | `getByLabel('Kecamatan Asal')` |
 | `Desa/Kelurahan Asal` (ro) | Text | `Desa/Kelurahan Asal` | — | ph `Desa/Kelurahan Asal` | `getByLabel('Desa/Kelurahan Asal')` |
-| `Kode Pos` (ro) | Text | `Kode Pos` | — | ph `Kode Pos` | `getByTestId('pickup-block-1').getByLabel('Kode Pos')` |
+| `Kode Pos` (ro) | Text | `Kode Pos` | — | ph `Kode Pos` | `getByTestId('muat-block-1').getByLabel('Kode Pos')` |
 | `Alamat Asal` (ro) | Textarea | `Alamat Asal` | — | ph `Alamat Asal` | `getByLabel('Alamat Asal')` |
-| `Catatan` | Textarea | `Catatan` | tidak | ph `Masukkan Catatan` | `getByTestId('pickup-block-1').getByLabel('Catatan')` |
-| Hapus alamat | Button (trash merah) | — | — | hanya pada `Pick Up 2..N` | `getByTestId('pickup-block-2').getByRole('button', { name: 'Hapus' })` |
-| Tambah alamat | Button (link + icon) | `Tambah Baris Input` | — | Multipickup/Multipoint | `getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Baris Input' })` |
+| `Catatan` | Textarea | `Catatan` | tidak | ph `Masukkan Catatan` | `getByTestId('muat-block-1').getByLabel('Catatan')` |
+| Hapus alamat | Button (trash merah) | — | — | hanya pada `Muat 2..N`; otomatis TIDAK dirender lagi saat tersisa 1 baris (bukan `disabled`) | `getByTestId('muat-block-2').getByRole('button', { name: 'Hapus' })` |
+| Tambah alamat | Button (link + icon) | **`Tambah Lokasi Muat`** *(dulu "Tambah Baris Input")* | — | **[REVISI]** SELALU tampil, termasuk saat Normal/1 baris — BUKAN hanya saat Multipickup/Multipoint seperti klaim dokumen lama | `getByTestId('data-pengirim').getByRole('button', { name: 'Tambah Lokasi Muat' })` |
 
-#### Section `Data Penerima` (dan blok berulang `Drop Off n`)
+#### Section `Data Penerima` (dan blok berulang `Bongkar n`) *(dulu "Drop Off n" — direname per TAMBAHAN 10/09)*
 
-Struktur identik dengan Data Pengirim, dengan label: `Drop Point Tujuan`\*, `Penerima`\*, `PIC Penerima`\* (helper `Nama PIC Penerima`), `No. WhatsApp PIC`\*, `Provinsi Tujuan` (ro), `Kota/Kab. Tujuan` (ro), `Kecamatan Tujuan` (ro), `Desa/Kelurahan Tujuan` (ro), `Kode Pos` (ro), `Alamat Tujuan` (ro), `Catatan`. Info alert `Pastikan urutan pengiriman sudah sesuai saat membuat shipment` muncul pada Multidrop/Multipoint. Tombol `Tambah Baris Input` pada Multidrop/Multipoint.
+Struktur identik dengan Data Pengirim, dengan label: `Drop Point Tujuan`\*, `Penerima`\*, `PIC Penerima`\* (helper `Nama PIC Penerima`), `No. WhatsApp PIC`\*, `Provinsi Tujuan` (ro), `Kota/Kab. Tujuan` (ro), `Kecamatan Tujuan` (ro), `Desa/Kelurahan Tujuan` (ro), `Kode Pos` (ro), `Alamat Tujuan` (ro), `Catatan`. Sub-blok bernomor **`Bongkar 1`, `Bongkar 2`, …** hanya muncul saat ≥2 baris. Info alert `Pastikan urutan pengiriman sudah sesuai saat membuat shipment` muncul pada Multidrop/Multipoint. Tombol **`Tambah Lokasi Bongkar`** *(dulu "Tambah Baris Input")* **SELALU tampil**, termasuk saat Normal/1 baris (testid usulan `bongkar-block-n`, belum diverifikasi).
 
 #### Footer aksi Step 1
 
 | Tombol | State | Selector |
 |---|---|---|
 | `Batal` | selalu aktif (outline merah) | `getByRole('button', { name: 'Batal' })` |
-| `Simpan ke Draf` | muncul setelah form dasar terisi (`019`); **tidak terlihat** pada `018`/`059`/`088` | `getByRole('button', { name: 'Simpan ke Draf' })` |
-| `Selanjutnya` | **disabled** pada `018.png`/`059.png` (abu-abu, `Tipe Pengiriman` masih kosong); enabled pada `019.png` | `getByRole('button', { name: 'Selanjutnya' })` → `toBeDisabled()` |
+| `Simpan ke Draf` | **[FAKTA TERKONFIRMASI 2026-09-19]** unconditionally visible sejak render pertama Step 1 — TIDAK bergantung jenis order dipilih atau field terisi (lihat ASM-028) | `getByRole('button', { name: 'Simpan ke Draf' })` |
+| `Selanjutnya` | **[REVISI 2026-09-19]** enabled setelah seluruh field wajib armada/kontainer & Data Pengirim/Data Penerima terisi. **TIDAK ADA** state disabled karena "Tipe Pengiriman masih kosong" — klaim itu tidak relevan lagi karena field tsb auto-derive, tidak pernah kosong/menunggu input | `getByRole('button', { name: 'Selanjutnya' })` |
 
-**State terlihat:** empty (`018`, `019`, `059`, `060`, `072`, `080`, `088`), filled (`033`, `043`, `049`, `057`, `068`, `078`, `086`, `095` pada Edit Order). **Tidak ada** pesan validasi inline Step 1 yang tergambar di desain (lihat ASM-022).
+**State terlihat (referensi desain lama, S1 dan seterusnya):** empty (`018`, `019`, `059`, `060`, `072`, `080`, `088`), filled (`033`, `043`, `049`, `057`, `068`, `078`, `086`, `095` pada Edit Order). **Tidak ada** pesan validasi inline Step 1 yang tergambar di desain (lihat ASM-022).
 
 ---
 
 ### S-04. Buat Order — Step 2 `Data Barang` (tipe **Normal**)
 **Sumber FTL:** `020.png` (floating button state *collapsed*, validasi tampil), `021.png` (floating button state *expanded*)
 **Sumber FCL:** `061.png`
+
+> Section ini (Data Barang/Step 2) TIDAK terdampak revisi 2026-09-19 — terminologi `Pick Up`/`Drop Off` di sini TETAP dipakai (lihat ground truth poin 8; instruksi rename user hanya menyasar label baris Data Pengirim/Data Penerima, bukan label rute di Data Barang).
 
 | Elemen | Tipe | Teks / Label | Selector |
 |---|---|---|---|
@@ -837,14 +845,16 @@ Plus testid: `recalc-fab`, `visualisasi-fab`, `load-visualization-canvas`, `capa
 
 ---
 
-### S-09. Modal `Detail Multipickup` / `Detail Multidrop`
-**Sumber:** `040.png`, `054.png`, `075.png`, `091.png` (Multipickup) • `047.png`, `055.png`, `083.png`, `092.png` (Multidrop)
+### S-09. Modal `Data Pengirim` (Multipickup) / `Data Penerima` (Multidrop) — dulu berjudul "Detail Multipickup"/"Detail Multidrop"
+**Sumber desain (VERSI LAMA, sudah tidak berlaku):** `040.png`, `054.png`, `075.png`, `091.png` (Multipickup) • `047.png`, `055.png`, `083.png`, `092.png` (Multidrop)
+
+> **[REVISI 2026-09-19, FAKTA TERKONFIRMASI live — menggantikan ASM-031 lama]** Modal ini berubah LEBIH JAUH dari sekadar rename label alamat: judulnya sendiri berganti, dan format isinya berubah total dari heading-per-alamat menjadi numbered list. Diverifikasi via order test 2 Muat (IK - BPN Platinum, IK - BPN Market); screenshot bukti: `artifacts/screenshots/modal-detail-multipickup.png`.
 
 | Elemen | Tipe | Teks | Selector |
 |---|---|---|---|
-| Judul ✅ | Dialog heading | `Detail Multipickup` / `Detail Multidrop` | `getByRole('dialog', { name: 'Detail Multipickup' })` |
+| Judul ✅ | Dialog heading | **`Data Pengirim`** untuk kasus Multipickup — **FAKTA TERKONFIRMASI live**. Untuk Multidrop diasumsikan **`Data Penerima`** — **inferensi simetri** (belum diuji langsung, tapi konsisten dengan pola Data Pengirim/Data Penerima yang selalu simetris di seluruh layar lain: Step 1, Detail Order, Edit Order). Bukan lagi "Detail Multipickup"/"Detail Multidrop". | `getByRole('dialog', { name: 'Data Pengirim' })` |
 | Tutup | Button (X) | — | `dialog.getByRole('button', { name: 'Tutup' })` |
-| Item alamat ✅ | Heading link + nama + alamat | `Pick Up 1 - Kota Surabaya` / `Gudang MSK Region 2:` / `Jl. Jambi No.35, Darmo, Wonokromo, Kota Surabaya, Jawa Timur 60241`<br>`Drop Off 2 - Kab. Lampung Tengah` / `Gudang Jaya Retail Lampung Tengah` / `Jl. Proklamator Raya, Seputih Jaya, Kec. Gn. Sugih, Kabupaten Lampung Tengah, Lampung 34161` | `dialog.getByTestId('address-item').nth(0)` |
+| Item alamat ✅ | Card bernomor (numbered list) — **BUKAN LAGI** heading "Pick Up n - <Kota>"/"Drop Off n - <Kota>" | Format `1.`, `2.`, dst; tiap card berisi: nama Drop Point (bold), nama Pengirim/perusahaan, alamat lengkap (tampil 2×, tampaknya field alamat singkat + alamat lengkap digabung), lalu baris `PIC: <nama> (<no WA>)` | `dialog.getByTestId('address-item').nth(0)` *(testid usulan, belum diverifikasi; struktur internal per-elemen card belum dipetakan detail)* |
 
 ---
 
@@ -855,8 +865,8 @@ Plus testid: `recalc-fab`, `visualisasi-fab`, `load-visualization-canvas`, `capa
 | Section (accordion, semua expanded) | Isi | Selector |
 |---|---|---|
 | `Jenis Pengiriman dan Rute` ✅ | FTL: `Jenis Pengiriman : FTL (Full Truck Load)`, `Jenis Armada : Tronton Wing Box`, `Jumlah Armada : 2`, `Tipe Pengiriman : Normal`, `Waktu Perjalanan : 8 Jam`<br>FCL: + `Pelabuhan Asal`, `Pelabuhan Tujuan`, `Jenis Kontainer : 20ft Dry Box`, `Jumlah Kontainer`, `Metode Pengiriman : Door to Door` | `getByRole('region', { name: 'Jenis Pengiriman dan Rute' })` |
-| `Data Pengirim` ✅ | Baris ro: `Drop Point Asal`, `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC` *(pada `041` tertulis `Nomor WhatsApp PIC` — ASM-023)*, `Provinsi Asal`, `Kota/Kab. Asal`, `Kecamatan Asal`, `Desa/Kelurahan Asal`, `Kode Pos`, `Alamat Asal`, `Catatan`. Multi-alamat → sub-blok `Pick Up 1..N` | `getByTestId('review-data-pengirim')` |
-| `Data Penerima` ✅ | Analog, sub-blok `Drop Off 1..N` | `getByTestId('review-data-penerima')` |
+| `Data Pengirim` ✅ | Baris ro: `Drop Point Asal`, `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC` *(pada `041` tertulis `Nomor WhatsApp PIC` — ASM-023)*, `Provinsi Asal`, `Kota/Kab. Asal`, `Kecamatan Asal`, `Desa/Kelurahan Asal`, `Kode Pos`, `Alamat Asal`, `Catatan`. Multi-alamat → sub-blok **`Muat 1..N`** *(REVISI 2026-09-19, dulu "Pick Up 1..N" — ground truth poin 8)* | `getByTestId('review-data-pengirim')` |
+| `Data Penerima` ✅ | Analog, sub-blok **`Bongkar 1..N`** *(REVISI 2026-09-19, dulu "Drop Off 1..N")* | `getByTestId('review-data-penerima')` |
 | `Data Barang` ✅ | Tombol **`Visualisasi Muatan`** 🔴 **AS-OFF** (outline, ikon mata) di kiri-atas section; lalu `Armada 1` / `Kontainer 1` (+ badge `Diasuransikan` bila relevan) → `Nomor DO` (`TBL67827879232, TBL726378927398` atau `-`) → tabel `Kode SKU`/`Nama Barang`, `Kemasan`, `Kubikasi`/`Dimensi`, `Berat`, `Jumlah`, `Nilai Barang` *(hanya unit diasuransikan)*. Multi-alamat → sub-header alamat per kombinasi | `getByTestId('review-data-barang')` |
 | `Vendor dan Harga` ✅ | Tabel rekap `No`, `Nama Item`, `Total Berat`, `Total Kubikasi`, `Total Nilai Barang`; `Vendor : PT Logistik Transportasi Nusantara`; `Tanggal Permintaan Muat : 24/07/2026 14:30`; ringkasan `Harga DPP` / `PPN (1,1%)` / `PPh (2%)` / `Asuransi (0,2%)` + `(Total Nilai Barang = Rp1.006.750.000)` / `Total Harga Rp13.905.500` | `getByTestId('review-vendor-harga')` |
 | Footer ✅ | `Batal`, `Sebelumnya`, `Simpan ke Draf`, **`Simpan`** (bukan `Selanjutnya`) | `getByRole('button', { name: 'Simpan', exact: true })` |
@@ -890,7 +900,7 @@ Plus testid: `recalc-fab`, `visualisasi-fab`, `load-visualization-canvas`, `capa
 | `Edit Order` ✅ | Button (outline biru) | `Edit Order` | `getByRole('button', { name: 'Edit Order' })` |
 | Badge status ✅ | Badge | `Menunggu Penugasan` / `Ditugaskan` | `getByTestId('order-status-badge')` |
 | `Jenis Pengiriman dan Rute` ✅ | Section (collapsible) | `ID Order : ORD67890792`, `Jenis Pengiriman : FCL (Full Container Load)`, `Tanggal Dibuat : 26/06/2026 08:17`, `Jenis Kontainer : 20ft Dry Box`, `Jumlah Kontainer : 2`, `Pelabuhan Asal`, `Pelabuhan Tujuan`, `Tipe Pengiriman : Normal`, `Metode Pengiriman : Door to Door`, `Waktu Perjalanan : 8 Jam` | `getByRole('region', { name: 'Jenis Pengiriman dan Rute' })` |
-| `Data Pengirim` / `Data Penerima` ✅ | Section | sama seperti Step 4; multi-alamat → `Pick Up n` / `Drop Off n` | `getByTestId('detail-data-pengirim')` |
+| `Data Pengirim` / `Data Penerima` ✅ | Section | sama seperti Step 4; multi-alamat → **`Muat n` / `Bongkar n`** *(REVISI 2026-09-19, dulu "Pick Up n" / "Drop Off n" — ground truth poin 8)* | `getByTestId('detail-data-pengirim')` |
 | `Data Barang` ✅ | Section | `Kontainer 1` / `Armada 1` (+ badge `Diasuransikan`), `Nomor DO`, tabel barang; multi-alamat → sub-header kombinasi alamat | `getByTestId('detail-data-barang')` |
 | `Vendor dan Harga` ✅ | Section | tabel rekap + ringkasan harga (identik Step 4) | `getByTestId('detail-vendor-harga')` |
 | Toggle accordion | Button (chevron) | — | `region.getByRole('button', { name: /Sembunyikan|Tampilkan/ })` |
@@ -921,8 +931,8 @@ Plus testid: `recalc-fab`, `visualisasi-fab`, `load-visualization-canvas`, `capa
 |---|---|---|
 | Judul ✅ | Heading `Edit Order`; breadcrumb `Beranda › Daftar Order › Edit Order` | `getByRole('heading', { name: 'Edit Order' })` |
 | `Jenis Pengiriman dan Rute` ✅ | **Read-only:** `ID Order`, `Tanggal Dibuat`, `Jenis Pengiriman`, `Tipe Pengiriman`, `Waktu Perjalanan`, (FCL) `Metode Pengiriman`, `Pelabuhan Asal`, `Pelabuhan Tujuan`.<br>**Editable:** `Jenis Armada`\* / `Jenis Kontainer`\*, `Jumlah Armada`\* / `Jumlah Kontainer`\* | `getByLabel('Jenis Armada')` tetap enabled; `getByTestId('field-id-order')` `toBeDisabled()` |
-| `Data Pengirim` ✅ | Form penuh identik Step 1 (+ `Tambah Baris Input`, info alert pada multi) | — |
-| `Data Penerima` ✅ | Form penuh identik Step 1 | — |
+| `Data Pengirim` ✅ | **[REVISI 2026-09-19]** Form field sama seperti Step 1 (label bernomor `Muat n` saat ≥2 baris; read-only: `Tipe Pengiriman`). Tombol `Tambah Lokasi Muat` **HANYA muncul bila sisi Data Pengirim SUDAH memiliki ≥2 baris** (mis. order Multipickup) — order dengan 1 baris di sisi ini (mis. tipe Normal atau Multidrop) **TIDAK menampilkan tombol ini sama sekali** di Edit Order, karena menambahkannya akan mengubah kategori Tipe Pengiriman (dilarang spec poin 9). Pada order yang sisi ini sudah multi, tombol tambah tetap boleh dipakai untuk menambah baris lanjutan (mis. Muat 2→3) tanpa mengubah kategori. **[FAKTA TERKONFIRMASI 2026-09-19, bukan lagi confidence sedang]** Ikon hapus (trash) di samping label `Muat n` **TIDAK PERNAH ada di Edit Order, pada baris manapun** (baik baris pertama maupun ke-N, baik di sisi yang boleh menambah maupun tidak) — dikonfirmasi via inspeksi DOM langsung pada order Multipickup (`Muat 1` dan `Muat 2` diperiksa satu per satu): div container tiap baris (`<div class="flex items-center justify-between mb-4">` berisi span label) tidak memiliki elemen button/child lain di sampingnya, hanya span label sendirian. Baris existing tidak dapat dihapus lewat Edit — ini FAKTA, bukan lagi indikasi/asumsi. | — |
+| `Data Penerima` ✅ | **[REVISI 2026-09-19]** Analog dengan Data Pengirim: tombol `Tambah Lokasi Bongkar` HANYA muncul bila sisi Data Penerima sudah ≥2 baris (`Bongkar n`); sisi dengan 1 baris tidak pernah punya tombol tambah di Edit. Contoh order Multipickup (2 Muat, 1 Bongkar): tombol `Tambah Lokasi Muat` tampil di sisi Muat, tapi `Tambah Lokasi Bongkar` TIDAK tampil di sisi Bongkar (karena menambahnya akan mengubah Multipickup→Multipoint, mengubah tipe pengiriman). **[FAKTA TERKONFIRMASI 2026-09-19]** Ikon hapus juga TIDAK PERNAH ada pada baris `Bongkar n` manapun di Edit Order (sama seperti Data Pengirim, dikonfirmasi via inspeksi DOM). | — |
 | `Data Barang - Armada n` / `Data Barang - Kontainer n` ✅ | Judul section per unit; `Tambahkan Asuransi`, `Nomor DO` (chip), tabel barang editable, `Pilih Barang`, ringkasan kapasitas + badge peringatan | `getByRole('heading', { name: 'Data Barang - Kontainer 1' })` |
 | `Vendor dan Harga` ✅ | `Vendor`\*, `Tanggal Permintaan Muat`\*, tabel rekap, `Harga`\*, `Gunakan komponen harga` (+ `PPN`/`PPh`/`Asuransi`), ringkasan `Total Harga` | — |
 | Footer ✅ | `Batal` (outline merah), `Simpan` (primary) | `getByRole('button', { name: 'Simpan' })` |
@@ -1056,4 +1066,5 @@ Plus testid: `recalc-fab`, `visualisasi-fab`, `load-visualization-canvas`, `capa
 | **ASM-025** | Golden reference mode OFF | Tidak ada layar Step 2 mode OFF pada set desain; hanya `066.png` (Detail Order FCL Normal) yang tampil **tanpa** tombol `Visualisasi Muatan`. | `066.png` dijadikan **golden reference visual** untuk Detail Order mode OFF (REQ-027). Untuk Step 2/Step 4 mode OFF, ekspektasi visual diturunkan dari desain mode ON **dikurangi** daftar elemen Auto Stuffing (tabel A1–A15 pada UI Inventory). | **Sedang.** Bila mode OFF juga mengubah layout (mis. header section bergeser), ekspektasi perlu direvisi setelah build tersedia. |
 | **ASM-026** | Menu `Simulasi Muatan` | Sidebar memuat menu `Simulasi Muatan` pada seluruh layar; spec tidak menyebut apakah menu ini bagian dari add-on Auto Stuffing. | Diasumsikan **bagian dari add-on Auto Stuffing**, namun **tidak dijadikan assertion wajib** (tidak disebut pada spec L4/L5/L13/L14). Dicatat sebagai kandidat A15 pada checklist AS-OFF untuk verifikasi manual. | Rendah–Sedang. |
 | **ASM-027** | `Waktu Perjalanan` pada FCL | Step 3 FCL Normal (`064.png`) tidak menampilkan field `Waktu Perjalanan`, sementara Detail Order (`067.png`) dan Edit Order (`068.png`) FCL menampilkan `Waktu Perjalanan : 8 Jam`. | Diasumsikan `Waktu Perjalanan` **tetap wajib untuk FTL maupun FCL** dan ketiadaannya pada `064.png` adalah kelalaian desain. Skenario FCL tetap mengisi field ini, dengan fallback *conditional* bila field tidak dirender. | **Sedang.** Berpotensi menimbulkan false-negative pada skenario Step 3 FCL. |
-| **ASM-028** | `Simpan ke Draf` di Step 1 | Tombol `Simpan ke Draf` tidak terlihat pada `018.png`, `059.png`, dan `088.png`, tetapi terlihat pada `019.png` (Step 1 terisi) serta seluruh Step 2/Step 3. | Diasumsikan `Simpan ke Draf` baru dirender/aktif setelah `Tipe Pengiriman` dipilih (form Step 1 lengkap strukturnya), bukan sejak awal. AC-024.1 diuji dengan prasyarat form Step 1 sudah menampilkan `Data Pengirim`/`Data Penerima`. | Rendah–Sedang. |
+| **ASM-028** | `Simpan ke Draf` di Step 1 | Tombol `Simpan ke Draf` tidak terlihat pada `018.png`, `059.png`, dan `088.png`, tetapi terlihat pada `019.png` (Step 1 terisi) serta seluruh Step 2/Step 3. | **[REVISI 2026-09-19, FAKTA TERKONFIRMASI live — bukan lagi assumption]** Diverifikasi via `document.querySelectorAll('button')` tepat setelah `page.goto('/order/buat')` tanpa interaksi apa pun (FTL default terpilih, field kosong) → tombol `Simpan ke Draf` sudah `visible:true`; diulang setelah ganti ke kartu LCL → tetap `visible:true`. **Tombol `Simpan ke Draf` unconditionally visible di Step 1 sejak render pertama** — TIDAK bergantung kartu Jenis Order dipilih atau tidak, TIDAK bergantung field terisi atau tidak. Seluruh asumsi sebelumnya (baik "setelah Tipe Pengiriman dipilih" versi lama, maupun "setelah jenis order dipilih & form tampil" versi revisi sebelumnya) **SALAH**, digantikan fakta ini. | — (tuntas, tidak ada risiko tersisa). |
+| **ASM-031 (dituntaskan)** | S-09 Modal rincian alamat multipickup/multidrop (Step 3) | Sebelumnya ditandai "sengaja tidak disentuh, butuh verifikasi live". | **[REVISI 2026-09-19, FAKTA TERKONFIRMASI live untuk Multipickup, inferensi simetri utk Multidrop]** Modal berubah lebih jauh dari sekadar rename label: **judul modal sekarang `Data Pengirim`** (Multipickup, terkonfirmasi) / **`Data Penerima`** (Multidrop, inferensi simetri — belum diuji langsung), BUKAN lagi "Detail Multipickup"/"Detail Multidrop". **Isi modal berformat numbered list** (`1.`, `2.`, dst), tiap card berisi nama Drop Point (bold), nama Pengirim/perusahaan, alamat lengkap (2×), baris `PIC: <nama> (<no WA>)` — BUKAN lagi heading "Pick Up n - <Kota>"/"Drop Off n - <Kota>". Lihat S-09 untuk detail lengkap. | Rendah untuk Multipickup (terkonfirmasi); **Sedang** untuk Multidrop (masih inferensi simetri, belum diuji klik langsung). |

@@ -5,6 +5,10 @@
 > **Aset desain:** `inputs/oms015-order-ltl-lcl-universal/designs/*.png` (10 file) — dipakai hanya sebagai *grounding* nama field/label/pesan; inventarisasi penuh menjadi tugas design-analyzer.
 > **Aplikasi:** tenant `Mentari Sumber Kertas` — `Order Management System Versi 1.0.0`; konteks `Shipper`, badge peran `Staff Operasional`.
 
+> **REVISI 2026-09-19 (ground truth live staging):** dua requirement lama pada bagian rute Step 1 (klaim LTL menampilkan field kota asal/tujuan dari Master Kota; klaim field kota tersebut independen terhadap Drop Point/Pelabuhan) TERBUKTI SALAH dan telah **DIHAPUS TOTAL beserta ID-nya** — field kota tersebut **tidak pernah ada** di wizard Buat Order untuk LTL; satu-satunya field rute yang tampil adalah `Jumlah Armada` (disabled, terkunci `1`). ID requirement lama **tidak dipakai ulang**. Requirement pengganti didokumentasikan sebagai ID baru: **`REQ-059`** (LTL tidak menampilkan field kota asal/tujuan; hanya Jumlah Armada disabled terkunci `1`) dan **`REQ-060`** (LCL — pemilihan Drop Point tidak mengikat/memfilter pilihan Pelabuhan Asal/Tujuan), lihat R11 di bawah. Judul section rute pada **wizard Buat Order** juga direvisi dari `Jenis Pengiriman dan Rute` menjadi `Jenis Pengiriman` (REQ-006/AC-006.1); judul lengkap tetap dipakai di Detail Order/Step 4 Review/Edit Order. `REQ-007` (LCL) dan `REQ-010` (Tipe Pengiriman selalu Normal) **tidak berubah** — sudah terverifikasi benar.
+>
+> **REVISI 2026-09-21 (drift lanjutan, ground truth live staging — coordinator):** UI berubah LAGI sejak 2026-09-19. Verifikasi live coordinator hari ini (login Admin Utama, wizard Buat Order → kartu LTL) membuktikan bahwa premis "Jumlah Armada disabled/terkunci `1`" pada revisi 2026-09-19 di atas **SUDAH TIDAK BENAR LAGI**: section rute Step 1 untuk **LTL sekarang KOSONG TOTAL** — field `Jumlah Armada` maupun `Jenis Armada` **TIDAK DIRENDER SAMA SEKALI** (bukan lagi "dirender tapi disabled/read-only bernilai `1`"). Konsisten dengan ini, paragraf auto-derive "Tipe Pengiriman: ... — mengikuti jumlah baris" dan tombol "Tambah Lokasi Muat"/"Tambah Lokasi Bongkar" juga tetap tidak muncul untuk LTL (tidak berubah dari 2026-09-19). Step 3 (Vendor dan Harga) tidak memuat referensi Jumlah/Jenis Armada apa pun untuk LTL; rute ditampilkan sebagai teks read-only `Kota X → Kota Y`. Step 4 (Review) dan `Detail Order` juga **TIDAK ADA** field Jumlah/Jenis Armada untuk LTL — heading `Jenis Pengiriman dan Rute` hanya memuat `Jenis Pengiriman`, `Kota Asal`, `Kota Tujuan` (read-only, auto-derived dari Drop Point terpilih — bukan input Step 1), `Tipe Pengiriman : Normal`, `Waktu Perjalanan`. **Bukti end-to-end**: order LTL `ORD9976193880` (rute Kota Balikpapan → Kabupaten Sumenep, vendor PT. Intan Emas Permata (IK), harga Rp1.500.000/DPP, total Rp1.485.000 setelah PPN 1%/PPh 2%, barang "Sepatu Running Pria" jumlah 10) berhasil dibuat & tersimpan sampai Detail Order tanpa field armada apa pun muncul di step manapun. **LCL TIDAK TERDAMPAK** oleh drift ini — `Jumlah Kontainer`, `Pelabuhan Asal/Tujuan`, `Metode Pengiriman` LCL tetap seperti dokumentasi 2026-09-19 (REQ-007 tidak berubah). Seluruh referensi "Jumlah Armada disabled/terkunci `1`" **untuk LTL** pada dokumen ini (REQ-059/AC-059.x, V1, EX-04, UI-097, UI-100/UI-101 catatan LTL, ASM-004, ASM-015, dan skenario terkait di `.feature`/`.scenarios.json`) direvisi menjadi "TIDAK DIRENDER/TIDAK ADA sama sekali". Referensi `Jumlah Armada`/`Jenis Armada` untuk **FTL/FCL** dan referensi `Jumlah Kontainer` untuk **LCL** TIDAK diubah oleh revisi ini.
+
 ## Ringkasan Modul
 
 Modul **OMS-015** mencakup proses **pembuatan, pengeditan, dan pembatalan order** untuk **Jenis Order LTL (Less Than Truck Load)** dan **LCL (Less Than Container Load)** pada Order Management System (OMS).
@@ -24,7 +28,7 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 | Nomor DO | Per unit (dan per kombinasi alamat) | **Satu field** untuk keseluruhan order |
 | Asuransi | Level unit (per armada/kontainer) | **Level barang** — per baris SKU, dengan opsi `Asuransikan Semua` |
 | Identitas perjalanan | `No. Perjalanan`, tampil saat `Ditugaskan` | **`No. Resi`**, melekat **pada barang**, tampil sejak `Menunggu Penugasan` |
-| Rute Step 1 | FTL: Jenis+Jumlah Armada; FCL: Pelabuhan + Jenis/Jumlah Kontainer + Metode Pengiriman | LTL: **Kota Asal/Tujuan**; LCL: **Pelabuhan Asal/Tujuan**; jumlah unit **terkunci = 1** |
+| Rute Step 1 | FTL: Jenis+Jumlah Armada; FCL: Pelabuhan + Jenis/Jumlah Kontainer + Metode Pengiriman | LTL: **section rute KOSONG TOTAL** — tidak ada field apa pun (bukan Kota Asal/Tujuan, bukan Jumlah/Jenis Armada, revisi 2026-09-21); LCL: **Pelabuhan Asal/Tujuan** + `Jumlah Kontainer` **terkunci = 1** |
 | Waktu Perjalanan Step 3 | Input wajib | LTL: textfield/text-only tergantung Master; **LCL: tidak ada input** (ETA − ETD + 4 hari) |
 
 **Prioritas pengujian:** (1) integritas Step 2 berbasis Master Barang + asuransi per-barang, (2) ketiadaan elemen multi-unit/multi-alamat/alert kapasitas (*assertion negatif*), (3) siklus status 9-tahap beserta matriks hak Edit/Batal/Aksi, (4) fitur `No. Resi` yang eksklusif LTL/LCL.
@@ -57,7 +61,7 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 
 - **REQ-001**
   - AC-001.1: Pada Step 1, kartu jenis order `LTL Less Than Truck Load` dan `LCL Less Than Container Load` tersedia dan dapat dipilih.
-  - AC-001.2: Memilih `LTL` menampilkan form rute versi LTL; memilih `LCL` menampilkan form rute versi LCL (REQ-007, REQ-008).
+  - AC-001.2: Memilih `LTL` menampilkan form rute versi LTL; memilih `LCL` menampilkan form rute versi LCL (REQ-007, REQ-059).
   - AC-001.3: Order LTL dan LCL dapat diselesaikan sampai Step 4 dan disimpan.
   - AC-001.4: Badge jenis order `LTL` / `LCL` tampil pada baris `Daftar Order`, `Detail Order`, dan pop up `Data No. Resi`.
 - **REQ-002**
@@ -83,35 +87,29 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 
 | ID | Requirement | Sumber | Prioritas |
 |---|---|---|---|
-| **REQ-006** | Step 1 **identik dengan Step 1 Order LTL & LCL di TMS** (struktur section `Jenis Pengiriman dan Rute`, `Data Pengirim`, `Data Penerima`). | L8 | high |
+| **REQ-006** | Step 1 (wizard Buat Order) **identik dengan Step 1 Order LTL & LCL di TMS** (struktur section `Jenis Pengiriman`, `Data Pengirim`, `Data Penerima`). Judul section rute pada layar **wizard Buat Order** adalah **`Jenis Pengiriman`** (bukan `Jenis Pengiriman dan Rute`); judul lengkap `Jenis Pengiriman dan Rute` tetap dipakai pada `Detail Order`, Step 4 Review, dan `Edit Order` — lihat REVISI 2026-09-19 di bawah. | L8 | high |
 | **REQ-007** | **LCL** — menampilkan field `Pelabuhan Asal` dan `Pelabuhan Tujuan` yang bersumber dari **Master Pelabuhan**; field **`Jumlah Kontainer` dihilangkan** sebagai input user (tidak dapat diisi/diubah). | L9 | high |
-| **REQ-008** | **LTL** — menampilkan field `Kota Asal` dan `Kota Tujuan` yang bersumber dari **Master Kota**. | L10 | high |
-| **REQ-009** | **Kota dilepas** — pilihan Kota Asal/Kota Tujuan **tidak mengikat/memfilter** pilihan `Drop Point` maupun `Pelabuhan Asal & Tujuan`. | L10 | high |
 | **REQ-010** | **Tipe pengiriman selalu `Normal`** — `Data Pengirim` dan `Data Penerima` masing-masing **tepat 1 baris** dan **tidak dapat ditambah** (tidak ada `Tambah Baris Input`). | L11 | high |
 | **REQ-011** | **Auto-draft dari Master Droppoint** — memilih `Drop Point Asal`/`Drop Point Tujuan` mengisi otomatis field wilayah & alamat terkait secara read-only. | L11 | high |
 | **REQ-012** | **Validasi field wajib Step 1** berlaku, dan tersedia fungsi button `Batal` / `Simpan ke Draf` / `Selanjutnya`. | L11 | high |
 
+> **Catatan penomoran (revisi 2026-09-19, diperbarui 2026-09-21):** dua requirement rute LTL yang sebelumnya didokumentasikan di sini (klaim field kota untuk LTL, dan klaim independensi field kota tersebut terhadap Drop Point/Pelabuhan) **dihapus total** setelah verifikasi live staging membuktikan field kota tersebut tidak pernah ada di wizard Buat Order. ID lama **tidak dipakai ulang**. Requirement pengganti — LTL tanpa field kota **dan tanpa field Jumlah/Jenis Armada** (section rute kosong total, lihat REVISI 2026-09-21 di atas), dan independensi Drop Point terhadap Pelabuhan pada LCL — didokumentasikan sebagai ID baru pada **R11** di bawah.
+
 **Acceptance Criteria**
 
 - **REQ-006**
-  - AC-006.1: Step 1 menampilkan tiga section berurutan: `Jenis Pengiriman dan Rute`, `Data Pengirim`, `Data Penerima`.
+  - AC-006.1: Step 1 (wizard Buat Order) menampilkan tiga section berurutan; section rute berjudul **`Jenis Pengiriman`** (bukan `Jenis Pengiriman dan Rute`), diikuti `Data Pengirim`, `Data Penerima`. **[REVISI 2026-09-19]** — sebelumnya didokumentasikan sebagai `Jenis Pengiriman dan Rute`; terbukti salah untuk konteks wizard Buat Order (lihat ground truth di R11 / REQ-059).
   - AC-006.2: Label dan urutan field pada `Data Pengirim`/`Data Penerima` sama dengan versi TMS/FTL-FCL.
+  - AC-006.3: Pada `Detail Order`, Step 4 Review, dan `Edit Order`, judul section rute tetap `Jenis Pengiriman dan Rute` (judul lengkap) — berbeda dengan wizard Buat Order.
 - **REQ-007**
   - AC-007.1: Dengan `LCL` terpilih, field `Pelabuhan Asal`\* dan `Pelabuhan Tujuan`\* tampil sebagai dropdown.
   - AC-007.2: Opsi kedua dropdown hanya berasal dari Master Pelabuhan (contoh `Tanjung Perak (SUB)`, `Panjang (PNJ)`).
   - AC-007.3: `Jumlah Kontainer` **tidak dapat diinput user** — tidak dirender sebagai input aktif, atau dirender read-only bernilai `1` (lihat ASM-004).
   - AC-007.4: Dengan `LCL` terpilih, field `Kota Asal`/`Kota Tujuan` **tidak** dirender.
   - AC-007.5: Order LCL dapat disimpan tanpa user pernah menyentuh field jumlah kontainer.
-- **REQ-008**
-  - AC-008.1: Dengan `LTL` terpilih, field `Kota Asal`\* dan `Kota Tujuan`\* tampil sebagai dropdown dengan placeholder `Pilih Kota Asal` / `Pilih Kota Tujuan`.
-  - AC-008.2: Opsi kedua dropdown hanya berasal dari Master Kota.
-  - AC-008.3: Dengan `LTL` terpilih, field `Pelabuhan Asal`/`Pelabuhan Tujuan` **tidak** dirender.
-  - AC-008.4: `Jumlah Armada` tidak dapat diinput user (read-only bernilai `1`) — lihat ASM-004.
-- **REQ-009**
-  - AC-009.1: Mengubah `Kota Asal` **tidak** mengosongkan/mem-filter isi dropdown `Drop Point Asal`; seluruh drop point tetap dapat dipilih.
-  - AC-009.2: Mengubah `Kota Tujuan` **tidak** mengosongkan/mem-filter isi dropdown `Drop Point Tujuan`.
-  - AC-009.3: Kombinasi `Kota Asal` dan `Drop Point Asal` yang berbeda kota **tetap dapat disimpan** tanpa pesan error.
-  - AC-009.4: Pada LCL, pilihan `Pelabuhan Asal`/`Pelabuhan Tujuan` tidak dibatasi oleh kota drop point manapun.
+
+*(AC untuk requirement rute LTL tanpa field kota, dan independensi Drop Point terhadap Pelabuhan pada LCL, dipindahkan ke REQ-059 dan REQ-060 — lihat R11.)*
+
 - **REQ-010**
   - AC-010.1: Section `Data Pengirim` menampilkan tepat satu blok alamat; section `Data Penerima` menampilkan tepat satu blok alamat.
   - AC-010.2: Tombol `Tambah Baris Input` **tidak** dirender pada kedua section.
@@ -124,7 +122,7 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
   - AC-011.3: Seluruh field hasil auto-draft bersifat **read-only** dan tidak dapat diedit manual.
   - AC-011.4: Mengganti drop point memperbarui seluruh field turunannya.
 - **REQ-012**
-  - AC-012.1: Field wajib ditandai asterisk merah (`*`): `Kota Asal`/`Pelabuhan Asal`, `Kota Tujuan`/`Pelabuhan Tujuan`, `Drop Point Asal`, `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC`, `Drop Point Tujuan`, `Penerima`, `PIC Penerima`, `No. WhatsApp PIC`.
+  - AC-012.1: Field wajib ditandai asterisk merah (`*`): `Drop Point Asal`, `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC`, `Drop Point Tujuan`, `Penerima`, `PIC Penerima`, `No. WhatsApp PIC`; khusus **LCL** ditambah `Pelabuhan Asal`\*/`Pelabuhan Tujuan`\*. **[REVISI 2026-09-19]** `Kota Asal`/`Kota Tujuan` **dihapus dari daftar** — field tersebut tidak dirender untuk LTL (REQ-059). **[REVISI 2026-09-21]** LTL tidak memiliki field wajib bertanda asterisk pada section rute karena section rute LTL **tidak menampilkan field apa pun** — `Jumlah Armada`/`Jenis Armada` juga tidak dirender (bukan lagi "terkunci, bukan input yang perlu diisi" seperti temuan 2026-09-19; sekarang field tersebut tidak ada sama sekali di DOM).
   - AC-012.2: Klik `Selanjutnya` dengan field wajib kosong **menahan navigasi** dan menampilkan pesan validasi inline pada field terkait.
   - AC-012.3: `Batal` menampilkan konfirmasi lalu keluar dari wizard tanpa menyimpan.
   - AC-012.4: `Simpan ke Draf` menyimpan order sebagai draft berstatus `Isi Data Pengiriman` (lihat REQ-039, ASM-013).
@@ -370,7 +368,7 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 | **REQ-040** | **Shipper dapat mengubah data order** selama status berada dalam rentang **draft (`Isi Data Pengiriman` s.d. `Review Order`) hingga `Menunggu Penugasan`**. | L60 | high |
 | **REQ-041** | **Shipper tidak dapat lagi mengubah data order** setelah status berubah menjadi **`Ditugaskan`** (dan seterusnya). | L61 | high |
 | **REQ-042** | Pada halaman `Edit Order`, field **`Jenis Pengiriman`** dan **`Tipe Pengiriman`** bersifat **locked/read-only** dan tidak dapat diubah. | L62 | high |
-| **REQ-043** | Field `Jenis Armada`, `Jumlah Armada`, `Data Pengirim`, `Data Penerima`, `Data Barang`, dan `Vendor & Harga` **tetap dapat diubah** selama order berstatus dapat diedit. | L63 | high |
+| **REQ-043** | Field `Jenis Armada`, `Jumlah Armada`, `Data Pengirim`, `Data Penerima`, `Data Barang`, dan `Vendor & Harga` **tetap dapat diubah** selama order berstatus dapat diedit. **[REVISI 2026-09-21]** Untuk **LTL**, klausa `Jenis Armada`/`Jumlah Armada` **tidak berlaku** — field tersebut tidak pernah dirender sejak Step 1 sehingga tidak ada apa pun untuk diedit (lihat ASM-015). Untuk **LCL**, `Jumlah Kontainer` tetap dirender read-only/terkunci `1` (tidak berubah). | L63 | high |
 | **REQ-044** | Fungsi button pada `Edit Order`: **`Batal`** (membatalkan pengisian data → **pop up konfirmasi**) dan **`Simpan`** (menyelesaikan pengeditan → **pop up konfirmasi**). | L64–L66 | high |
 
 **Acceptance Criteria**
@@ -395,7 +393,7 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
   - AC-043.3: Section `Vendor dan Harga` dapat diubah (`Vendor`, `Tanggal Permintaan Muat`, `Harga`, komponen harga).
   - AC-043.4: Perubahan `Nilai Barang`/asuransi memperbarui perhitungan `Asuransi` dan `Total Harga` (REQ-032).
   - AC-043.5: Validasi field wajib tetap berlaku pada `Edit Order` — `Simpan` ditahan bila ada field wajib kosong.
-  - AC-043.6: Untuk LTL/LCL, `Jenis Armada`/`Jumlah Armada` mengikuti batasan 1 unit (lihat ASM-015).
+  - AC-043.6: **[REVISI 2026-09-21]** Untuk **LTL**, `Jenis Armada`/`Jumlah Armada` **tidak dirender** pada `Edit Order` (tidak ada field untuk diedit maupun dibatasi) — konsisten dengan Step 1 (REQ-059). Untuk **LCL**, `Jumlah Kontainer` tetap mengikuti batasan 1 unit, dirender read-only/terkunci (lihat ASM-015).
 - **REQ-044**
   - AC-044.1: `Edit Order` menampilkan tombol `Batal` dan `Simpan`.
   - AC-044.2: Klik `Batal` menampilkan pop up konfirmasi sebelum keluar.
@@ -531,6 +529,31 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 
 ---
 
+### R11. Step 1 — Rute LTL/LCL (klarifikasi lapangan, ditambahkan 2026-09-19, direvisi 2026-09-21)
+
+> Dua requirement rute yang sebelumnya didokumentasikan pada bagian Step 1 di atas TERBUKTI SALAH setelah verifikasi live staging tanggal 2026-09-19 (login Admin Utama, wizard Buat Order → kartu LTL, lalu kartu LCL) dan telah **dihapus beserta ID-nya** (tidak dipakai ulang). Dua requirement berikut adalah dokumentasi PENGGANTI dengan ID baru, ditulis berdasarkan pengamatan langsung terhadap aplikasi (bukan dari `spec.txt`).
+>
+> **[REVISI 2026-09-21]** REQ-059 di bawah **diperbarui lagi** — UI berubah sejak 2026-09-19. Ground truth 2026-09-19 menyatakan field `Jumlah Armada` masih dirender dalam kondisi disabled/terkunci bernilai `1`. Verifikasi live coordinator 2026-09-21 membuktikan itu **sudah tidak benar**: field `Jumlah Armada` (dan `Jenis Armada`) **tidak dirender sama sekali** untuk LTL — section rute Step 1 LTL kosong total. Dibuktikan end-to-end lewat order `ORD9976193880` (Kota Balikpapan → Kabupaten Sumenep) yang tersimpan sampai Detail Order tanpa field armada apa pun di step manapun.
+
+| ID | Requirement | Sumber | Prioritas |
+|---|---|---|---|
+| **REQ-059** | **LTL — TIDAK menampilkan field kota asal/tujuan maupun field Jumlah/Jenis Armada sama sekali** di wizard Buat Order. Section rute Step 1 untuk LTL **kosong total**. | Ground truth staging 2026-09-19, **direvisi 2026-09-21** (menggantikan interpretasi lama atas L10 dan interpretasi "disabled terkunci `1`" dari 2026-09-19) | high |
+| **REQ-060** | **LCL — independensi geografis Drop Point dan Pelabuhan.** Pemilihan `Drop Point Asal`/`Drop Point Tujuan` (yang memiliki kota inheren, lihat REQ-011) **tidak mengikat/memfilter** pilihan `Pelabuhan Asal`/`Pelabuhan Tujuan`; keduanya tetap independen. | Ground truth staging 2026-09-19 (bagian yang masih valid dari interpretasi lama atas L10) | high |
+
+**Acceptance Criteria**
+
+- **REQ-059**
+  - AC-059.1: Dengan `LTL` terpilih, field kota asal dan kota tujuan **tidak** dirender sama sekali — tidak ada dropdown, placeholder, maupun elemen lain yang merujuk Master Kota.
+  - AC-059.2: **[REVISI 2026-09-21]** Field `Jumlah Armada` dan `Jenis Armada` **tidak dirender sama sekali** untuk `LTL` — bukan lagi "disabled/terkunci bernilai `1`" seperti temuan 2026-09-19 (lihat ASM-004). Section rute Step 1 LTL tidak menampilkan field apa pun.
+  - AC-059.3: Dengan `LTL` terpilih, field `Pelabuhan Asal`/`Pelabuhan Tujuan` **tidak** dirender.
+  - AC-059.4: Order LTL dapat diselesaikan dan disimpan tanpa field kota asal/kota tujuan/Jumlah Armada pernah ditampilkan atau diisi user (setara AC-007.5 untuk LCL).
+- **REQ-060**
+  - AC-060.1: Memilih `Drop Point Asal` tertentu **tidak** mengosongkan/mem-filter isi dropdown `Pelabuhan Asal`; seluruh opsi Master Pelabuhan tetap tersedia.
+  - AC-060.2: Memilih `Drop Point Tujuan` tertentu **tidak** mengosongkan/mem-filter isi dropdown `Pelabuhan Tujuan`.
+  - AC-060.3: Kombinasi `Drop Point Asal` dan `Pelabuhan Asal` yang "beda kota" (drop point berada di kota berbeda dari pelabuhan) tetap dapat disimpan tanpa pesan error.
+
+---
+
 ### Ringkasan Traceability
 
 | Baris spec | REQ terkait |
@@ -540,7 +563,7 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 | L5 (penyesuaian Step 4) | REQ-005 |
 | L8 (Step 1 = TMS) | REQ-006 |
 | L9 (LCL: pelabuhan, jumlah kontainer) | REQ-007 |
-| L10 (LTL: kota, kota dilepas) | REQ-008, REQ-009 |
+| L10 (LTL: awalnya diklaim kota; **dihapus & digantikan 2026-09-19**, direvisi lagi 2026-09-21 — kota tidak ada, dan Jumlah Armada TIDAK DIRENDER SAMA SEKALI, bukan lagi terkunci) | REQ-059, REQ-060 |
 | L11 (tipe Normal, auto-draft, validasi, button) | REQ-010, REQ-011, REQ-012 |
 | L14 (Master Barang) | REQ-013 |
 | L16–L20 (modal Pilih Barang) | REQ-014, REQ-015, REQ-016, REQ-017, REQ-018 |
@@ -580,9 +603,9 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 | Field | Wajib | Tipe/Format | Aturan | Berlaku pada |
 |---|---|---|---|---|
 | Jenis Order | Ya | Radio card | Tepat satu terpilih dari `FTL` / `FCL` / `LTL` / `LCL`. Modul ini mencakup **LTL & LCL**. | Semua |
-| `Kota Asal` | Ya (\*) | Dropdown (Master Kota) | Harus dipilih dari Master Kota. **Tidak** memfilter `Drop Point Asal` (REQ-009). | LTL |
-| `Kota Tujuan` | Ya (\*) | Dropdown (Master Kota) | Harus dipilih dari Master Kota. **Tidak** memfilter `Drop Point Tujuan`. Boleh sama dengan Kota Asal (ASM-006). | LTL |
-| `Jumlah Armada` | — | Read-only | Terkunci bernilai `1` — tidak dapat diinput user (ASM-004). | LTL |
+| `Kota Asal` | — | **Tidak dirender** | **[REVISI 2026-09-19]** Field ini **TIDAK ADA** di wizard Buat Order untuk LTL — TERBUKTI SALAH pada dokumentasi sebelumnya (versi lama menyatakan field ini wajib/dropdown Master Kota). Lihat REQ-059. | — |
+| `Kota Tujuan` | — | **Tidak dirender** | **[REVISI 2026-09-19]** Sama seperti `Kota Asal` — field ini **TIDAK ADA** di wizard Buat Order untuk LTL. Lihat REQ-059. | — |
+| `Jumlah Armada` / `Jenis Armada` | — | **Tidak dirender** | **[REVISI 2026-09-21]** Section rute LTL **kosong total** — field ini TIDAK ADA sama sekali (bukan lagi disabled/terkunci `1` seperti temuan 2026-09-19). Lihat REQ-059, ASM-004. | — |
 | `Pelabuhan Asal` | Ya (\*) | Dropdown (Master Pelabuhan) | Harus dipilih dari Master Pelabuhan (mis. `Tanjung Perak (SUB)`). | LCL |
 | `Pelabuhan Tujuan` | Ya (\*) | Dropdown (Master Pelabuhan) | Harus dipilih dari Master Pelabuhan (mis. `Panjang (PNJ)`). Sebaiknya ≠ Pelabuhan Asal (ASM-006). | LCL |
 | `Jumlah Kontainer` | — | Dihilangkan / read-only | Tidak diinput user; nilai order selalu `1` (REQ-007, REQ-024). | LCL |
@@ -733,45 +756,44 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 
 **Step 1 — Data Pengiriman**
 1. User membuka `Beranda` → `Daftar Order` → klik `Buat Order`.
-2. Sistem menampilkan wizard dengan stepper `01 Data Pengiriman` aktif.
+2. Sistem menampilkan wizard dengan stepper `01 Data Pengiriman` aktif; section atas berjudul **`Jenis Pengiriman`** (REQ-006).
 3. User memilih kartu jenis order **`LTL Less Than Truck Load`**.
-4. Sistem menampilkan field rute LTL: `Kota Asal`\*, `Kota Tujuan`\*, dan `Jumlah Armada` (read-only `1`).
-5. User memilih `Kota Asal` dan `Kota Tujuan` dari Master Kota. **Pilihan kota tidak memfilter drop point** (REQ-009).
-6. Section `Data Pengirim` dan `Data Penerima` tampil masing-masing **satu blok**, tanpa `Tambah Baris Input` (REQ-010).
-7. User memilih `Drop Point Asal` → sistem auto-draft `Provinsi Asal`, `Kota/Kab. Asal`, `Kecamatan Asal`, `Desa/Kelurahan Asal`, `Kode Pos`, `Alamat Asal` (read-only).
-8. User mengisi `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC`, dan `Catatan` (opsional).
-9. User memilih `Drop Point Tujuan` → auto-draft data wilayah tujuan; user mengisi `Penerima`, `PIC Penerima`, `No. WhatsApp PIC`, `Catatan` (opsional).
-10. User klik `Selanjutnya`.
+4. Sistem **tidak** menampilkan field `Kota Asal` maupun `Kota Tujuan` sama sekali. **[REVISI 2026-09-21]** Sistem juga **tidak** menampilkan field `Jumlah Armada` maupun `Jenis Armada` — section rute LTL kosong total (REQ-059).
+5. Section `Data Pengirim` dan `Data Penerima` tampil masing-masing **satu blok**, tanpa `Tambah Baris Input` (REQ-010).
+6. User memilih `Drop Point Asal` → sistem auto-draft `Provinsi Asal`, `Kota/Kab. Asal`, `Kecamatan Asal`, `Desa/Kelurahan Asal`, `Kode Pos`, `Alamat Asal` (read-only).
+7. User mengisi `Pengirim`, `PIC Pengirim`, `No. WhatsApp PIC`, dan `Catatan` (opsional).
+8. User memilih `Drop Point Tujuan` → auto-draft data wilayah tujuan; user mengisi `Penerima`, `PIC Penerima`, `No. WhatsApp PIC`, `Catatan` (opsional).
+9. User klik `Selanjutnya`.
 
 **Step 2 — Data Barang** *(pembeda inti)*
-11. Sistem menampilkan section `Data Barang` tunggal — **tanpa** blok `Armada n`/`Kontainer n` dan **tanpa** sub-section alamat (REQ-024).
-12. (Opsional) User mengisi `Nomor DO` — beberapa nomor dipisah koma → menjadi chip (REQ-023).
-13. User klik **`Pilih Barang`** → modal Master Barang terbuka.
-14. User mencari barang via kode/nama, mencentang beberapa SKU (multi-select), memperhatikan counter terpilih, lalu klik `Simpan`.
-15. Barang masuk ke tabel dengan `Kode SKU`, `Nama Barang`, `Kemasan`, `Kubikasi`, `Dimensi`, `Berat` **read-only** hasil draft master (REQ-019).
-16. User mengisi **`Jumlah`** pada setiap baris barang (wajib).
-17. (Opsional) User mencentang `Asuransi` pada baris tertentu, atau `Asuransikan Semua` untuk seluruh barang → kolom `Nilai Barang` muncul dan wajib diisi pada baris terkait (REQ-021, REQ-022).
-18. Sistem **tidak** menampilkan alert/ringkasan kapasitas berat maupun kubikasi (REQ-025).
-19. (Opsional) User menghapus baris barang melalui ikon hapus.
-20. User klik `Selanjutnya`.
+10. Sistem menampilkan section `Data Barang` tunggal — **tanpa** blok `Armada n`/`Kontainer n` dan **tanpa** sub-section alamat (REQ-024).
+11. (Opsional) User mengisi `Nomor DO` — beberapa nomor dipisah koma → menjadi chip (REQ-023).
+12. User klik **`Pilih Barang`** → modal Master Barang terbuka.
+13. User mencari barang via kode/nama, mencentang beberapa SKU (multi-select), memperhatikan counter terpilih, lalu klik `Simpan`.
+14. Barang masuk ke tabel dengan `Kode SKU`, `Nama Barang`, `Kemasan`, `Kubikasi`, `Dimensi`, `Berat` **read-only** hasil draft master (REQ-019).
+15. User mengisi **`Jumlah`** pada setiap baris barang (wajib).
+16. (Opsional) User mencentang `Asuransi` pada baris tertentu, atau `Asuransikan Semua` untuk seluruh barang → kolom `Nilai Barang` muncul dan wajib diisi pada baris terkait (REQ-021, REQ-022).
+17. Sistem **tidak** menampilkan alert/ringkasan kapasitas berat maupun kubikasi (REQ-025).
+18. (Opsional) User menghapus baris barang melalui ikon hapus.
+19. User klik `Selanjutnya`.
 
 **Step 3 — Vendor dan Harga**
-21. Sistem menampilkan ringkasan rute (`Drop Point Asal`, `Drop Point Tujuan`) dan rekap muatan (`Total Berat`, `Total Kubikasi`, `Total Nilai Barang`).
-22. User memilih `Vendor` dan mengisi `Tanggal Permintaan Muat`.
-23. User mengisi **`Waktu Perjalanan`** — editable bila rute belum ada di Master Waktu Perjalanan (muncul info nilai akan tersimpan sebagai master baru); text-only bila rute sudah ada (REQ-030).
-24. User mengisi `Harga`.
-25. (Opsional) User centang `Gunakan komponen harga` → isi `PPN` dan `PPh`. Bila ada barang diasuransikan, komponen `Asuransi (n%)` otomatis ikut dihitung ke `Total Harga` (REQ-032).
-26. User klik `Selanjutnya`.
+20. Sistem menampilkan ringkasan rute (`Drop Point Asal`, `Drop Point Tujuan`) dan rekap muatan (`Total Berat`, `Total Kubikasi`, `Total Nilai Barang`).
+21. User memilih `Vendor` dan mengisi `Tanggal Permintaan Muat`.
+22. User mengisi **`Waktu Perjalanan`** — editable bila rute belum ada di Master Waktu Perjalanan (muncul info nilai akan tersimpan sebagai master baru); text-only bila rute sudah ada (REQ-030).
+23. User mengisi `Harga`.
+24. (Opsional) User centang `Gunakan komponen harga` → isi `PPN` dan `PPh`. Bila ada barang diasuransikan, komponen `Asuransi (n%)` otomatis ikut dihitung ke `Total Harga` (REQ-032).
+25. User klik `Selanjutnya`.
 
 **Step 4 — Review**
-27. Sistem menampilkan seluruh section read-only: `Jenis Pengiriman dan Rute`, `Data Pengirim`, `Data Penerima`, `Data Barang`, `Vendor dan Harga`.
-28. Section `Data Barang` mengikuti struktur Step 2 OMS: `Kode SKU`/`Nama Barang`, `Kemasan`, `Kubikasi`/`Dimensi`, `Berat`, `Jumlah`, `Nilai Barang` (`Tanpa Asuransi` untuk baris tanpa asuransi) (REQ-035, REQ-036).
-29. User klik **`Simpan`** → status order menjadi **`Menunggu Penugasan`**; sistem mengarahkan ke `Daftar Order`.
+26. Sistem menampilkan seluruh section read-only: `Jenis Pengiriman dan Rute`, `Data Pengirim`, `Data Penerima`, `Data Barang`, `Vendor dan Harga`.
+27. Section `Data Barang` mengikuti struktur Step 2 OMS: `Kode SKU`/`Nama Barang`, `Kemasan`, `Kubikasi`/`Dimensi`, `Berat`, `Jumlah`, `Nilai Barang` (`Tanpa Asuransi` untuk baris tanpa asuransi) (REQ-035, REQ-036).
+28. User klik **`Simpan`** → status order menjadi **`Menunggu Penugasan`**; sistem mengarahkan ke `Daftar Order`.
 
 **Pasca-simpan**
-30. Aksi **`Lihat No. Resi`** langsung tersedia pada menu aksi baris (REQ-055).
-31. User klik `Lihat No. Resi` → pop up `Data No. Resi` menampilkan `ID Order`, badge `LTL`, dan tabel `No` / `No. Resi` / `Kode SKU` / `Nama Barang`, dengan ikon copy per baris (REQ-056, REQ-057).
-32. `No. Resi` juga dapat dilihat pada halaman `Detail Order` (REQ-058).
+29. Aksi **`Lihat No. Resi`** langsung tersedia pada menu aksi baris (REQ-055).
+30. User klik `Lihat No. Resi` → pop up `Data No. Resi` menampilkan `ID Order`, badge `LTL`, dan tabel `No` / `No. Resi` / `Kode SKU` / `Nama Barang`, dengan ikon copy per baris (REQ-056, REQ-057).
+31. `No. Resi` juga dapat dilihat pada halaman `Detail Order` (REQ-058).
 
 ---
 
@@ -779,9 +801,9 @@ Modul ini bersifat **turunan** dari spesifikasi Order LTL & LCL di TMS. Seluruh 
 
 Perbedaan terhadap F1:
 
-- **Step 1 (langkah 3–5):** user memilih kartu **`LCL Less Than Container Load`**. Sistem menampilkan `Pelabuhan Asal`\* dan `Pelabuhan Tujuan`\* dari **Master Pelabuhan**, serta `Jumlah Kontainer` yang **dihilangkan sebagai input** (terkunci `1`). Field `Kota Asal`/`Kota Tujuan` **tidak** dirender (REQ-007). Pemilihan pelabuhan **tidak terikat** kota manapun (REQ-009).
+- **Step 1 (langkah 3–4):** user memilih kartu **`LCL Less Than Container Load`**. Sistem menampilkan `Pelabuhan Asal`\* dan `Pelabuhan Tujuan`\* dari **Master Pelabuhan**, serta `Jumlah Kontainer` yang **dihilangkan sebagai input** (tidak dirender/terkunci `1`). Field `Kota Asal`/`Kota Tujuan` **tidak** dirender — sama seperti LTL, wizard Buat Order tidak pernah menampilkan field kota (REQ-007, REQ-059). Pemilihan pelabuhan **tidak dibatasi** oleh kota drop point manapun (REQ-060).
 - **Step 2:** identik dengan F1 — satu grup barang, `Jumlah Kontainer` order selalu `1` (REQ-024).
-- **Step 3 (langkah 23):** field **`Waktu Perjalanan` tidak dirender sama sekali**. Nilainya dihitung sistem sebagai **ETA − ETD + 4 hari** dan **baru tampil pada `Detail Order` saat status `Ditugaskan`** (REQ-031).
+- **Step 3 (langkah 22):** field **`Waktu Perjalanan` tidak dirender sama sekali**. Nilainya dihitung sistem sebagai **ETA − ETD + 4 hari** dan **baru tampil pada `Detail Order` saat status `Ditugaskan`** (REQ-031).
 - **Step 4 & pasca-simpan:** identik dengan F1; badge pada pop up `Data No. Resi` menampilkan **`LCL`**.
 
 ---
@@ -817,7 +839,7 @@ Perbedaan terhadap F1:
 | **EX-04** | User mengisi `Jumlah` sangat besar (melebihi kapasitas armada/kontainer) | **Tidak ada** alert kubikasi/berat; `Selanjutnya` tetap aktif dan order dapat disimpan (REQ-025). |
 | **EX-05** | User mencari kode/nama barang yang tidak ada di master | Modal menampilkan empty state, bukan error. |
 | **EX-06** | User memilih barang yang sudah ada lalu `Simpan` | Tidak ada baris duplikat; barang tetap satu baris (REQ-016). |
-| **EX-07** | User memilih `Kota Asal` berbeda dari kota `Drop Point Asal` | Order tetap valid dan dapat disimpan — kota tidak mengikat drop point (REQ-009). |
+| **EX-07** | Pada **LCL**, user memilih `Drop Point Asal` lalu membuka dropdown `Pelabuhan Asal` | Seluruh opsi Master Pelabuhan tetap tampil tanpa filter — pemilihan pelabuhan tidak dibatasi oleh kota drop point manapun (REQ-060; field `Kota Asal`/`Kota Tujuan` sendiri tidak pernah dirender di wizard, lihat REQ-059). |
 | **EX-08** | User mencoba menambah alamat pengirim/penerima | Tidak ada kontrol `Tambah Baris Input` yang tersedia (REQ-010). |
 | **EX-09** | User membuka Step 3 pada order **LCL** | Field `Waktu Perjalanan` tidak dirender; order tetap dapat lanjut (REQ-031). |
 | **EX-10** | User melihat `Detail Order` LCL berstatus `Menunggu Penugasan` | `Waktu Perjalanan` **belum** tampil; baru tampil saat status `Ditugaskan` (REQ-031). |
@@ -937,18 +959,20 @@ Perbedaan terhadap F1:
 | Step 3 | `03` `Vendor dan Harga` | *untouched* | `getByText('Vendor dan Harga')` |
 | Step 4 | `04` `Review` | *untouched* | `getByText('Review')` |
 
-**Section `Jenis Pengiriman dan Rute`**
+**Section `Jenis Pengiriman`** *(REVISI 2026-09-19 — judul section di layar wizard Buat Order adalah `Jenis Pengiriman`, BUKAN `Jenis Pengiriman dan Rute`; lihat REQ-006/AC-006.1. Judul lengkap tetap dipakai di Detail Order/Step 4 Review/Edit Order.)*
 
 | Elemen | Teks / Placeholder | Tipe / State | Selector rekomendasi | `data-testid` (hipotesis) |
 |---|---|---|---|---|
-| Judul section | `Jenis Pengiriman dan Rute` | Heading section | `getByRole('heading', { name: 'Jenis Pengiriman dan Rute' })` | `section-jenis-rute` |
+| Judul section | `Jenis Pengiriman` | Heading section | `getByRole('heading', { name: 'Jenis Pengiriman' })` | `section-jenis-rute` |
 | Kartu FTL | `FTL` / `Full Truck Load` | Radio card — **unselected** | `getByRole('radio', { name: /FTL/ })` | `order-type-ftl` |
 | Kartu FCL | `FCL` / `Full Container Load` | Radio card — unselected | `getByRole('radio', { name: /FCL/ })` | `order-type-fcl` |
 | **Kartu LTL** | `LTL` / `Less Than Truck Load` | Radio card — **SELECTED** (border oranye, radio terisi) | `getByRole('radio', { name: /LTL/ })` → `toBeChecked()` | `order-type-ltl` |
 | Kartu LCL | `LCL` / `Less Than Container Load` | Radio card — unselected | `getByRole('radio', { name: /LCL/ })` | `order-type-lcl` |
-| `Kota Asal` \* | placeholder `Pilih Kota Asal` | Dropdown wajib — **empty** | `getByLabel(/^Kota Asal/)` \| fallback `getByText('Pilih Kota Asal')` | `field-kota-asal` |
-| `Kota Tujuan` \* | placeholder `Pilih Kota Tujuan` | Dropdown wajib — empty | `getByLabel(/^Kota Tujuan/)` | `field-kota-tujuan` |
-| `Jumlah Armada` | nilai `1` | Textbox — **disabled/read-only** (abu), **tanpa asterisk** | `getByLabel('Jumlah Armada')` → `toBeDisabled()` / `toHaveValue('1')` | `field-jumlah-armada` |
+| ~~`Jumlah Armada`~~ | — | **[REVISI 2026-09-21] TIDAK DIRENDER** — lihat catatan di bawah | `getByLabel('Jumlah Armada')` → `toHaveCount(0)` | `field-jumlah-armada` (tidak dipakai untuk LTL) |
+
+**[REVISI 2026-09-19]** Field `Kota Asal` dan `Kota Tujuan` **TIDAK ADA** pada section ini — dokumentasi versi sebelumnya (baris ini) TERBUKTI SALAH setelah verifikasi live staging. Lihat baris "Elemen yang HARUS ABSEN" di bawah dan REQ-059.
+
+**[REVISI 2026-09-21]** Field `Jumlah Armada` (dan `Jenis Armada`) juga **TIDAK ADA** pada section ini — temuan 2026-09-19 (baris tabel di atas, sekarang dicoret) yang menyatakan field ini dirender disabled/read-only bernilai `1` **TERBUKTI SUDAH TIDAK BENAR LAGI** setelah verifikasi live staging ulang hari ini. Section `Jenis Pengiriman` untuk LTL sekarang **kosong total** — hanya berisi 4 kartu jenis order, tanpa field rute apa pun di bawahnya. Lihat REQ-059/AC-059.2.
 
 **Section `Data Pengirim`** (tepat 1 blok)
 
@@ -988,6 +1012,7 @@ Testid hipotesis: `field-drop-point-tujuan`, `field-penerima`, `field-pic-peneri
 | Dropdown `Tipe Pengiriman` | REQ-010 / ASM-005 | `getByLabel(/Tipe Pengiriman/)` → `toHaveCount(0)` |
 | `Metode Pengiriman` | ASM-003 | `toHaveCount(0)` |
 | `Pelabuhan Asal` / `Pelabuhan Tujuan` | AC-008.3 | `toHaveCount(0)` saat LTL terpilih |
+| `Kota Asal` / `Kota Tujuan` | REQ-059/AC-059.1 **(REVISI 2026-09-19)** | `getByLabel(/^Kota Asal/)` / `getByLabel(/^Kota Tujuan/)` → `toHaveCount(0)` saat LTL terpilih — field ini TIDAK PERNAH dirender di wizard Buat Order |
 | Tombol `Sebelumnya` | ASM-039 (baru) | tidak dirender pada Step 1 |
 
 **State & validasi:** seluruh field wajib **kosong** (empty state); **tidak ada** pesan validasi yang tergambar pada aset ini → pola pesan mengikuti ASM-026 (`<Nama Field> harus diisi`) dan validasi diasumsikan muncul **setelah** `Selanjutnya` ditekan (ASM-038).
@@ -1114,7 +1139,7 @@ Selector: `getByRole('button', { name: 'Sebelumnya' })` → `wizard-prev`.
 
 | Section (collapsible, chevron `^`) | Isi terlihat | Catatan |
 |---|---|---|
-| `Jenis Pengiriman dan Rute` | `Jenis Pengiriman : FTL (Full Truck Load)` 🚫 • `Jenis Armada : Tronton Wing Box` 🚫 • `Jumlah Armada : 2` 🚫 • **`Tipe Pengiriman : Normal`** ✔ • `Waktu Perjalanan : 8 Jam` | Untuk LTL/LCL: `Jenis Pengiriman` = `LTL (Less Than Truck Load)`/`LCL (Less Than Container Load)`, `Jumlah Armada`/`Jumlah Kontainer` = `1` (AC-024.5) |
+| `Jenis Pengiriman dan Rute` | `Jenis Pengiriman : FTL (Full Truck Load)` 🚫 • `Jenis Armada : Tronton Wing Box` 🚫 • `Jumlah Armada : 2` 🚫 • **`Tipe Pengiriman : Normal`** ✔ • `Waktu Perjalanan : 8 Jam` | **[REVISI 2026-09-21]** Untuk **LTL**: `Jenis Pengiriman` = `LTL (Less Than Truck Load)`, `Kota Asal`/`Kota Tujuan` (read-only, auto-derived dari Drop Point), `Tipe Pengiriman : Normal`, `Waktu Perjalanan` — **TIDAK ADA** field `Jumlah Armada`/`Jenis Armada` sama sekali (bukan lagi `= 1` seperti dugaan sebelumnya; lihat REQ-059). Untuk **LCL**: `Jenis Pengiriman` = `LCL (Less Than Container Load)`, `Jumlah Kontainer` = `1` tetap tampil (AC-024.5, tidak berubah) |
 | `Data Pengirim` | `Drop Point Asal : Gudang MSK Region 2` • `Pengirim : PT Mentari Sumber Kertas` • `PIC Pengirim : Budianto Suwarno` • `No. WhatsApp PIC : 081245676897892` • `Provinsi Asal : Jawa Timur` • `Kota/Kab. Asal : Kota Surabaya` • `Kecamatan Asal : Wonokromo` • `Desa/Kelurahan Asal : Darmo` • `Kode Pos : 60241` • `Alamat Asal : Jl. Jambi No.35` • `Catatan : Total barang 2.500 karton` | Urutan field identik Step 1 |
 | `Data Penerima` | `Drop Point Tujuan : Gudang Jaya Retail Malang` • `Penerima : PT Retail Jaya Abadi` • `PIC Penerima : Basori` • `No. WhatsApp PIC : 08967278928989` • `Provinsi Tujuan : Jawa Timur` • `Kota/Kab. Tujuan : Kota Malang` • `Kecamatan Tujuan : Kedungkandang` • `Desa/Kelurahan Tujuan : Buring` • `Kode Pos : 65135` • `Alamat Tujuan : Jl. Kalianyar Buring No.9` • **`Catatan : -`** | Contoh **empty state opsional = `-`** (AC-034.5) |
 | `Data Barang` | Box `Nomor DO` bernilai **`-`** + tabel barang (lihat bawah) | **Satu grup tunggal** ✔ (AC-035.4) |
@@ -1166,8 +1191,8 @@ Selector: `getByRole('button', { name: 'Sebelumnya' })` → `wizard-prev`.
 | `ID Order` | `: ORD67890792` | Teks read-only | `getByText('ORD67890792')` | `detail-id-order` |
 | `Jenis Pengiriman` 🚫 | `: FTL (Full Truck Load)` | Teks read-only | untuk LTL/LCL → `/LTL \(Less Than Truck Load\)|LCL \(Less Than Container Load\)/` | `detail-jenis-pengiriman` |
 | `Tanggal Dibuat` | `: 26/06/2026 08:17` | Teks read-only | `getByText(/\d{2}\/\d{2}\/\d{4} \d{2}:\d{2}/)` | `detail-tanggal-dibuat` |
-| `Jenis Armada` 🚫 | `: Tronton Wing Box` | Teks read-only | — | — |
-| `Jumlah Armada` 🚫 | `: 2` | Teks read-only | LTL/LCL harus `1` (AC-024.5) | `detail-jumlah-unit` |
+| `Jenis Armada` 🚫 | `: Tronton Wing Box` | Teks read-only | **[REVISI 2026-09-21]** Untuk **LTL**: field ini TIDAK ADA sama sekali pada Detail Order. Untuk **LCL**: tidak relevan (LCL tidak punya Jenis Armada). | — |
+| `Jumlah Armada` 🚫 | `: 2` | Teks read-only | **[REVISI 2026-09-21]** Untuk **LTL**: field ini TIDAK ADA sama sekali pada Detail Order (bukan lagi `= 1`, lihat REQ-059). Untuk **LCL**: `Jumlah Kontainer` tetap tampil `= 1` (AC-024.5, tidak berubah). | `detail-jumlah-unit` |
 | `Tipe Pengiriman` | `: Normal` | Teks read-only ✔ | `getByText('Normal')` | `detail-tipe-pengiriman` |
 | `Waktu Perjalanan` | `: 8 Jam` | Teks read-only | `getByText('8 Jam')` | `detail-waktu-perjalanan` |
 | Section `Data Pengirim` / `Data Penerima` / `Data Barang` / `Vendor dan Harga` | idem UI-100 (nilai sama) | Collapsible (chevron `^`) | `getByRole('heading', { name: 'Data Barang' })` | `detail-section-*` |
@@ -1332,7 +1357,7 @@ Kontainer menu: `getByRole('menu')` → `row-actions-menu`.
 | `FTL` `Full Truck Load` / `FCL` `Full Container Load` / `LTL` `Less Than Truck Load` / `LCL` `Less Than Container Load` | Label kartu jenis order | UI-097, UI-102 |
 | `Pilih Kota Asal` / `Pilih Kota Tujuan` / `Pilih  Drop Point Asal` / `Pilih Drop Point Tujuan` / `Pilih Pengirim` / `Pilih Penerima` | Placeholder dropdown | UI-097, UI-102 |
 | `Masukkan PIC Pengirim` / `Masukkan PIC Penerima` / `Masukkan No. WhatsApp PIC` / `Masukkan Catatan` | Placeholder input | UI-097, UI-102 |
-| `Jumlah Armada` / `Jumlah Kontainer` (nilai `1`, disabled) | Label field terkunci | UI-097 / UI-102 |
+| `Jumlah Kontainer` (nilai `1`, disabled) | Label field terkunci — **hanya LCL** (UI-102). Untuk LTL (UI-097), `Jumlah Armada` **tidak dirender** sama sekali, lihat REVISI 2026-09-21. | UI-102 |
 | `Asuransikan Semua` + `Berlaku untuk seluruh barang pada armada ini` | Checkbox + helper | UI-098 |
 | `Pisahkan dengan koma untuk menambahkan beberapa nomor` | Helper `Nomor DO` | UI-098 |
 | `Nilai Barang harus diisi` | Error inline | UI-098 |
@@ -1362,8 +1387,8 @@ Kontainer menu: `getByRole('menu')` → `row-actions-menu`.
 | REQ-004/013 (Master Barang) | ◐ | UI-098 | Tabel hasil terlihat; **modal `Pilih Barang` TIDAK ADA** |
 | REQ-014…018 (modal) | ✘ | — | Seluruhnya hipotesis (UI-D01, ASM-032) |
 | REQ-007 (LCL pelabuhan) | ✔ | UI-102 | `Jumlah Kontainer` disabled `1` |
-| REQ-008 (LTL kota) | ✔ | UI-097 | `Jumlah Armada` disabled `1` |
-| REQ-009 (kota dilepas) | ✘ | — | Perilaku, tidak dapat dibaca dari PNG |
+| REQ-059 (LTL — tanpa Kota Asal/Tujuan, tanpa Jumlah/Jenis Armada) **[BARU 2026-09-19, direvisi 2026-09-21]** | ✔ | UI-097 | **[REVISI 2026-09-21]** `Jumlah Armada` **tidak dirender sama sekali** (bukan lagi disabled `1` seperti dugaan 2026-09-19); `Kota Asal`/`Kota Tujuan` tidak dirender — section rute LTL kosong total, konsisten dengan ground truth staging 2026-09-21 |
+| REQ-060 (LCL — pelabuhan lepas dari drop point) **[BARU 2026-09-19, menggantikan ID lama yang dihapus]** | ✘ | — | Perilaku, tidak dapat dibaca dari PNG; bagian lama soal independensi kota tidak berlaku lagi karena field kota tidak ada, digantikan versi independensi Drop Point↔Pelabuhan |
 | REQ-010 (tipe Normal, 1 baris) | ✔ | UI-097, UI-102, UI-100 | 1 blok pengirim/penerima; `Tipe Pengiriman : Normal` di review |
 | REQ-011 (auto-draft) | ◐ | UI-097, UI-102 | Field wilayah tampil **disabled**; efek pemilihan drop point tidak tergambar |
 | REQ-019…023 (tabel barang, DO) | ✔ | UI-098 | Lengkap termasuk chip DO & helper |
@@ -1411,9 +1436,9 @@ Kontainer menu: `getByRole('menu')` → `row-actions-menu`.
 | **ASM-001** | Aset desain vs spec | Sebagian aset desain modul ini jelas merupakan *carry-over* layar FTL/FCL: `099.png`/`100.png`/`101.png` menampilkan `Jenis Pengiriman : FTL (Full Truck Load)`, `Jumlah Armada : 2`, dan rekap dua baris `Armada 1`/`Armada 2` — padahal LTL/LCL hanya memiliki **1 unit muatan**. | Aset desain diperlakukan sebagai referensi **struktur, label, dan teks**, **bukan** referensi kardinalitas/visibilitas. Kardinalitas dan visibilitas mengikuti rule spec (REQ-024). | **Tinggi.** Bila test suite mengambil ekspektasi dari desain, akan menghasilkan skenario multi-armada yang salah untuk LTL/LCL. |
 | **ASM-002** | Level asuransi | Konflik internal spec: L25 menyatakan checkbox `Tambahkan Asuransi` **"berlaku untuk seluruh barang pada order tersebut"**, sedangkan *Take Note* pada L33 menyatakan **"asuransi mengikuti tiap jenis barang yang dimasukkan"**. | *Take Note* diperlakukan sebagai **klarifikasi/koreksi terakhir** dan dikuatkan oleh desain `098.png` yang menampilkan **kolom `Asuransi` berisi checkbox per baris barang** + kontrol master **`Asuransikan Semua`** di header. Keputusan: **asuransi bersifat per-barang**, dengan `Asuransikan Semua` sebagai *select-all* (REQ-022). | **Tinggi.** Menentukan struktur seluruh skenario Step 2, Step 3 (komponen Asuransi), dan Step 4. Bila implementasi ternyata all-or-nothing per order, AC-022.4 dan EX-20 perlu direvisi. |
 | **ASM-003** | Label checkbox asuransi | Spec menyebut label `"Tambahkan Asuransi"`; desain `098.png` menampilkan **`Asuransikan Semua`**. | Label kanonik ditetapkan **`Asuransikan Semua`** (mengikuti desain, yang lebih spesifik untuk LTL/LCL). Selector memakai matcher toleran: `/(Tambahkan Asuransi\|Asuransikan Semua)/`. | **Sedang.** Berpotensi false-negative bila implementasi memakai label spec. |
-| **ASM-004** | Jumlah unit pada Step 1 | Spec L9 menyatakan `Jumlah Kontainer` **"dihilangkan"** untuk LCL, namun desain `102.png` tetap menampilkan field `Jumlah Kontainer` bernilai `1` dalam kondisi *greyed/disabled*. Untuk LTL, spec tidak menyebut `Jumlah Armada` sama sekali, tetapi desain `097.png` menampilkannya bernilai `1` *greyed*. | "Dihilangkan" ditafsirkan sebagai **dihilangkan sebagai input user** — field boleh tetap dirender dalam kondisi **read-only bernilai `1`**. AC ditulis agar lolos untuk kedua implementasi (tidak dirender **atau** read-only `1`), yang diuji adalah **ketidakmampuan user mengubahnya**. | **Sedang.** Assertion berbasis "field tidak ada" akan rapuh; gunakan assertion "tidak dapat diubah". |
+| **ASM-004** | Jumlah unit pada Step 1 | Spec L9 menyatakan `Jumlah Kontainer` **"dihilangkan"** untuk LCL, namun desain `102.png` tetap menampilkan field `Jumlah Kontainer` bernilai `1` dalam kondisi *greyed/disabled*. Untuk LTL, spec tidak menyebut `Jumlah Armada` sama sekali; desain `097.png` menampilkannya bernilai `1` *greyed*, dan ground truth staging 2026-09-19 sempat mengkonfirmasi hal yang sama secara live. **[REVISI 2026-09-21]** Ground truth staging terbaru (verifikasi live coordinator hari ini, dibuktikan end-to-end lewat order `ORD9976193880`) membuktikan bahwa untuk **LTL**, field `Jumlah Armada`/`Jenis Armada` **TIDAK DIRENDER SAMA SEKALI** — ambiguitas "tidak dirender ATAU read-only `1`" untuk LTL **sudah tidak berlaku lagi**, sudah jelas jawabannya: tidak dirender. Untuk **LCL**, `Jumlah Kontainer` **belum ada perubahan** yang dilaporkan — ambiguitas "tidak dirender atau read-only `1`" untuk LCL **tetap berlaku seperti semula**. | **LTL (final, tidak ambigu lagi):** field `Jumlah Armada`/`Jenis Armada` **tidak dirender** — assertion wajib berbentuk `toHaveCount(0)` / `not.toBeVisible()`, BUKAN lagi `toBeDisabled()`/`toHaveValue('1')`. **LCL (tidak berubah, tetap ambigu):** "Dihilangkan" ditafsirkan sebagai **dihilangkan sebagai input user** — field `Jumlah Kontainer` boleh tetap dirender dalam kondisi **read-only bernilai `1`**. AC LCL ditulis agar lolos untuk kedua implementasi (tidak dirender **atau** read-only `1`), yang diuji adalah **ketidakmampuan user mengubahnya**. | **Sedang.** Untuk LTL, risiko sudah turun (tidak ambigu lagi, tinggal pastikan assertion di `.feature`/`.scenarios.json` sudah diperbarui). Untuk LCL, assertion berbasis "field tidak ada" masih berpotensi rapuh; tetap gunakan assertion "tidak dapat diubah". |
 | **ASM-005** | Field `Tipe Pengiriman` | Spec L11 menyatakan tipe pengiriman **selalu Normal**, tetapi tidak menyebut apakah dropdown `Tipe Pengiriman` tetap dirender. Desain `097.png` dan `102.png` **tidak** menampilkan dropdown tersebut untuk LTL/LCL. | Diasumsikan dropdown `Tipe Pengiriman` **tidak dirender** pada Step 1 LTL/LCL; nilai `Normal` diset sistem dan tampil sebagai teks read-only pada Step 4/Detail Order. | **Sedang.** Bila dropdown ternyata dirender terkunci, AC-010.4 perlu penyesuaian. |
-| **ASM-006** | Validasi asal = tujuan | Spec tidak menyebut apakah `Kota Asal` boleh sama dengan `Kota Tujuan`, atau `Pelabuhan Asal` sama dengan `Pelabuhan Tujuan`. | Diasumsikan **tidak ada blocking validation**; kombinasi identik tetap dapat disimpan. Skenario `edge` disiapkan untuk memverifikasi ada/tidaknya validasi. | Rendah–Sedang. |
+| **ASM-006** | Validasi asal = tujuan | Spec tidak menyebut apakah `Pelabuhan Asal` boleh sama dengan `Pelabuhan Tujuan` (LCL). **[REVISI 2026-09-19]** Poin `Kota Asal`/`Kota Tujuan` (LTL) **dicabut** — field tersebut TERBUKTI TIDAK ADA di wizard Buat Order (lihat REQ-059), sehingga tidak ada kombinasi asal=tujuan untuk diuji pada LTL. | Diasumsikan **tidak ada blocking validation** untuk `Pelabuhan Asal`=`Pelabuhan Tujuan`; kombinasi identik tetap dapat disimpan. Skenario `edge` LTL soal "Kota Asal = Kota Tujuan" **dihapus/tidak relevan lagi**. | Rendah–Sedang. |
 | **ASM-007** | Elemen Auto Stuffing pada Step 2 | Desain `098.png` menampilkan **floating button** (ikon *refresh* dan ikon *mata*), **badge `Kubikasi melebihi kapasitas armada`**, dan **ringkasan `Total Kubikasi: 19,2 / 17,86 m³` • `Total Berat: 19.200 / 24.800 kg`** — seluruhnya bertentangan dengan spec L28 yang menyatakan **tidak ada pengecekan/alert kelebihan berat maupun kubikasi**. | **Spec menang.** Elemen alert kapasitas, ringkasan kapasitas berformat `terpakai/kapasitas`, dan floating button hitung-ulang/visualisasi **diperlakukan sebagai elemen yang harus ABSEN** pada Step 2 LTL/LCL (REQ-025). Desain `098.png` dinilai sebagai *carry-over* layar FTL. | **Tinggi.** Ini adalah salah satu assertion negatif utama modul. Bila ternyata elemen tersebut memang ada di implementasi LTL/LCL, REQ-025 dan AC-025.1–025.5 harus dicabut. Wajib dikonfirmasi ke PO. |
 | **ASM-008** | Rekap Step 3 | Desain `099.png` menampilkan rekap **dua baris** (`Armada 1`, `Armada 2`), bertentangan dengan rule 1-unit LTL/LCL. | Rekap Step 3 untuk LTL/LCL diasumsikan menampilkan **tepat satu baris unit** (agregat seluruh barang order): `Total Berat`, `Total Kubikasi`, `Total Nilai Barang`. Nilai dihitung dari input Step 2. | **Sedang.** Menjadi dasar AC-024.4. |
 | **ASM-009** | Minimum jumlah barang | Spec tidak menyebut apakah order boleh disimpan tanpa satu pun barang. | Diasumsikan **minimal 1 barang** wajib ada pada order sebelum dapat lanjut dari Step 2 (konsekuensi logis dari `Jumlah` yang wajib dan dari fungsi order). | **Sedang.** Menjadi dasar AC-026.4 dan EX-11; wajib dikonfirmasi. |
@@ -1422,7 +1447,7 @@ Kontainer menu: `getByRole('menu')` → `row-actions-menu`.
 | **ASM-012** | Persentase asuransi | Spec L38 menyebut "persentase × Total Nilai Barang" tanpa menjelaskan sumber persentase (input user, master vendor, atau konfigurasi sistem). | Diasumsikan persentase berasal dari **konfigurasi/master** (bukan input bebas user pada Step 3), ditampilkan sebagai label `Asuransi (n%)` — konsisten dengan desain `100.png`/`101.png` yang menampilkan `Asuransi (0,2%)` **tanpa** input persen di sampingnya (berbeda dari `PPN`/`PPh` yang punya input). | **Sedang.** Bila persentase ternyata dapat diinput, V5 dan AC-032 perlu tambahan field. |
 | **ASM-013** | Penamaan status | Konflik penamaan: spec L48 menulis **`Isi Data Pengiriman`** sedangkan badge desain (`096.png`, `103.png`) menulis **`Isi Data Dasar`**; spec L55 menulis **`Selesai`** sedangkan badge desain menulis **`Terkirim`**. | **Nama pada spec dijadikan kanonik** (`Isi Data Pengiriman`, `Selesai`) karena spec adalah sumber requirement. Untuk assertion UI, digunakan matcher toleran: `/(Isi Data Pengiriman\|Isi Data Dasar)/` dan `/(Selesai\|Terkirim)/`. | **Tinggi.** Penamaan status dipakai lintas skenario (filter, badge, matriks aksi). Wajib dikonfirmasi ke PO agar satu penamaan dipakai konsisten. |
 | **ASM-014** | Konfirmasi `Simpan ke Draf` | Spec tidak menyebut adanya pop up konfirmasi untuk `Simpan ke Draf` (hanya untuk `Batal`/`Simpan` pada Edit Order, L65–L66). | Diasumsikan `Simpan ke Draf` **menampilkan pop up konfirmasi**, mengikuti pola modul order sejenis. AC-039.5 ditulis sebagai verifikasi opsional bertoleransi. | Rendah–Sedang. |
-| **ASM-015** | Hak edit `Jenis/Jumlah Armada` | Spec L63 menyatakan `Jenis Armada` dan `Jumlah Armada` **tetap dapat diubah** pada Edit Order, namun untuk LTL/LCL kedua field tersebut terkunci/`1` sejak Step 1 (ASM-004). | Rule L63 diperlakukan sebagai **carry-over dari spec FTL/FCL**. Untuk LTL/LCL, field yang benar-benar dapat diubah adalah `Data Pengirim`, `Data Penerima`, `Data Barang`, dan `Vendor & Harga`; `Jenis/Jumlah Armada` tetap mengikuti batasan 1 unit. | **Sedang.** Menghindari skenario edit multi-armada yang tidak relevan. |
+| **ASM-015** | Hak edit `Jenis/Jumlah Armada` | Spec L63 menyatakan `Jenis Armada` dan `Jumlah Armada` **tetap dapat diubah** pada Edit Order, namun untuk LTL kedua field tersebut **tidak pernah dirender** sejak Step 1 (ASM-004, REQ-059), dan untuk LCL `Jumlah Kontainer` terkunci/`1` sejak Step 1. | Rule L63 diperlakukan sebagai **carry-over dari spec FTL/FCL**. **[REVISI 2026-09-21]** Untuk **LTL**, `Jenis Armada`/`Jumlah Armada` **tidak ada pada Edit Order** — tidak ada apa pun untuk diedit maupun dibatasi, karena field tersebut sudah tidak dirender sejak Step 1. Untuk **LCL**, `Jumlah Kontainer` tetap mengikuti batasan 1 unit (read-only/terkunci), tidak berubah. Field yang benar-benar dapat diubah untuk LTL/LCL adalah `Data Pengirim`, `Data Penerima`, `Data Barang`, dan `Vendor & Harga`. | **Sedang.** Menghindari skenario edit multi-armada yang tidak relevan; untuk LTL, hindari juga skenario yang mengasumsikan field armada masih ada (walau read-only) pada Edit Order. |
 | **ASM-016** | Validasi `Alasan Pembatalan` | Spec hanya menyebut "wajib diisi" tanpa panjang minimum/maksimum atau perlakuan whitespace. | Diasumsikan: input hanya spasi diperlakukan sebagai kosong; tidak ada batas panjang eksplisit (batas wajar textarea). | Rendah–Sedang. Menjadi dasar skenario `edge`. |
 | **ASM-017** | `Lihat No. Perjalanan` vs `Lihat No. Resi` | Konflik: blok "Aksi pada Daftar Order" L78 menyebut aksi **`Lihat No. Perjalanan`** untuk status `Ditugaskan`, padahal blok "No. Resi" L84 menyatakan No. Resi **hanya untuk LTL & LCL** dan L85 membedakannya dari No. Perjalanan FTL/FCL. Desain `103.png` menampilkan menu aksi berisi **`Lihat No. Resi`**. | L78 diperlakukan sebagai **carry-over dari spec FTL/FCL**. Untuk LTL/LCL, aksi yang benar adalah **`Lihat No. Resi`** (dikuatkan desain `103.png`). Aksi `Lihat No. Perjalanan` **tidak** diharapkan muncul pada order LTL/LCL. | **Tinggi.** Salah pilih label akan menggagalkan seluruh skenario R10. |
 | **ASM-018** | Ketersediaan `Lihat No. Resi` pada `Menunggu Penugasan` | Konflik: matriks aksi L77 untuk status `Menunggu Penugasan` **tidak** mencantumkan `Lihat No. Resi`, padahal L85 menyatakan aksi tersebut tampil **"saat status order `Menunggu Penugasan`"**. | Rule L85 (blok khusus No. Resi, lebih spesifik) **diprioritaskan**: `Lihat No. Resi` **ditambahkan** ke matriks aksi untuk status `Menunggu Penugasan` dan seterusnya. | **Sedang–Tinggi.** Menjadi dasar AC-055.1 dan EX-15. |

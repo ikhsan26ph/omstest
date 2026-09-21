@@ -2,9 +2,13 @@
 
 > **Tahap pipeline:** 4/4 — QA reviewer (verifikatif)
 > **Sumber yang direview:**
-> - `oms015-order-ltl-lcl-universal.analysis.md` (REQ-001…058, UI-096…105 + UI-D01…D08, ASM-001…040)
+> - `oms015-order-ltl-lcl-universal.analysis.md` (REQ-001…058 + REQ-059–060 baru pasca revisi 2026-09-19 — total tetap 58 ID unik karena 2 ID lama dihapus, lihat catatan revisi di atas; UI-096…105 + UI-D01…D08, ASM-001…040)
 > - `oms015-order-ltl-lcl-universal.feature` (309 skenario, 3.281 baris)
 > - `oms015-order-ltl-lcl-universal.scenarios.json` (309 entri, 9.062 baris, termasuk metadata `summary`/`requirementCoverage`/`screenCoverage` bawaan generator)
+
+> **REVISI 2026-09-19 (ground truth live staging):** dua requirement rute LTL lama (klaim field kota asal/tujuan untuk LTL; klaim independensi field kota tersebut terhadap Drop Point/Pelabuhan) TERBUKTI SALAH — field kota tersebut tidak pernah ada di wizard Buat Order, hanya `Jumlah Armada` disabled terkunci `1`. Kedua ID lama **dihapus total, tidak dipakai ulang**, dan digantikan ID baru **REQ-059** (LTL tanpa field kota) dan **REQ-060** (LCL — independensi Drop Point terhadap Pelabuhan) di `analysis.md`, `.feature`, dan `.scenarios.json`. Skenario terdampak & direvisi: `POS-015, POS-016, POS-017, POS-056, NEG-017, EDG-001, EDG-004, EDG-005, EDG-050, POS-001` (hapus interaksi Kota Asal/Tujuan yang tidak valid, retag ke REQ-059) dan `NEG-016` (hapus 2 baris pesan validasi kota). `NEG-091` dipindah ke konteks LCL/Pelabuhan dan ditag REQ-060 (pasangan negative untuk `POS-018` yang tidak berubah). Judul section wizard Buat Order direvisi dari `Jenis Pengiriman dan Rute` menjadi `Jenis Pengiriman` (REQ-006) pada scenario terkait (`POS-004, POS-012, POS-056, NEG-001, NEG-002, NEG-016, NEG-017, NEG-018, NEG-019, NEG-084, EDG-009, EDG-010`); Step 4 Review (`POS-072`) tetap memakai judul lengkap. Total skenario tetap 309 — tidak ada penambahan/penghapusan ID skenario, hanya revisi isi + retag requirement. Metrik di §1–§3 di bawah **belum di-generate ulang otomatis** setelah revisi ini tapi tervalidasi manual konsisten (lihat `summary.requirementCoverage.perRequirement["REQ-059"/"REQ-060"]` dan `summary.screenCoverage` yang sudah disesuaikan; `totalRequirements` tetap 58 karena 2 ID lama dihapus dan 2 ID baru ditambahkan).
+>
+> **REVISI 2026-09-21 (drift lanjutan, ground truth live staging — coordinator):** premis "`Jumlah Armada` disabled terkunci `1`" pada revisi 2026-09-19 di atas **SUDAH TIDAK BENAR LAGI**. Verifikasi live coordinator hari ini membuktikan field `Jumlah Armada`/`Jenis Armada` **TIDAK DIRENDER SAMA SEKALI** untuk LTL — section rute Step 1 LTL kosong total, tidak berubah menjadi "disabled" melainkan hilang dari DOM. Bukti end-to-end: order `ORD9976193880` (Kota Balikpapan → Kabupaten Sumenep) tersimpan sampai Detail Order tanpa field armada apa pun. **REQ-059/AC-059.2 direvisi** di `analysis.md` untuk mencerminkan ini. Skenario terdampak & direvisi di `.feature`/`.scenarios.json`: `POS-001` (assertion Jumlah Armada diubah dari disabled/value-1 jadi count=0), `POS-015` (judul & assertion diubah jadi "tidak dirender"), `POS-056` (assertion Step 1 setelah Sebelumnya), `POS-009` (assertion "jumlah unit muatan" pada Detail Order batch LTL — dihapus, digantikan andalan pada "1 grup tunggal Data Barang"), `NEG-011` (scenario ditulis ulang total — sebelumnya menguji "tidak dapat diubah", sekarang menguji "tidak dirender"; premis lama `fill` lalu `expect disabled` sudah tidak applicable karena elemen tidak ada untuk di-`fill`), `EDG-001` (assertion awal sebelum ganti ke LCL), `EDG-056` (judul & assertion bagian LTL, bagian LCL tidak berubah). `ASM-004` di-split: bagian LTL sekarang final/tidak ambigu (tidak dirender), bagian LCL tetap ambigu seperti semula (tidak berubah). `ASM-015` diperbarui: LTL tidak punya field untuk diedit sama sekali di Edit Order (bukan lagi "terkunci/1"); LCL tidak berubah. **LCL sama sekali tidak terdampak** oleh revisi ini — `Jumlah Kontainer`, `Pelabuhan Asal/Tujuan` tetap seperti dokumentasi 2026-09-19. Total skenario tetap 309, tidak ada penambahan/penghapusan ID.
 
 ---
 
@@ -38,7 +42,7 @@ Tidak ditemukan gap yang menghalangi rilis (blocking). Catatan yang ada bersifat
 
 Distribusi prioritas (dari metadata JSON, `summary.byPriority`): **high 152**, **medium 107**, **low 50** — proporsi wajar untuk modul dengan banyak rule turunan TMS (medium) dan pembeda inti Step 2 (high).
 
-Catatan struktural: skenario negatif sebenarnya terbagi menjadi dua blok pada `.feature` — **Bagian 2** (NEG-001..090) dan **Bagian 5 — tambahan** (NEG-091..094), yang secara eksplisit dibuat untuk menutup gap "≥1 positive + ≥1 negative" pada REQ-009, REQ-017, REQ-036, dan REQ-057. Ini adalah praktik yang baik dan transparan (dikomentari langsung di file), bukan sebuah cacat.
+Catatan struktural: skenario negatif sebenarnya terbagi menjadi dua blok pada `.feature` — **Bagian 2** (NEG-001..090) dan **Bagian 5 — tambahan** (NEG-091..094), yang secara eksplisit dibuat untuk menutup gap "≥1 positive + ≥1 negative" pada REQ-060, REQ-017, REQ-036, dan REQ-057. Ini adalah praktik yang baik dan transparan (dikomentari langsung di file), bukan sebuah cacat.
 
 ---
 
@@ -55,8 +59,6 @@ Kolom Positive/Negative/Edge/Stress diambil dari tag `@REQ-xxx` pada `.feature` 
 | REQ-005 | Step 4 Review — struktur Data Barang versi OMS | POS-011 | NEG-006 | — | — | UI-100 |
 | REQ-006 | Step 1 identik TMS (3 section) | POS-012 | NEG-007 | — | — | UI-097 |
 | REQ-007 | LCL — Pelabuhan Asal/Tujuan; Jumlah Kontainer dihilangkan | POS-013,014 | NEG-008,009 | EDG-006 | — | UI-102 |
-| REQ-008 | LTL — Kota Asal/Tujuan dari Master Kota | POS-015 | NEG-010,011 | — | — | UI-097 |
-| REQ-009 | Kota/Pelabuhan tidak memfilter Drop Point | POS-016,017,018 | NEG-091 | EDG-004,005 | — | UI-097,102 |
 | REQ-010 | Tipe Pengiriman selalu Normal — 1 baris pengirim/penerima | POS-019,020 | NEG-012,013,014 | — | — | UI-097,102,100 |
 | REQ-011 | Auto-draft wilayah/alamat dari Master Droppoint | POS-021,022,023 | NEG-015 | EDG-013 | STR-005 | UI-097,102 |
 | REQ-012 | Validasi field wajib Step 1 + button Batal/Draf/Selanjutnya | POS-024,025,026 | NEG-016,017,018,019 | EDG-007…012,014 | STR-003,004,006 | UI-097 |
@@ -106,6 +108,8 @@ Kolom Positive/Negative/Edge/Stress diambil dari tag `@REQ-xxx` pada `.feature` 
 | REQ-056 | Pop up Data No. Resi (No. Resi + Kode SKU + Nama Barang) | POS-112 | NEG-089 | EDG-068,069 | STR-026 | UI-104,105 |
 | REQ-057 | Icon copy No. Resi | POS-113 | NEG-094 | EDG-070 | STR-027 | UI-104 |
 | REQ-058 | No. Resi juga tampil di Detail Order | POS-114 | NEG-090 | — | — | UI-101 |
+| REQ-059 | **[BARU 2026-09-19, direvisi 2026-09-21]** LTL — TIDAK ada Kota Asal/Tujuan; TIDAK ada Jumlah/Jenis Armada sama sekali (section rute kosong total) | POS-015,016,017 | NEG-010,011 | EDG-001,004,005 | — | UI-097 |
+| REQ-060 | **[BARU 2026-09-19, menggantikan ID lama yang dihapus]** LCL — Pelabuhan tidak dibatasi Drop Point (independensi Drop Point↔Pelabuhan; bagian lama soal kota LTL tidak berlaku lagi, field-nya tidak ada) | POS-018 | NEG-091 | — | — | UI-102 |
 
 **Cakupan layar (UI-096…105, UI-D01…D08):** seluruh 18 layar tersentuh ≥1 skenario (divalidasi terhadap `scenarios.json → summary.screenCoverage`, tidak ada entri kosong). Layar dengan cakupan paling tipis: **UI-105** (hanya POS-109) dan **UI-D02** (POS-026, POS-095, NEG-056) — lihat rekomendasi §7.
 
@@ -149,7 +153,7 @@ Tidak ada gap yang memerlukan skenario tambahan segera (lihat §7 untuk rekomend
 - Setiap `Scenario` memiliki minimal satu `Given` diikuti `When`/`Then` yang valid; tidak ditemukan scenario kosong (tanpa langkah) atau scenario yang langsung mulai dengan `And` tanpa `Given` sebelumnya.
 - Penomoran ID (`OMS015-<POS|NEG|EDG|STR>-NNN`) berurutan tanpa lompatan maupun ID ganda pada seluruh 4 kategori (diverifikasi lewat pembacaan penuh + cocok dengan `summary.idRanges` pada JSON).
 - Komentar section (`# -------- Rx. ... --------`) konsisten mengikuti struktur R1–R10 pada `analysis.md`.
-- Kepatuhan terhadap catatan wajib generator (blok komentar di kepala file) — ASM-001/007/033 (elemen FTL-only tidak pernah jadi ekspektasi positif), ASM-004 (assert "tidak dapat diubah" bukan "tidak ada" untuk Jumlah Armada/Kontainer — lihat POS-014/015, NEG-009/011), ASM-013 (matcher status toleran — EDG-048), ASM-017/018 (label "Lihat No. Resi" & ketersediaan sejak Menunggu Penugasan — POS-102/110/111), ASM-038 (klik Selanjutnya dulu sebelum assert error inline — NEG-026/029/040) — **seluruhnya dipatuhi** pada sampel yang diperiksa, tidak ditemukan pelanggaran (mis. tidak ada skenario yang meng-assert `Total Kubikasi: x/y m³` sebagai ekspektasi positif untuk LTL/LCL).
+- Kepatuhan terhadap catatan wajib generator (blok komentar di kepala file) — ASM-001/007/033 (elemen FTL-only tidak pernah jadi ekspektasi positif), **ASM-004 [DIPERBARUI 2026-09-21]** — untuk **LCL** tetap assert "tidak dapat diubah" bukan "tidak ada" untuk `Jumlah Kontainer` (lihat POS-014, NEG-009); untuk **LTL**, kebalikannya — sejak 2026-09-21 wajib assert "tidak dirender" (`count=0`), BUKAN lagi "tidak dapat diubah", untuk `Jumlah Armada` (lihat POS-015, NEG-011 yang sudah direvisi), ASM-013 (matcher status toleran — EDG-048), ASM-017/018 (label "Lihat No. Resi" & ketersediaan sejak Menunggu Penugasan — POS-102/110/111), ASM-038 (klik Selanjutnya dulu sebelum assert error inline — NEG-026/029/040) — **seluruhnya dipatuhi** pada sampel yang diperiksa setelah revisi, tidak ditemukan pelanggaran (mis. tidak ada skenario yang meng-assert `Total Kubikasi: x/y m³` sebagai ekspektasi positif untuk LTL/LCL, dan tidak ada lagi skenario LTL yang meng-assert `Jumlah Armada` sebagai `disabled`/`value=1`).
 
 **Kesimpulan validasi Gherkin: PASS, tanpa temuan blocking.**
 
